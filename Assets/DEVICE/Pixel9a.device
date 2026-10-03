@@ -1,0 +1,14 @@
+{
+    "friendlyName": "Google Pixel 9a",
+    "version": 1,
+    "screens": [
+        {
+            "width": 1080,
+            "height": 2424,
+            "dpi": 422.0
+        }
+    ],
+    "systemInfo": {
+        "operatingSystem": "Android"
+    }
+}

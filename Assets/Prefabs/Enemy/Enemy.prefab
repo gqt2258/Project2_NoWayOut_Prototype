@@ -157,7 +157,7 @@ NavMeshAgent:
   m_Enabled: 1
   m_AgentTypeID: 0
   m_Radius: 0.5
-  m_Speed: 1
+  m_Speed: 2
   m_Acceleration: 8
   avoidancePriority: 50
   m_AngularSpeed: 120
@@ -183,6 +183,9 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::EnemyMovement
   agent: {fileID: 330938996585130624}
   player: {fileID: 0}
+  repathIntervalSeconds: 0.25
+  minimumTargetMovement: 0.5
+  mazeShiftController: {fileID: 0}
 --- !u!114 &3929210750593020902
 MonoBehaviour:
   m_ObjectHideFlags: 0

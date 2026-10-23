@@ -16,20 +16,6 @@ public class PlayerMovement : MonoBehaviour
         if (rb == null)
             rb = GetComponent<Rigidbody2D>();
 
-        if (rb == null)
-        {
-            Debug.LogError("Player Rigidbody2D is missing.", this);
-            enabled = false;
-            return;
-        }
-
-        if (stats == null)
-        {
-            Debug.LogError("Player Stats asset is not assigned.", this);
-            enabled = false;
-            return;
-        }
-
         currentStamina = stats.maxStamina;
     }
 

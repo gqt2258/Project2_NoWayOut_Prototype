@@ -44,28 +44,14 @@ public class PlayerMovement : MonoBehaviour
     private void OnEnable()
     {
         playerInput = GetComponent<PlayerInput>();
-        if (playerInput == null || playerInput.actions == null)
-        {
-            Debug.LogError("PlayerMovement needs a PlayerInput component with an assigned Input Actions asset.", this);
-            return;
-        }
 
         playerActionMap = playerInput.actions.FindActionMap("Player", false);
-        if (playerActionMap == null)
-        {
-            Debug.LogError("The PlayerInput actions asset does not contain an action map named 'Player'.", this);
-            return;
-        }
 
         moveAction = playerActionMap.FindAction("Move", false);
         sprintAction = playerActionMap.FindAction("Sprint", false);
-        if (moveAction == null)
-            Debug.LogError("The Player action map does not contain a 'Move' action.", this);
-        else
-        {
-            moveAction.performed += Move;
-            moveAction.canceled += Move;
-        }
+
+        moveAction.performed += Move;
+        moveAction.canceled += Move;
 
         if (sprintAction != null)
         {

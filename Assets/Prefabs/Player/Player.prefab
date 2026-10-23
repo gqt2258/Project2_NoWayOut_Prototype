@@ -164,6 +164,7 @@ GameObject:
   - component: {fileID: 1229795897958553082}
   - component: {fileID: 1615184536151342988}
   - component: {fileID: 3850297420354891976}
+  - component: {fileID: 4795943512548788177}
   m_Layer: 0
   m_Name: Player
   m_TagString: Shifting
@@ -417,15 +418,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 7b17bf5a61ef0d64da9529357a06bb60, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::PlayerMovement
-  moveSpeed: 3
-  sprintSpeed: 10
-  sprintStamina: 100
-  staminaDrainPerSecond: 10
-  staminaRecoveryPerSecond: 15
-  staminaRecoveryDelay: 0.75
+  stats: {fileID: 11400000, guid: 4ee0597f6cae12747b8fe1c4c06abdde, type: 2}
   rb: {fileID: 3060212039432289699}
-  moveInput: {x: 0, y: 0}
-  isSprinting: 0
 --- !u!58 &3850297420354891976
 CircleCollider2D:
   m_ObjectHideFlags: 0
@@ -462,6 +456,18 @@ CircleCollider2D:
   m_CompositeOrder: 0
   m_Offset: {x: 0, y: 0}
   m_Radius: 0.5
+--- !u!114 &4795943512548788177
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4194702628479064298}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 7f0b6189edbbd7d4eb65e611d608d3df, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::PlayerJobScript
 --- !u!1 &6285776376402115464
 GameObject:
   m_ObjectHideFlags: 0

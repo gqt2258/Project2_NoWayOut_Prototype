@@ -1,0 +1,91 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a4100000000000000000000000000002, type: 3}
+  m_Name: Job Catalog
+  m_EditorClassIdentifier: 
+  stories:
+  - location: 0
+    title: Investigate Ward Disappearances
+    story: Patients keep vanishing at night.
+  - location: 0
+    title: Cleanse Room 13
+    story: A nurse swears the bed is never empty.
+  - location: 0
+    title: Recover Night Shift Evidence
+    story: The night staff never came home.
+  - location: 0
+    title: Secure Operating Theater
+    story: The surgery never finished.
+  - location: 0
+    title: Clear Waiting Room Disturbance
+    story: No one ever leaves through the front door.
+  - location: 1
+    title: Silence Cell Block Echoes
+    story: Crying comes from the empty cells.
+  - location: 1
+    title: Secure Abandoned Facility
+    story: The guards fled and left the doors open.
+  - location: 1
+    title: Extract Solitary Wing Evidence
+    story: Something is still serving time.
+  - location: 1
+    title: Investigate Yard Anomaly
+    story: They say the count is always off by one.
+  - location: 1
+    title: Retrieve Warden's Records
+    story: His last order is still on the desk.
+  - location: 2
+    title: Appraise Haunted Estate
+    story: Every portrait seems to stare.
+  - location: 2
+    title: Retrieve East Wing Documents
+    story: The family never left the east wing.
+  - location: 2
+    title: Investigate Dining Hall Activity
+    story: The table is set every night.
+  - location: 2
+    title: Cleanse Grand Ballroom
+    story: The music starts at midnight, but no one plays.
+  - location: 2
+    title: Search Servant Quarters
+    story: They're still waiting for their wages.
+  itemPools:
+  - location: 0
+    itemIds:
+    - H01
+    - H02
+    - H03
+    - H04
+    - H05
+    - H06
+    - H07
+    - H08
+  - location: 1
+    itemIds:
+    - P01
+    - P02
+    - P03
+    - P04
+    - P05
+    - P06
+    - P07
+    - P08
+  - location: 2
+    itemIds:
+    - M01
+    - M02
+    - M03
+    - M04
+    - M05
+    - M06
+    - M07
+    - M08

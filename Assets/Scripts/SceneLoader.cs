@@ -1,11 +1,10 @@
-using Unity.Properties;
 using UnityEngine;
-using UnityEngine.SceneManagement;
 
 public class SceneLoader : MonoBehaviour
 {
 
     public GameObject lobbyBoard, jobBoard, mainMenuCanvas;
+    [SerializeField] private JobBoardController jobBoardController;
 
     private void Start()
     {
@@ -30,7 +29,14 @@ public class SceneLoader : MonoBehaviour
 
     public void LoadJobBoard()
     {
+        lobbyBoard.SetActive(false);
         jobBoard.SetActive(true);
         mainMenuCanvas.SetActive(false);
+        jobBoardController.ShowNewBoard();
+    }
+
+    public void AcceptJob()
+    {
+        jobBoardController.AcceptSelectedJob();
     }
 }

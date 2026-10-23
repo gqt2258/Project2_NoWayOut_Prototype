@@ -3,58 +3,53 @@ using UnityEngine.InputSystem;
 
 public class PlayerMovement : MonoBehaviour
 {
-    public float moveSpeed = 5f;
-    private float originalMoveSpeed;
+    [SerializeField] private PlayerStat stats;
+    [SerializeField] private Rigidbody2D rb;
 
-    public float sprintSpeed = 10f;
-    public float sprintStamina = 100f;
-    private float maxStamina;
-
-    public float staminaDrainPerSecond = 25f;
-    public float staminaRecoveryPerSecond = 15f;
-    public float staminaRecoveryDelay = 0.75f;
+    private float currentStamina;
     private float lastSprintTime = float.NegativeInfinity;
+    private Vector2 moveInput;
+    private bool isSprinting;
 
-    public Rigidbody2D rb;
-    public Vector2 moveInput;
-
-    public bool isSprinting = false;
-
-    private void Start()
+    private void Awake()
     {
-
-        originalMoveSpeed = moveSpeed;
-        maxStamina = sprintStamina;
-
         if (rb == null)
             rb = GetComponent<Rigidbody2D>();
+
+        if (rb == null)
+        {
+            Debug.LogError("Player Rigidbody2D is missing.", this);
+            enabled = false;
+            return;
+        }
+
+        if (stats == null)
+        {
+            Debug.LogError("Player Stats asset is not assigned.", this);
+            enabled = false;
+            return;
+        }
+
+        currentStamina = stats.maxStamina;
     }
 
-    void Update()
+    private void Update()
     {
-
-        if(isSprinting == true)
+        if (isSprinting)
         {
-            moveSpeed = sprintSpeed;
-
-            sprintStamina = Mathf.Max(0f, sprintStamina - staminaDrainPerSecond * Time.deltaTime);
-
-            if (sprintStamina <= 0f)
+            currentStamina = Mathf.Max(0f, currentStamina - stats.staminaDrainPerSecond * Time.deltaTime);
+            if (currentStamina <= 0f)
             {
                 isSprinting = false;
+                lastSprintTime = Time.time;
             }
         }
-        else if (Time.time - lastSprintTime >= staminaRecoveryDelay)
+        else if (Time.time - lastSprintTime >= stats.staminaRecoveryDelay)
         {
-            sprintStamina = Mathf.Min(maxStamina, sprintStamina + staminaRecoveryPerSecond * Time.deltaTime);
-        }
-        
-        if(isSprinting == false)
-        {
-            moveSpeed = originalMoveSpeed;
+            currentStamina = Mathf.Min(stats.maxStamina, currentStamina + stats.staminaRecoveryPerSecond * Time.deltaTime);
         }
 
-            rb.linearVelocity = moveInput * moveSpeed;
+        rb.linearVelocity = moveInput * (isSprinting ? stats.sprintSpeed : stats.moveSpeed);
     }
 
     public void Move(InputAction.CallbackContext context)
@@ -64,8 +59,13 @@ public class PlayerMovement : MonoBehaviour
 
     public void Sprint(InputAction.CallbackContext context)
     {
-        isSprinting = context.ReadValueAsButton();
+        bool sprintPressed = context.ReadValueAsButton();
+        if (sprintPressed && currentStamina > 0f)
+            isSprinting = true;
+        else if (!sprintPressed)
+        {
+            isSprinting = false;
+            lastSprintTime = Time.time;
+        }
     }
-
-
 }

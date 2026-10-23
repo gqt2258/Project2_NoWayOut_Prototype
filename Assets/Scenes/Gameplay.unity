@@ -15417,34 +15417,6 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 0}
     m_Modifications:
-    - target: {fileID: 1229795897958553082, guid: 95db552fa8af00e4785beae5b129470f, type: 3}
-      propertyPath: m_ActionEvents.Array.data[0].m_PersistentCalls.m_Calls.Array.data[0].m_Target
-      value: 
-      objectReference: {fileID: 5682919376721203040}
-    - target: {fileID: 1229795897958553082, guid: 95db552fa8af00e4785beae5b129470f, type: 3}
-      propertyPath: m_ActionEvents.Array.data[0].m_PersistentCalls.m_Calls.Array.data[0].m_MethodName
-      value: Move
-      objectReference: {fileID: 0}
-    - target: {fileID: 1615184536151342988, guid: 95db552fa8af00e4785beae5b129470f, type: 3}
-      propertyPath: moveSpeed
-      value: 3
-      objectReference: {fileID: 0}
-    - target: {fileID: 1615184536151342988, guid: 95db552fa8af00e4785beae5b129470f, type: 3}
-      propertyPath: sprintSpeedIncrease
-      value: 6
-      objectReference: {fileID: 0}
-    - target: {fileID: 3118474372060046622, guid: 95db552fa8af00e4785beae5b129470f, type: 3}
-      propertyPath: m_SizeDelta.x
-      value: 100
-      objectReference: {fileID: 0}
-    - target: {fileID: 3118474372060046622, guid: 95db552fa8af00e4785beae5b129470f, type: 3}
-      propertyPath: m_SizeDelta.y
-      value: 14.38
-      objectReference: {fileID: 0}
-    - target: {fileID: 3118474372060046622, guid: 95db552fa8af00e4785beae5b129470f, type: 3}
-      propertyPath: m_AnchoredPosition.y
-      value: 0
-      objectReference: {fileID: 0}
     - target: {fileID: 4165174397736880855, guid: 95db552fa8af00e4785beae5b129470f, type: 3}
       propertyPath: m_AnchorMax.x
       value: 0
@@ -15456,18 +15428,6 @@ PrefabInstance:
     - target: {fileID: 4194702628479064298, guid: 95db552fa8af00e4785beae5b129470f, type: 3}
       propertyPath: m_Name
       value: Player
-      objectReference: {fileID: 0}
-    - target: {fileID: 5223679414052597628, guid: 95db552fa8af00e4785beae5b129470f, type: 3}
-      propertyPath: m_Value
-      value: 2
-      objectReference: {fileID: 0}
-    - target: {fileID: 5223679414052597628, guid: 95db552fa8af00e4785beae5b129470f, type: 3}
-      propertyPath: m_MaxValue
-      value: 2
-      objectReference: {fileID: 0}
-    - target: {fileID: 5223679414052597628, guid: 95db552fa8af00e4785beae5b129470f, type: 3}
-      propertyPath: m_WholeNumbers
-      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 5535373844869250013, guid: 95db552fa8af00e4785beae5b129470f, type: 3}
       propertyPath: m_LocalPosition.x
@@ -15509,34 +15469,11 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
-    - target: {fileID: 7699276533868856126, guid: 95db552fa8af00e4785beae5b129470f, type: 3}
-      propertyPath: m_AnchoredPosition.x
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 7699276533868856126, guid: 95db552fa8af00e4785beae5b129470f, type: 3}
-      propertyPath: m_AnchoredPosition.y
-      value: 0.8
-      objectReference: {fileID: 0}
-    - target: {fileID: 8502591444926283865, guid: 95db552fa8af00e4785beae5b129470f, type: 3}
-      propertyPath: m_SortingOrder
-      value: 2
-      objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
     m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 95db552fa8af00e4785beae5b129470f, type: 3}
---- !u!114 &5682919376721203040 stripped
-MonoBehaviour:
-  m_CorrespondingSourceObject: {fileID: 1615184536151342988, guid: 95db552fa8af00e4785beae5b129470f, type: 3}
-  m_PrefabInstance: {fileID: 5682919376721203039}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 7b17bf5a61ef0d64da9529357a06bb60, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::PlayerMovement
 --- !u!1001 &6211184006338758849
 PrefabInstance:
   m_ObjectHideFlags: 0

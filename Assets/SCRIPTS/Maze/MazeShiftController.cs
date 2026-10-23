@@ -2,6 +2,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using NavMeshPlus.Components;
+using TMPro;
 using UnityEngine;
 
 namespace NoWayOut.Maze
@@ -29,6 +30,11 @@ namespace NoWayOut.Maze
         [SerializeField, Min(0f)] private float automaticShiftIntervalSeconds;
         [SerializeField] private bool updateNavMeshAfterShift = true;
 
+        [Header("Shift warning")]
+        [SerializeField] private TMP_Text shiftWarningText;
+        [SerializeField, Min(0f)] private float warningLeadSeconds = 2f;
+        [SerializeField] private string warningMessage = "The maze is shifting!";
+
         private MazeCell[] maze;
         private GameObject[,] horizontalWalls;
         private GameObject[,] verticalWalls;
@@ -36,6 +42,7 @@ namespace NoWayOut.Maze
         private bool navMeshUpdateRunning;
         private bool navMeshNeedsRebuild;
         private bool initialized;
+        private bool warningRoutineRunning;
 
         public event Action MazeChanged;
 
@@ -56,6 +63,15 @@ namespace NoWayOut.Maze
 
             if (navMeshSurface == null)
                 navMeshSurface = FindAnyObjectByType<NavMeshSurface>();
+
+            if (shiftWarningText == null)
+            {
+                GameObject warningObject = GameObject.Find("Wall Shifting Warning Text");
+                if (warningObject != null)
+                    shiftWarningText = warningObject.GetComponent<TMP_Text>();
+            }
+
+            HideShiftWarning();
 
             initialized = BuildMazeFromScene();
         }
@@ -236,12 +252,45 @@ namespace NoWayOut.Maze
         /// <summary>UnityEvent entry point; performs a three-rewire batch.</summary>
         public void ShiftRandomUnlockedCell()
         {
-            TryShiftThreeRandomUnlockedCells();
+            RequestThreeCellShift();
         }
 
         public void ShiftThreeRandomCells()
         {
+            RequestThreeCellShift();
+        }
+
+        /// <summary>UnityEvent or gameplay entry point for a warned three-cell shift.</summary>
+        public void RequestThreeCellShift()
+        {
+            if (!initialized || navMeshUpdateRunning || warningRoutineRunning)
+                return;
+
+            StartCoroutine(ShowWarningThenShift());
+        }
+
+        private IEnumerator ShowWarningThenShift()
+        {
+            warningRoutineRunning = true;
+            if (shiftWarningText != null)
+            {
+                shiftWarningText.text = warningMessage;
+                shiftWarningText.gameObject.SetActive(true);
+            }
+
+            if (warningLeadSeconds > 0f)
+                yield return new WaitForSeconds(warningLeadSeconds);
+
+            // The batch applies all wall changes together and queues one NavMesh update.
             TryShiftThreeRandomUnlockedCells();
+            HideShiftWarning();
+            warningRoutineRunning = false;
+        }
+
+        private void HideShiftWarning()
+        {
+            if (shiftWarningText != null)
+                shiftWarningText.gameObject.SetActive(false);
         }
 
         private IEnumerator AutomaticShiftLoop()
@@ -250,7 +299,7 @@ namespace NoWayOut.Maze
             while (true)
             {
                 yield return wait;
-                TryShiftThreeRandomUnlockedCells();
+                RequestThreeCellShift();
             }
         }
 

@@ -15417,6 +15417,14 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 0}
     m_Modifications:
+    - target: {fileID: 1229795897958553082, guid: 95db552fa8af00e4785beae5b129470f, type: 3}
+      propertyPath: m_ActionEvents.Array.data[0].m_PersistentCalls.m_Calls.Array.data[0].m_Target
+      value: 
+      objectReference: {fileID: 5682919376721203040}
+    - target: {fileID: 1229795897958553082, guid: 95db552fa8af00e4785beae5b129470f, type: 3}
+      propertyPath: m_ActionEvents.Array.data[0].m_PersistentCalls.m_Calls.Array.data[0].m_MethodName
+      value: Move
+      objectReference: {fileID: 0}
     - target: {fileID: 1615184536151342988, guid: 95db552fa8af00e4785beae5b129470f, type: 3}
       propertyPath: moveSpeed
       value: 3
@@ -15463,11 +15471,11 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 5535373844869250013, guid: 95db552fa8af00e4785beae5b129470f, type: 3}
       propertyPath: m_LocalPosition.x
-      value: 1.6
+      value: -16.46
       objectReference: {fileID: 0}
     - target: {fileID: 5535373844869250013, guid: 95db552fa8af00e4785beae5b129470f, type: 3}
       propertyPath: m_LocalPosition.y
-      value: -9.16
+      value: -8.37
       objectReference: {fileID: 0}
     - target: {fileID: 5535373844869250013, guid: 95db552fa8af00e4785beae5b129470f, type: 3}
       propertyPath: m_LocalPosition.z
@@ -15509,11 +15517,26 @@ PrefabInstance:
       propertyPath: m_AnchoredPosition.y
       value: 0.8
       objectReference: {fileID: 0}
+    - target: {fileID: 8502591444926283865, guid: 95db552fa8af00e4785beae5b129470f, type: 3}
+      propertyPath: m_SortingOrder
+      value: 2
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
     m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 95db552fa8af00e4785beae5b129470f, type: 3}
+--- !u!114 &5682919376721203040 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 1615184536151342988, guid: 95db552fa8af00e4785beae5b129470f, type: 3}
+  m_PrefabInstance: {fileID: 5682919376721203039}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 7b17bf5a61ef0d64da9529357a06bb60, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::PlayerMovement
 --- !u!1001 &6211184006338758849
 PrefabInstance:
   m_ObjectHideFlags: 0

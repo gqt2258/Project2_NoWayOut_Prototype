@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: PlayerStat
   m_EditorClassIdentifier: Assembly-CSharp::PlayerStat
   moveSpeed: 3
-  sprintSpeed: 10
+  sprintSpeed: 5
   maxStamina: 100
   staminaDrainPerSecond: 10
   staminaRecoveryPerSecond: 15

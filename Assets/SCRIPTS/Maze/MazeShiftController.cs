@@ -30,6 +30,10 @@ namespace NoWayOut.Maze
         [SerializeField, Min(0f)] private float automaticShiftIntervalSeconds;
         [SerializeField] private bool updateNavMeshAfterShift = true;
 
+        [Header("Shift batch")]
+        [Tooltip("Each rewire changes two wall segments, so 3 rewires changes 6 walls.")]
+        [SerializeField, Min(1)] private int rewiresPerBatch = 3;
+
         [Header("Shift warning")]
         [SerializeField] private TMP_Text shiftWarningText;
         [SerializeField, Min(0f)] private float warningLeadSeconds = 2f;
@@ -166,16 +170,20 @@ namespace NoWayOut.Maze
         }
 
         /// <summary>
-        /// Performs three independent rewires, then applies all six resulting wall
-        /// changes together and schedules one NavMeshPlus update for the batch.
-        /// If three non-overlapping legal rewires cannot be found, nothing is applied.
+        /// Performs the configured number of independent rewires, applies their wall
+        /// changes together, and schedules one NavMeshPlus update for the batch.
+        /// If the full batch cannot be found, nothing is applied.
         /// </summary>
         public bool TryShiftThreeRandomUnlockedCells()
         {
-            const int batchSize = 3;
+            return TryShiftRandomUnlockedCells(rewiresPerBatch);
+        }
+
+        public bool TryShiftRandomUnlockedCells(int shiftCount)
+        {
             const int expectedWallChangesPerShift = 2;
 
-            if (!initialized || navMeshUpdateRunning)
+            if (!initialized || navMeshUpdateRunning || shiftCount < 1)
                 return false;
 
             RefreshLocksFromPlayer();
@@ -183,7 +191,7 @@ namespace NoWayOut.Maze
             var changedEdges = new HashSet<int>();
             var usedRoots = new HashSet<int>();
 
-            for (int shift = 0; shift < batchSize; shift++)
+            for (int shift = 0; shift < shiftCount; shift++)
             {
                 var candidates = new List<int>(workingMaze.Length);
                 for (int i = 0; i < workingMaze.Length; i++)
@@ -249,19 +257,24 @@ namespace NoWayOut.Maze
             return true;
         }
 
-        /// <summary>UnityEvent entry point; performs a three-rewire batch.</summary>
+        /// <summary>UnityEvent entry point; performs the configured batch.</summary>
         public void ShiftRandomUnlockedCell()
         {
-            RequestThreeCellShift();
+            RequestConfiguredShift();
         }
 
         public void ShiftThreeRandomCells()
         {
-            RequestThreeCellShift();
+            RequestConfiguredShift();
         }
 
-        /// <summary>UnityEvent or gameplay entry point for a warned three-cell shift.</summary>
+        /// <summary>UnityEvent or gameplay entry point for a warned configured batch.</summary>
         public void RequestThreeCellShift()
+        {
+            RequestConfiguredShift();
+        }
+
+        public void RequestConfiguredShift()
         {
             if (!initialized || navMeshUpdateRunning || warningRoutineRunning)
                 return;
@@ -282,7 +295,7 @@ namespace NoWayOut.Maze
                 yield return new WaitForSeconds(warningLeadSeconds);
 
             // The batch applies all wall changes together and queues one NavMesh update.
-            TryShiftThreeRandomUnlockedCells();
+            TryShiftRandomUnlockedCells(rewiresPerBatch);
             HideShiftWarning();
             warningRoutineRunning = false;
         }
@@ -299,7 +312,7 @@ namespace NoWayOut.Maze
             while (true)
             {
                 yield return wait;
-                RequestThreeCellShift();
+                RequestConfiguredShift();
             }
         }
 

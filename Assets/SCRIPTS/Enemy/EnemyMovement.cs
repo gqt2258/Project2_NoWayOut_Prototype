@@ -48,6 +48,13 @@ public class EnemyMovement : MonoBehaviour
             RefreshPath();
     }
 
+    private void OnCollisionEnter2D(Collision2D collision)
+    {
+        PlayerHealth playerHealth = collision.gameObject.GetComponentInParent<PlayerHealth>();
+        if (playerHealth != null)
+            playerHealth.TakeDamage(GetComponent<Collider2D>());
+    }
+
     private void OnDisable()
     {
         if (mazeShiftController != null && subscribedToMaze)

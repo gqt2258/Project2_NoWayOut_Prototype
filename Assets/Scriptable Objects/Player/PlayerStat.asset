@@ -12,9 +12,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: cf81eda0a8680c34091fc024e061cc39, type: 3}
   m_Name: PlayerStat
   m_EditorClassIdentifier: Assembly-CSharp::PlayerStat
+  playerMaxHealth: 3
   moveSpeed: 3
   sprintSpeed: 5
   maxStamina: 100
-  staminaDrainPerSecond: 10
+  staminaDrainPerSecond: 25
   staminaRecoveryPerSecond: 15
   staminaRecoveryDelay: 0.75

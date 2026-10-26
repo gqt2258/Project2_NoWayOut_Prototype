@@ -503,10 +503,9 @@ namespace NoWayOut.Maze
 
         private void BuildInitialTree()
         {
-            // Use a comb-shaped spanning tree: every row is connected horizontally,
-            // and the vertical spine at column 3 joins the six rows. This includes the
-            // one empty wall slot in the current scene, so the graph matches that gap.
-            int spineColumn = Mathf.Clamp(3, 0, columns - 1);
+            // Start at the bottom-left and finish at the top-right: connect every row
+            // horizontally, then join the rows along the rightmost vertical spine.
+            int spineColumn = columns - 1;
             var visited = new bool[maze.Length];
             var queue = new Queue<int>();
             int rootIndex = 0;

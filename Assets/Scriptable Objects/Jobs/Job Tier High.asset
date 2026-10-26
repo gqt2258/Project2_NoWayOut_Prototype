@@ -19,6 +19,6 @@ MonoBehaviour:
   decoyCount: 6
   traitClueCount: 1
   itemClueCount: 1
-  shiftIntervalSeconds: 20
+  shiftIntervalSeconds: 30
   monsterWalkSpeed: 3
   monsterChaseSpeed: 4

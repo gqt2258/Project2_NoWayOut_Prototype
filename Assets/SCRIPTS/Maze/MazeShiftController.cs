@@ -85,6 +85,7 @@ namespace NoWayOut.Maze
             if (!initialized)
                 return;
 
+            ApplyJobTierShiftInterval();
             RefreshLocksFromPlayer();
             ApplyWallStates();
 
@@ -93,6 +94,18 @@ namespace NoWayOut.Maze
 
             if (automaticShiftIntervalSeconds > 0f)
                 StartCoroutine(AutomaticShiftLoop());
+        }
+
+        private void ApplyJobTierShiftInterval()
+        {
+            PlayerJobScript playerJob = player != null ? player.GetComponent<PlayerJobScript>() : null;
+            Jobs selectedJob = playerJob != null ? playerJob.CurrentJob : JobSession.SelectedJob;
+            if (selectedJob == null || selectedJob.TierSettings == null)
+                return;
+
+            float shiftInterval = selectedJob.TierSettings.ShiftIntervalSeconds;
+            if (shiftInterval > 0f)
+                automaticShiftIntervalSeconds = shiftInterval;
         }
 
         /// <summary>Call this from a timer, trigger, puzzle event, or other gameplay code.</summary>

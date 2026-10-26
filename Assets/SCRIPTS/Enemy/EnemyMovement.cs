@@ -10,6 +10,10 @@ public class EnemyMovement : MonoBehaviour
     [SerializeField, Min(0.05f)] private float minimumTargetMovement = 0.5f;
     [SerializeField] private MazeShiftController mazeShiftController;
 
+    [Header("Movement speeds")]
+    [SerializeField, Min(0f)] private float walkSpeed = 1f;
+    [SerializeField, Min(0f)] private float chaseSpeed = 2f;
+
     [Header("Line of sight")]
     [SerializeField, Min(0.02f)] private float visionCheckIntervalSeconds = 0.1f;
     [SerializeField, Min(0f)] private float chaseMemorySeconds = 10f;
@@ -48,6 +52,7 @@ public class EnemyMovement : MonoBehaviour
         SubscribeToMaze();
         if (agent == null)
             agent = GetComponent<NavMeshAgent>();
+        ApplyJobTierSpeeds();
         RefreshPath();
     }
 
@@ -159,6 +164,7 @@ public class EnemyMovement : MonoBehaviour
         if (agent == null || player == null || !agent.isOnNavMesh)
             return;
 
+        agent.speed = chaseSpeed;
         agent.SetDestination(player.position);
         lastRequestedPosition = player.position;
         nextRepathTime = Time.time + repathIntervalSeconds;
@@ -170,6 +176,7 @@ public class EnemyMovement : MonoBehaviour
         if (agent == null || !agent.isOnNavMesh)
             return;
 
+        agent.speed = walkSpeed;
         var filter = new NavMeshQueryFilter
         {
             agentTypeID = agent.agentTypeID,
@@ -186,6 +193,23 @@ public class EnemyMovement : MonoBehaviour
                 return;
             }
         }
+    }
+
+    private void ApplyJobTierSpeeds()
+    {
+        if (player == null)
+            return;
+
+        PlayerJobScript playerJob = player.GetComponent<PlayerJobScript>();
+        JobTierSettings settings = playerJob != null && playerJob.CurrentJob != null
+            ? playerJob.CurrentJob.TierSettings
+            : null;
+
+        if (settings == null)
+            return;
+
+        walkSpeed = settings.MonsterWalkSpeed;
+        chaseSpeed = settings.MonsterChaseSpeed;
     }
 
     private bool CanSeePlayer()

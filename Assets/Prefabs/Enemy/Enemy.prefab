@@ -186,8 +186,10 @@ MonoBehaviour:
   repathIntervalSeconds: 0.25
   minimumTargetMovement: 0.5
   mazeShiftController: {fileID: 0}
+  walkSpeed: 1
+  chaseSpeed: 2
   visionCheckIntervalSeconds: 0.1
-  chaseMemorySeconds: 10
+  chaseMemorySeconds: 5
   lineOfSightLayers:
     serializedVersion: 2
     m_Bits: 51

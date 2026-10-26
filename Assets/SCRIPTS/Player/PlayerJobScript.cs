@@ -63,6 +63,7 @@ public class PlayerJobScript : MonoBehaviour
         SetPanelText("Job Name", CurrentJob != null ? CurrentJob.Title : "No job selected");
         SetPanelText("Job Description", CurrentJob != null ? CurrentJob.Story : "");
         SetPanelText("Job Location", CurrentJob != null ? CurrentJob.Location.ToString() : "");
+        SetPanelText("Job Difficulty", CurrentJob != null ? CurrentJob.Tier.ToString() : "");
         SetPanelText("Job Reward", CurrentJob != null ? $"{CurrentJob.RewardCoins} Coins" : "");
     }
 

@@ -15,11 +15,10 @@ MonoBehaviour:
   tier: 1
   minimumRewardCoins: 250
   maximumRewardCoins: 325
-  mazeGridSize: 23
+  mazeGridSize: 17
   decoyCount: 4
   traitClueCount: 2
   itemClueCount: 1
   shiftIntervalSeconds: 32
-  monsterWalkSpeedPercent: 60
-  monsterChaseSpeedPercent: 70
-  monsterChaseRangeGrids: 3
+  monsterWalkSpeed: 2
+  monsterChaseSpeed: 3

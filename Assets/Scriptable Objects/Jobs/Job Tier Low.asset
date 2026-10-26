@@ -20,6 +20,5 @@ MonoBehaviour:
   traitClueCount: 3
   itemClueCount: 1
   shiftIntervalSeconds: 45
-  monsterWalkSpeedPercent: 50
-  monsterChaseSpeedPercent: 60
-  monsterChaseRangeGrids: 2
+  monsterWalkSpeed: 1
+  monsterChaseSpeed: 2

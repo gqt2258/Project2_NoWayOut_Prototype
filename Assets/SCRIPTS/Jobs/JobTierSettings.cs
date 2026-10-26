@@ -10,10 +10,11 @@ public sealed class JobTierSettings : ScriptableObject
     [SerializeField] private int decoyCount;
     [SerializeField] private int traitClueCount;
     [SerializeField] private int itemClueCount = 1;
-    [SerializeField] private float shiftIntervalSeconds;
-    [SerializeField] private float monsterWalkSpeedPercent;
-    [SerializeField] private float monsterChaseSpeedPercent;
-    [SerializeField] private int monsterChaseRangeGrids;
+    [SerializeField, Min(0f)] private float shiftIntervalSeconds;
+    [Tooltip("NavMeshAgent walk speed in Unity units per second.")]
+    [SerializeField, Min(0f)] private float monsterWalkSpeed;
+    [Tooltip("NavMeshAgent chase speed in Unity units per second.")]
+    [SerializeField, Min(0f)] private float monsterChaseSpeed;
 
     public JobTier Tier => tier;
     public int MinimumRewardCoins => minimumRewardCoins;
@@ -23,7 +24,6 @@ public sealed class JobTierSettings : ScriptableObject
     public int TraitClueCount => traitClueCount;
     public int ItemClueCount => itemClueCount;
     public float ShiftIntervalSeconds => shiftIntervalSeconds;
-    public float MonsterWalkSpeedPercent => monsterWalkSpeedPercent;
-    public float MonsterChaseSpeedPercent => monsterChaseSpeedPercent;
-    public int MonsterChaseRangeGrids => monsterChaseRangeGrids;
+    public float MonsterWalkSpeed => monsterWalkSpeed;
+    public float MonsterChaseSpeed => monsterChaseSpeed;
 }

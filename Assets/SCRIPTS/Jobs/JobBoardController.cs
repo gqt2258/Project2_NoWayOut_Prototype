@@ -14,6 +14,7 @@ public sealed class JobBoardController : MonoBehaviour
     [SerializeField] private GameObject[] jobPanels = new GameObject[3];
     [SerializeField] private TMP_Text[] titleTexts = new TMP_Text[3];
     [SerializeField] private TMP_Text[] locationTexts = new TMP_Text[3];
+    [SerializeField] private TMP_Text[] difficultyTexts = new TMP_Text[3];
     [SerializeField] private TMP_Text[] storyTexts = new TMP_Text[3];
     [SerializeField] private TMP_Text[] rewardTexts = new TMP_Text[3];
     [SerializeField] private Button acceptButton;
@@ -154,6 +155,8 @@ public sealed class JobBoardController : MonoBehaviour
             titleTexts[index].text = job.Title;
         if (locationTexts != null && index < locationTexts.Length && locationTexts[index] != null)
             locationTexts[index].text = job.Location.ToString();
+        if (difficultyTexts != null && index < difficultyTexts.Length && difficultyTexts[index] != null)
+            difficultyTexts[index].text = job.Tier.ToString();
         if (storyTexts != null && index < storyTexts.Length && storyTexts[index] != null)
             storyTexts[index].text = job.Story;
         if (rewardTexts != null && index < rewardTexts.Length && rewardTexts[index] != null)

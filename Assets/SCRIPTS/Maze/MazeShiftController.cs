@@ -36,8 +36,8 @@ namespace NoWayOut.Maze
 
         [Header("Shift warning")]
         [SerializeField] private TMP_Text shiftWarningText;
-        [SerializeField, Min(0f)] private float warningLeadSeconds = 2f;
-        [SerializeField] private string warningMessage = "The maze is shifting!";
+        [SerializeField, Min(0f)] private float warningLeadSeconds = 5f;
+        [SerializeField] private string warningMessage = "WARNING!! Walls shifting in";
 
         private MazeCell[] maze;
         private GameObject[,] horizontalWalls;
@@ -298,17 +298,30 @@ namespace NoWayOut.Maze
         private IEnumerator ShowWarningThenShift()
         {
             warningRoutineRunning = true;
+
             if (shiftWarningText != null)
-            {
-                shiftWarningText.text = warningMessage;
                 shiftWarningText.gameObject.SetActive(true);
+
+            // 1. Warning sound, once, when the countdown starts
+            if (AudioManager.Instance != null)
+                AudioManager.Instance.PlaySFX(AudioManager.Instance.WallWarning);
+
+            // 2. Countdown: 3, 2, 1
+            int secondsLeft = Mathf.CeilToInt(warningLeadSeconds);
+            while (secondsLeft > 0)
+            {
+                if (shiftWarningText != null)
+                    shiftWarningText.text = $"{warningMessage}{secondsLeft}";
+
+                yield return new WaitForSeconds(1f);
+                secondsLeft--;
             }
 
-            if (warningLeadSeconds > 0f)
-                yield return new WaitForSeconds(warningLeadSeconds);
+            // 3. Shift the walls, then play the shift sound only if walls actually changed
+            bool shifted = TryShiftRandomUnlockedCells(rewiresPerBatch);
+            if (shifted && AudioManager.Instance != null)
+                AudioManager.Instance.PlaySFX(AudioManager.Instance.WallShift);
 
-            // The batch applies all wall changes together and queues one NavMesh update.
-            TryShiftRandomUnlockedCells(rewiresPerBatch);
             HideShiftWarning();
             warningRoutineRunning = false;
         }

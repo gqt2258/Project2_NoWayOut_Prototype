@@ -23,6 +23,10 @@ public class EnemyMovement : MonoBehaviour
     [SerializeField, Min(0.1f)] private float loiterRadius = 4f;
     [SerializeField, Min(0.1f)] private float loiterIntervalSeconds = 3f;
 
+    [Header("Animation")]
+    [SerializeField] private Animator animator;
+    [SerializeField] private SpriteRenderer spriteRenderer;
+
     private readonly RaycastHit2D[] sightHits = new RaycastHit2D[16];
     private float nextRepathTime;
     private float nextVisionCheckTime;
@@ -54,6 +58,9 @@ public class EnemyMovement : MonoBehaviour
             agent = GetComponent<NavMeshAgent>();
         ApplyJobTierSpeeds();
         RefreshPath();
+
+        if (animator == null) animator = GetComponentInChildren<Animator>();
+        if (spriteRenderer == null) spriteRenderer = GetComponentInChildren<SpriteRenderer>();
     }
 
     private void Update()
@@ -81,6 +88,13 @@ public class EnemyMovement : MonoBehaviour
                 {
                     isChasing = true;
                     SetChaseDestination();
+
+                    // Seen + scream together, once per chase
+                    if (AudioManager.Instance != null)
+                    {
+                        AudioManager.Instance.PlaySFX(AudioManager.Instance.MonsterSeenBass);
+                        AudioManager.Instance.PlaySFX(AudioManager.Instance.MonsterScream);
+                    }
                 }
             }
             else if (isChasing && Time.time - lastSeenTime >= chaseMemorySeconds)
@@ -103,13 +117,43 @@ public class EnemyMovement : MonoBehaviour
         {
             SetLoiterDestination();
         }
+
+        HandleAnimation();
     }
 
+    private void HandleAnimation()
+    {
+        if (animator == null) return;
+
+        Vector2 velocity = agent.velocity;
+        bool isMoving = velocity.sqrMagnitude > 0.05f;
+        animator.SetBool("IsMoving", isMoving);
+        animator.SetBool("IsChasing", isChasing);
+
+        if (!isMoving) return; // keep the last direction
+
+        if (Mathf.Abs(velocity.x) > Mathf.Abs(velocity.y))
+        {
+            animator.SetFloat("MoveX", Mathf.Sign(velocity.x));
+            animator.SetFloat("MoveY", 0f);
+            spriteRenderer.flipX = velocity.x < 0f;
+        }
+        else
+        {
+            animator.SetFloat("MoveX", 0f);
+            animator.SetFloat("MoveY", Mathf.Sign(velocity.y));
+        }
+    }
     private void OnCollisionEnter2D(Collision2D collision)
     {
         PlayerHealth playerHealth = collision.gameObject.GetComponentInParent<PlayerHealth>();
         if (playerHealth != null)
             playerHealth.TakeDamage(GetComponent<Collider2D>());
+        {
+            if (AudioManager.Instance != null)
+                AudioManager.Instance.PlaySFX(AudioManager.Instance.MonsterSlash);
+        }
+
     }
 
     private void OnDisable()

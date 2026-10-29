@@ -166,6 +166,7 @@ GameObject:
   - component: {fileID: 3850297420354891976}
   - component: {fileID: 4795943512548788177}
   - component: {fileID: 4571418125597109870}
+  - component: {fileID: 5130727741210529201}
   m_Layer: 0
   m_Name: Player
   m_TagString: Shifting
@@ -184,7 +185,7 @@ Transform:
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 1.45923, y: -1.60229, z: 0}
   m_LocalScale: {x: 0.5, y: 0.5, z: 0.5}
-  m_ConstrainProportionsScale: 0
+  m_ConstrainProportionsScale: 1
   m_Children:
   - {fileID: 1137547748458778087}
   - {fileID: 7699276533868856126}
@@ -402,6 +403,10 @@ MonoBehaviour:
       m_Calls: []
     m_ActionId: 9caa3d8a-6b2f-4e8e-8bad-6ede561bd9be
     m_ActionName: UI/TrackedDeviceOrientation
+  - m_PersistentCalls:
+      m_Calls: []
+    m_ActionId: 1752751f-4fc6-4e93-946b-1a2ecbfc0995
+    m_ActionName: 'UI/JobPanel[/Keyboard/tab]'
   m_NeverAutoSwitchControlSchemes: 0
   m_DefaultControlScheme: 
   m_DefaultActionMap: Player
@@ -421,6 +426,11 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::PlayerMovement
   stats: {fileID: 11400000, guid: 4ee0597f6cae12747b8fe1c4c06abdde, type: 2}
   rb: {fileID: 3060212039432289699}
+  animator: {fileID: 5130727741210529201}
+  spriteRenderer: {fileID: 2615963920634018360}
+  sprintAnimationSpeed: 0.5
+  walkAnimationSpeed: 0.7
+  idleAnimationSpeed: 0.6
 --- !u!58 &3850297420354891976
 CircleCollider2D:
   m_ObjectHideFlags: 0
@@ -485,6 +495,29 @@ MonoBehaviour:
   healthBar: {fileID: 1295943237201893440}
   invulnerabilitySeconds: 1
   flashInterval: 0.1
+  spawnPoint: {fileID: 0}
+--- !u!95 &5130727741210529201
+Animator:
+  serializedVersion: 7
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4194702628479064298}
+  m_Enabled: 1
+  m_Avatar: {fileID: 0}
+  m_Controller: {fileID: 9100000, guid: db606fb5213006546ad8da5998bb13c9, type: 2}
+  m_CullingMode: 0
+  m_UpdateMode: 0
+  m_ApplyRootMotion: 0
+  m_LinearVelocityBlending: 0
+  m_StabilizeFeet: 0
+  m_AnimatePhysics: 0
+  m_WarningMessage: 
+  m_HasTransformHierarchy: 1
+  m_AllowConstantClipSamplingOptimization: 1
+  m_KeepAnimatorStateOnDisable: 0
+  m_WriteDefaultValuesOnDisable: 0
 --- !u!1 &6285776376402115464
 GameObject:
   m_ObjectHideFlags: 0

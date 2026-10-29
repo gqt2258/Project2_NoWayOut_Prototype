@@ -14,7 +14,6 @@ GameObject:
   - component: {fileID: 330938996585130624}
   - component: {fileID: 8040281810341704530}
   - component: {fileID: 3929210750593020902}
-  - component: {fileID: 6191975313708519537}
   m_Layer: 0
   m_Name: Enemy
   m_TagString: Untagged
@@ -207,16 +206,3 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 7e39f6090724e4a4a8aadeb042afa2bc, type: 3}
   m_Name: 
   m_EditorClassIdentifier: NavMeshPlus::NavMeshPlus.Extensions.AgentOverride2d
---- !u!114 &6191975313708519537
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 6593366683309541154}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 8c7f4db162bab4443818dd13bed4b1dc, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: NavMeshPlus::NavMeshPlus.Extensions.AgentRotateSmooth2d
-  angularSpeed: 200

@@ -56,6 +56,8 @@ public class EnemyMovement : MonoBehaviour
         SubscribeToMaze();
         if (agent == null)
             agent = GetComponent<NavMeshAgent>();
+        if (agent != null)
+            agent.updateRotation = false;
         ApplyJobTierSpeeds();
         RefreshPath();
 
@@ -129,20 +131,11 @@ public class EnemyMovement : MonoBehaviour
         bool isMoving = velocity.sqrMagnitude > 0.05f;
         animator.SetBool("IsMoving", isMoving);
         animator.SetBool("IsChasing", isChasing);
+        animator.SetFloat("MoveX", 0f);
+        animator.SetFloat("MoveY", 1f);
 
-        if (!isMoving) return; // keep the last direction
-
-        if (Mathf.Abs(velocity.x) > Mathf.Abs(velocity.y))
-        {
-            animator.SetFloat("MoveX", Mathf.Sign(velocity.x));
-            animator.SetFloat("MoveY", 0f);
-            spriteRenderer.flipX = velocity.x < 0f;
-        }
-        else
-        {
-            animator.SetFloat("MoveX", 0f);
-            animator.SetFloat("MoveY", Mathf.Sign(velocity.y));
-        }
+        if (spriteRenderer != null)
+            spriteRenderer.flipX = false;
     }
     private void OnCollisionEnter2D(Collision2D collision)
     {

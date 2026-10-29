@@ -1,0 +1,614 @@
+fileFormatVersion: 2
+guid: d5483b11c26f751409b7c78396ebdce4
+TextureImporter:
+  internalIDToNameTable:
+  - first:
+      213: -7089020347569555549
+    second: hospital monster lose sight front_0
+  - first:
+      213: -5770241190459320026
+    second: hospital monster lose sight front_1
+  - first:
+      213: -5493354531418553779
+    second: hospital monster lose sight front_2
+  - first:
+      213: 9033594298135422515
+    second: hospital monster lose sight front_3
+  - first:
+      213: -8862816825174386129
+    second: hospital monster lose sight front_4
+  - first:
+      213: 4082813621753385251
+    second: hospital monster lose sight front_5
+  - first:
+      213: 375475723625566530
+    second: hospital monster lose sight front_6
+  - first:
+      213: 127057633928906646
+    second: hospital monster lose sight front_7
+  - first:
+      213: -8011041205047899243
+    second: hospital monster lose sight front_8
+  - first:
+      213: 4730877655161528993
+    second: hospital monster lose sight front_9
+  - first:
+      213: -7995389757230673032
+    second: hospital monster lose sight front_10
+  - first:
+      213: 6112411458594815564
+    second: hospital monster lose sight front_11
+  - first:
+      213: 7742908727126390626
+    second: hospital monster lose sight front_12
+  - first:
+      213: 4393458471811451587
+    second: hospital monster lose sight front_13
+  - first:
+      213: -6203095453900073503
+    second: hospital monster lose sight front_14
+  - first:
+      213: -5436858459457012697
+    second: hospital monster lose sight front_15
+  - first:
+      213: -3134117851713817847
+    second: hospital monster lose sight front_16
+  - first:
+      213: -6156441282419884502
+    second: hospital monster lose sight front_17
+  - first:
+      213: 4318984582851225739
+    second: hospital monster lose sight front_18
+  - first:
+      213: 8806975250372531683
+    second: hospital monster lose sight front_19
+  - first:
+      213: 7378547179906175211
+    second: hospital monster lose sight front_20
+  - first:
+      213: 8655502481136015957
+    second: hospital monster lose sight front_21
+  - first:
+      213: 3052671282419442530
+    second: hospital monster lose sight front_22
+  - first:
+      213: 5493137498367076364
+    second: hospital monster lose sight front_23
+  - first:
+      213: -3389870851938655073
+    second: hospital monster lose sight front_24
+  - first:
+      213: 1052273888063782658
+    second: hospital monster lose sight front_25
+  - first:
+      213: 2998341530097392166
+    second: hospital monster lose sight front_26
+  - first:
+      213: 6263179959536013287
+    second: hospital monster lose sight front_27
+  - first:
+      213: -4505022700938260874
+    second: hospital monster lose sight front_28
+  - first:
+      213: -5885854518744489965
+    second: hospital monster lose sight front_29
+  - first:
+      213: 4577831137474215391
+    second: hospital monster lose sight front_30
+  - first:
+      213: -8129463755963783414
+    second: hospital monster lose sight front_31
+  - first:
+      213: -1727103642813824051
+    second: hospital monster lose sight front_32
+  - first:
+      213: 1314887981570903187
+    second: hospital monster lose sight front_33
+  - first:
+      213: -6412929593906980997
+    second: hospital monster lose sight front_34
+  - first:
+      213: -2957839007786191359
+    second: hospital monster lose sight front_35
+  - first:
+      213: -1683626500112560255
+    second: hospital monster lose sight front_36
+  - first:
+      213: -6296559117947941826
+    second: hospital monster lose sight front_37
+  - first:
+      213: -6756511498021691353
+    second: hospital monster lose sight front_38
+  - first:
+      213: 4511155447362644011
+    second: hospital monster lose sight front_39
+  - first:
+      213: -9182014776750503373
+    second: hospital monster lose sight front_40
+  - first:
+      213: 7631057436530813631
+    second: hospital monster lose sight front_41
+  - first:
+      213: -3200324834086901462
+    second: hospital monster lose sight front_42
+  - first:
+      213: 2969616554921576203
+    second: hospital monster lose sight front_43
+  - first:
+      213: 903734333007806962
+    second: hospital monster lose sight front_44
+  - first:
+      213: 6184452324792972394
+    second: hospital monster lose sight front_45
+  - first:
+      213: 6948590234213050196
+    second: hospital monster lose sight front_46
+  - first:
+      213: -8920197993418941919
+    second: hospital monster lose sight front_47
+  - first:
+      213: 4175663299527319941
+    second: hospital monster lose sight front_48
+  - first:
+      213: 469109778212359799
+    second: hospital monster lose sight front_49
+  - first:
+      213: 6797150908889097836
+    second: hospital monster lose sight front_50
+  - first:
+      213: -1586370844470018689
+    second: hospital monster lose sight front_51
+  - first:
+      213: -4984754678336809032
+    second: hospital monster lose sight front_52
+  - first:
+      213: -3515163925648965874
+    second: hospital monster lose sight front_53
+  - first:
+      213: 615167557784396775
+    second: hospital monster lose sight front_54
+  externalObjects: {}
+  serializedVersion: 13
+  mipmaps:
+    mipMapMode: 0
+    enableMipMap: 0
+    sRGBTexture: 1
+    linearTexture: 0
+    fadeOut: 0
+    borderMipMap: 0
+    mipMapsPreserveCoverage: 0
+    alphaTestReferenceValue: 0.5
+    mipMapFadeDistanceStart: 1
+    mipMapFadeDistanceEnd: 3
+  bumpmap:
+    convertToNormalMap: 0
+    externalNormalMap: 0
+    heightScale: 0.25
+    normalMapFilter: 0
+    flipGreenChannel: 0
+  isReadable: 0
+  streamingMipmaps: 0
+  streamingMipmapsPriority: 0
+  vTOnly: 0
+  ignoreMipmapLimit: 0
+  grayScaleToAlpha: 0
+  generateCubemap: 6
+  cubemapConvolution: 0
+  seamlessCubemap: 0
+  textureFormat: 1
+  maxTextureSize: 2048
+  textureSettings:
+    serializedVersion: 2
+    filterMode: 1
+    aniso: 1
+    mipBias: 0
+    wrapU: 1
+    wrapV: 1
+    wrapW: 1
+  nPOTScale: 0
+  lightmap: 0
+  compressionQuality: 50
+  spriteMode: 2
+  spriteExtrude: 1
+  spriteMeshType: 1
+  alignment: 0
+  spritePivot: {x: 0.5, y: 0.5}
+  spritePixelsToUnits: 24
+  spriteBorder: {x: 0, y: 0, z: 0, w: 0}
+  spriteGenerateFallbackPhysicsShape: 1
+  alphaUsage: 1
+  alphaIsTransparency: 1
+  spriteTessellationMethod: 0
+  spriteTessellationDetail: -1
+  spriteGeometrySubdivision: -1
+  textureType: 8
+  textureShape: 1
+  singleChannelComponent: 0
+  flipbookRows: 1
+  flipbookColumns: 1
+  maxTextureSizeSet: 0
+  compressionQualitySet: 0
+  textureFormatSet: 0
+  ignorePngGamma: 0
+  applyGammaDecoding: 0
+  swizzle: 50462976
+  cookieLightType: 0
+  platformSettings:
+  - serializedVersion: 4
+    buildTarget: DefaultTexturePlatform
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  - serializedVersion: 4
+    buildTarget: Standalone
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  - serializedVersion: 4
+    buildTarget: Android
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  - serializedVersion: 4
+    buildTarget: VisionOS
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  - serializedVersion: 4
+    buildTarget: tvOS
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  - serializedVersion: 4
+    buildTarget: iOS
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  spriteSheet:
+    serializedVersion: 2
+    sprites:
+    - serializedVersion: 2
+      name: hospital monster lose sight front_0
+      rect:
+        serializedVersion: 2
+        x: 0
+        y: 0
+        width: 48
+        height: 60
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 3a7b9999d8dbe9d90800000000000000
+      internalID: -7089020347569555549
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: hospital monster lose sight front_1
+      rect:
+        serializedVersion: 2
+        x: 48
+        y: 0
+        width: 48
+        height: 60
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 6295856953cfbefa0800000000000000
+      internalID: -5770241190459320026
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: hospital monster lose sight front_2
+      rect:
+        serializedVersion: 2
+        x: 96
+        y: 0
+        width: 48
+        height: 60
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: d42c381a82fa3c3b0800000000000000
+      internalID: -5493354531418553779
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: hospital monster lose sight front_3
+      rect:
+        serializedVersion: 2
+        x: 144
+        y: 0
+        width: 48
+        height: 60
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 3362b51f626cd5d70800000000000000
+      internalID: 9033594298135422515
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: hospital monster lose sight front_4
+      rect:
+        serializedVersion: 2
+        x: 192
+        y: 0
+        width: 48
+        height: 60
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: f2a10220e03f00580800000000000000
+      internalID: -8862816825174386129
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: hospital monster lose sight front_5
+      rect:
+        serializedVersion: 2
+        x: 240
+        y: 0
+        width: 48
+        height: 60
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 3219cb87b5119a830800000000000000
+      internalID: 4082813621753385251
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: hospital monster lose sight front_6
+      rect:
+        serializedVersion: 2
+        x: 288
+        y: 0
+        width: 48
+        height: 60
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 2411c786e25f53500800000000000000
+      internalID: 375475723625566530
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: hospital monster lose sight front_7
+      rect:
+        serializedVersion: 2
+        x: 336
+        y: 0
+        width: 48
+        height: 60
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 6978550be3663c100800000000000000
+      internalID: 127057633928906646
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: hospital monster lose sight front_8
+      rect:
+        serializedVersion: 2
+        x: 384
+        y: 0
+        width: 48
+        height: 60
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 59b4a14e77013d090800000000000000
+      internalID: -8011041205047899243
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: hospital monster lose sight front_9
+      rect:
+        serializedVersion: 2
+        x: 432
+        y: 0
+        width: 48
+        height: 60
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 1a26cbf792477a140800000000000000
+      internalID: 4730877655161528993
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: hospital monster lose sight front_10
+      rect:
+        serializedVersion: 2
+        x: 480
+        y: 0
+        width: 48
+        height: 60
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 873187f806baa0190800000000000000
+      internalID: -7995389757230673032
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: hospital monster lose sight front_11
+      rect:
+        serializedVersion: 2
+        x: 528
+        y: 0
+        width: 48
+        height: 60
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: c4e329e26d5a3d450800000000000000
+      internalID: 6112411458594815564
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    outline: []
+    customData: 
+    physicsShape: []
+    bones: []
+    spriteID: 04500439609c0ff4586c5d746e05d7a3
+    internalID: 0
+    vertices: []
+    indices: 
+    edges: []
+    weights: []
+    secondaryTextures: []
+    spriteCustomMetadata:
+      entries:
+      - key: SpriteEditor.SliceSettings
+        value: '{"sliceOnImport":false,"gridCellCount":{"x":12.0,"y":1.0},"gridSpriteSize":{"x":48.0,"y":60.0},"gridSpriteOffset":{"x":0.0,"y":0.0},"gridSpritePadding":{"x":0.0,"y":0.0},"pivot":{"x":0.5,"y":0.5},"pivotPixels":{"x":0.0,"y":0.0},"autoSlicingMethod":0,"spriteAlignment":0,"pivotUnitMode":0,"slicingType":2,"keepEmptyRects":false,"isAlternate":false}'
+    nameFileIdTable:
+      hospital monster lose sight front_0: -7089020347569555549
+      hospital monster lose sight front_1: -5770241190459320026
+      hospital monster lose sight front_10: -7995389757230673032
+      hospital monster lose sight front_11: 6112411458594815564
+      hospital monster lose sight front_2: -5493354531418553779
+      hospital monster lose sight front_3: 9033594298135422515
+      hospital monster lose sight front_4: -8862816825174386129
+      hospital monster lose sight front_5: 4082813621753385251
+      hospital monster lose sight front_6: 375475723625566530
+      hospital monster lose sight front_7: 127057633928906646
+      hospital monster lose sight front_8: -8011041205047899243
+      hospital monster lose sight front_9: 4730877655161528993
+  mipmapLimitGroupName: 
+  pSDRemoveMatte: 0
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 

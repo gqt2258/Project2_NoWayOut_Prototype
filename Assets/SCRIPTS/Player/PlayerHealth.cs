@@ -29,20 +29,25 @@ public class PlayerHealth : MonoBehaviour
     {
         if(currentHealth <= 0)
         {
+            AudioManager.Instance.PlaySFX(AudioManager.Instance.PlayerDied);
+            AudioManager.Instance.PlaySFX(AudioManager.Instance.PlayerBleed);
             gameObject.transform.position = spawnPoint.position;
             currentHealth = playerStat.playerMaxHealth;
         }
     }
 
-    public void TakeDamage(Collider2D enemyCollider)
+    public bool TakeDamage(Collider2D enemyCollider)
     {
         if (isInvulnerable || currentHealth <= 0)
-            return;
+            return false;
 
         currentHealth -= 1;
         healthBar.SetHealth(currentHealth);
 
+        AudioManager.Instance.PlaySFX(AudioManager.Instance.PlayerHurt);
+
         StartCoroutine(FlashAndIgnoreEnemy(enemyCollider));
+        return true;
     }
 
     private IEnumerator FlashAndIgnoreEnemy(Collider2D enemyCollider)

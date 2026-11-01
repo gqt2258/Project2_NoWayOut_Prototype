@@ -23,6 +23,12 @@ public class EnemyMovement : MonoBehaviour
     [SerializeField, Min(0.1f)] private float loiterRadius = 4f;
     [SerializeField, Min(0.1f)] private float loiterIntervalSeconds = 3f;
 
+    [Header("Anti-camping")]
+    [SerializeField, Min(1f)] private float maxChaseSeconds = 15f;
+    [SerializeField, Min(0.5f)] private float unreachableGiveUpSeconds = 4f;
+    [SerializeField, Min(1f)] private float giveUpCooldownSeconds = 10f;
+    [SerializeField, Min(1f)] private float retreatDistance = 8f;
+
     [Header("Animation")]
     [SerializeField] private Animator animator;
     [SerializeField] private SpriteRenderer spriteRenderer;
@@ -32,6 +38,9 @@ public class EnemyMovement : MonoBehaviour
     private float nextVisionCheckTime;
     private float nextLoiterTime;
     private float lastSeenTime;
+    private float chaseStartTime;
+    private float ignorePlayerUntil;
+    private float unreachableSince = -1f;
     private bool subscribedToMaze;
     private bool isChasing;
     private Vector3 lastRequestedPosition;
@@ -80,15 +89,20 @@ public class EnemyMovement : MonoBehaviour
             return;
         }
 
+        // ---------- Vision check ----------
         if (player != null && Time.time >= nextVisionCheckTime)
         {
             nextVisionCheckTime = Time.time + visionCheckIntervalSeconds;
-            if (CanSeePlayer())
+
+            bool canSee = Time.time >= ignorePlayerUntil && CanSeePlayer();
+            if (canSee)
             {
                 lastSeenTime = Time.time;
                 if (!isChasing)
                 {
                     isChasing = true;
+                    chaseStartTime = Time.time;
+                    unreachableSince = -1f;
                     SetChaseDestination();
 
                     // Seen + scream together, once per chase
@@ -102,11 +116,32 @@ public class EnemyMovement : MonoBehaviour
             else if (isChasing && Time.time - lastSeenTime >= chaseMemorySeconds)
             {
                 isChasing = false;
+                unreachableSince = -1f;
                 agent.ResetPath();
                 nextLoiterTime = Time.time;
             }
         }
 
+        // ---------- Anti-camping ----------
+        if (isChasing && Time.time - chaseStartTime >= maxChaseSeconds)
+            GiveUpChase();
+
+        if (isChasing && !agent.pathPending)
+        {
+            if (agent.pathStatus != NavMeshPathStatus.PathComplete)
+            {
+                if (unreachableSince < 0f)
+                    unreachableSince = Time.time;
+                else if (Time.time - unreachableSince >= unreachableGiveUpSeconds)
+                    GiveUpChase();
+            }
+            else
+            {
+                unreachableSince = -1f;
+            }
+        }
+
+        // ---------- Movement ----------
         if (isChasing && player != null)
         {
             float movedDistance = (player.position - lastRequestedPosition).sqrMagnitude;
@@ -127,9 +162,6 @@ public class EnemyMovement : MonoBehaviour
     {
         if (animator == null) return;
 
-        Vector2 velocity = agent.velocity;
-        bool isMoving = velocity.sqrMagnitude > 0.05f;
-        animator.SetBool("IsMoving", isMoving);
         animator.SetBool("IsChasing", isChasing);
         animator.SetFloat("MoveX", 0f);
         animator.SetFloat("MoveY", 1f);
@@ -137,16 +169,15 @@ public class EnemyMovement : MonoBehaviour
         if (spriteRenderer != null)
             spriteRenderer.flipX = false;
     }
+
     private void OnCollisionEnter2D(Collision2D collision)
     {
         PlayerHealth playerHealth = collision.gameObject.GetComponentInParent<PlayerHealth>();
-        if (playerHealth != null)
-            playerHealth.TakeDamage(GetComponent<Collider2D>());
+        if (playerHealth != null && playerHealth.TakeDamage(GetComponent<Collider2D>()))
         {
             if (AudioManager.Instance != null)
                 AudioManager.Instance.PlaySFX(AudioManager.Instance.MonsterSlash);
         }
-
     }
 
     private void OnDisable()
@@ -230,6 +261,29 @@ public class EnemyMovement : MonoBehaviour
                 return;
             }
         }
+    }
+
+    private void GiveUpChase()
+    {
+        isChasing = false;
+        unreachableSince = -1f;
+        ignorePlayerUntil = Time.time + giveUpCooldownSeconds;
+        nextLoiterTime = Time.time + loiterIntervalSeconds;
+
+        if (agent == null || !agent.isOnNavMesh || player == null)
+            return;
+
+        // Walk away from the player
+        Vector3 away = (transform.position - player.position).normalized * retreatDistance;
+        var filter = new NavMeshQueryFilter
+        {
+            agentTypeID = agent.agentTypeID,
+            areaMask = agent.areaMask
+        };
+
+        agent.speed = walkSpeed;
+        if (NavMesh.SamplePosition(transform.position + away, out NavMeshHit hit, retreatDistance, filter))
+            agent.SetDestination(hit.position);
     }
 
     private void ApplyJobTierSpeeds()

@@ -18,7 +18,6 @@ public class PlayerHealth : MonoBehaviour
 
     private void Awake()
     {
-
         playerColliders = GetComponents<Collider2D>();
         spriteRenderers = GetComponentsInChildren<SpriteRenderer>(true);
         currentHealth = playerStat.playerMaxHealth;
@@ -27,15 +26,14 @@ public class PlayerHealth : MonoBehaviour
 
     public void Update()
     {
-        if(currentHealth <= 0)
+        if (currentHealth <= 0)
         {
-            AudioManager.Instance.PlaySFX(AudioManager.Instance.PlayerDied);
-            AudioManager.Instance.PlaySFX(AudioManager.Instance.PlayerBleed);
             gameObject.transform.position = spawnPoint.position;
             currentHealth = playerStat.playerMaxHealth;
         }
     }
 
+    // Returns true only when damage was actually taken
     public bool TakeDamage(Collider2D enemyCollider)
     {
         if (isInvulnerable || currentHealth <= 0)
@@ -44,7 +42,8 @@ public class PlayerHealth : MonoBehaviour
         currentHealth -= 1;
         healthBar.SetHealth(currentHealth);
 
-        AudioManager.Instance.PlaySFX(AudioManager.Instance.PlayerHurt);
+        if (AudioManager.Instance != null)
+            AudioManager.Instance.PlaySFX(AudioManager.Instance.PlayerHurt);
 
         StartCoroutine(FlashAndIgnoreEnemy(enemyCollider));
         return true;

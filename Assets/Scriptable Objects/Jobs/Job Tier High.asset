@@ -15,7 +15,7 @@ MonoBehaviour:
   tier: 2
   minimumRewardCoins: 350
   maximumRewardCoins: 400
-  mazeGridSize: 17
+  mazeGridSize: 29
   decoyCount: 6
   traitClueCount: 1
   itemClueCount: 1

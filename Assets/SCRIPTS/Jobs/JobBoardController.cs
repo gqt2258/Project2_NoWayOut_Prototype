@@ -17,27 +17,100 @@ public sealed class JobBoardController : MonoBehaviour
     [SerializeField] private TMP_Text[] difficultyTexts = new TMP_Text[3];
     [SerializeField] private TMP_Text[] storyTexts = new TMP_Text[3];
     [SerializeField] private TMP_Text[] rewardTexts = new TMP_Text[3];
-    [SerializeField] private Button acceptButton;
+    [SerializeField] private Button acceptButton;   // this is now the Confirm button
     [SerializeField] private string gameplaySceneName = "Gameplay";
 
     private readonly Jobs[] offers = new Jobs[3];
     private Color[] originalCardColors;
-    private int selectedIndex = -1;
+    private int selectedIndex = -1;    // card highlighted on the board
+    private int confirmedIndex = -1;   // card saved with the Confirm button
 
     private void Awake()
     {
         originalCardColors = new Color[jobPanels.Length];
         BindCardButtons();
-        if (acceptButton != null)
-            acceptButton.interactable = false;
+        RefreshConfirmButton();
     }
 
-    public void ShowNewBoard()
+    // Called every time the board opens. Keeps the same jobs until a new game session.
+    public void ShowBoard()
+    {
+        if (!HasAllOffers())
+        {
+            GenerateBoard();
+            return;
+        }
+
+        selectedIndex = confirmedIndex;   // drops any choice that was not confirmed
+        UpdateCardColors();
+        RefreshConfirmButton();
+    }
+
+    public void SelectJob(int index)
+    {
+        if (index < 0 || index >= offers.Length || offers[index] == null)
+            return;
+
+        if (selectedIndex == index)
+        {
+            CancelSelection();
+            return;
+        }
+
+        selectedIndex = index;
+        UpdateCardColors();
+        RefreshConfirmButton();
+    }
+
+    public void CancelSelection()
     {
         selectedIndex = -1;
+        UpdateCardColors();
+        RefreshConfirmButton();
+    }
+
+    // Saves the highlighted job. Returns true if a job was saved.
+    public bool ConfirmSelectedJob()
+    {
+        if (selectedIndex < 0 || selectedIndex >= offers.Length || offers[selectedIndex] == null)
+        {
+            Debug.LogWarning("Select a job before confirming it.", this);
+            return false;
+        }
+
+        confirmedIndex = selectedIndex;
+        JobSession.Select(offers[confirmedIndex]);
+        return true;
+    }
+
+    // Called by the lobby Start button.
+    public void StartConfirmedJob()
+    {
+        if (JobSession.SelectedJob == null)
+        {
+            Debug.LogWarning("Confirm a job before starting the game.", this);
+            return;
+        }
+
+        JobSession.RecordAccepted(JobSession.SelectedJob);
+        SceneManager.LoadScene(gameplaySceneName);
+    }
+
+    private bool HasAllOffers()
+    {
+        for (int i = 0; i < offers.Length; i++)
+            if (offers[i] == null)
+                return false;
+
+        return true;
+    }
+
+    private void GenerateBoard()
+    {
+        selectedIndex = -1;
+        confirmedIndex = -1;
         JobSession.Select(null);
-        if (acceptButton != null)
-            acceptButton.interactable = false;
+        RefreshConfirmButton();
 
         for (int i = 0; i < jobPanels.Length; i++)
         {
@@ -78,44 +151,10 @@ public sealed class JobBoardController : MonoBehaviour
         }
     }
 
-    public void SelectJob(int index)
+    private void RefreshConfirmButton()
     {
-        if (index < 0 || index >= offers.Length || offers[index] == null)
-            return;
-
-        if (selectedIndex == index)
-        {
-            CancelSelection();
-            return;
-        }
-
-        selectedIndex = index;
-        JobSession.Select(offers[index]);
-        UpdateCardColors();
         if (acceptButton != null)
-            acceptButton.interactable = true;
-    }
-
-    public void CancelSelection()
-    {
-        selectedIndex = -1;
-        JobSession.Select(null);
-        UpdateCardColors();
-        if (acceptButton != null)
-            acceptButton.interactable = false;
-    }
-
-    public void AcceptSelectedJob()
-    {
-        if (selectedIndex < 0 || selectedIndex >= offers.Length || offers[selectedIndex] == null)
-        {
-            Debug.LogWarning("Select a job before accepting it.", this);
-            return;
-        }
-
-        JobSession.Select(offers[selectedIndex]);
-        JobSession.RecordAccepted(offers[selectedIndex]);
-        SceneManager.LoadScene(gameplaySceneName);
+            acceptButton.interactable = selectedIndex >= 0;
     }
 
     private Jobs CreateOffer(JobTierSettings settings, HashSet<string> usedOnBoard)

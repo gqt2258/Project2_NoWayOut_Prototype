@@ -92,6 +92,21 @@ public class ShopItemSlot : MonoBehaviour, IPointerClickHandler
         upgradeButton.interactable = canAfford;
     }
 
+    // Used by LoadoutUI. Pass null for an empty box.
+    // clickable boxes send OnItemClicked when pressed.
+    public void ShowLoadout(ShopItem shown, string detail, bool clickable = false)
+    {
+        item = clickable ? shown : null;
+        gameObject.SetActive(true);
+
+        nameText.text = shown != null ? shown.displayName : "Empty";
+        priceText.text = detail;
+        priceText.gameObject.SetActive(!string.IsNullOrEmpty(detail));   // equipment has no detail
+
+        icon.sprite = shown != null ? shown.icon : null;
+        icon.enabled = shown != null && shown.icon != null;
+    }
+
     public void Hide()
     {
         item = null;

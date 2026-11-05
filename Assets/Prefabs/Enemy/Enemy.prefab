@@ -104,7 +104,7 @@ NavMeshAgent:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 6593366683309541154}
-  m_Enabled: 1
+  m_Enabled: 0
   m_AgentTypeID: 0
   m_Radius: 0.5
   m_Speed: 1
@@ -145,6 +145,10 @@ MonoBehaviour:
     m_Bits: 51
   loiterRadius: 4
   loiterIntervalSeconds: 3
+  maxChaseSeconds: 15
+  unreachableGiveUpSeconds: 4
+  giveUpCooldownSeconds: 10
+  retreatDistance: 8
   animator: {fileID: 1982973614275421931}
   spriteRenderer: {fileID: 7599178247800592577}
 --- !u!114 &3929210750593020902
@@ -215,15 +219,15 @@ BoxCollider2D:
   m_UsedByEffector: 0
   m_CompositeOperation: 0
   m_CompositeOrder: 0
-  m_Offset: {x: -0.1, y: -0.1}
+  m_Offset: {x: 0.0031330585, y: -0.00033438206}
   m_SpriteTilingProperty:
     border: {x: 0, y: 0, z: 0, w: 0}
     pivot: {x: 0.5, y: 0.5}
-    oldSize: {x: 2, y: 2.5}
+    oldSize: {x: 3, y: 3.75}
     newSize: {x: 1, y: 1}
     adaptiveTilingThreshold: 0.5
     drawMode: 0
     adaptiveTiling: 0
   m_AutoTiling: 0
-  m_Size: {x: 1.2, y: 2.3}
+  m_Size: {x: 2.396922, y: 4.033657}
   m_EdgeRadius: 0

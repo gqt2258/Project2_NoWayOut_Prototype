@@ -13,8 +13,11 @@ public class SceneLoader : MonoBehaviour
         Shop,
         EquipmentShop,
         UpgradesShop,
-        CosmeticsShop;
+        CosmeticsShop,
+        Loadout,
+        Player2Loadout;
     [SerializeField] private JobBoardController jobBoardController;
+
 
     private bool isCoopLobby = false;   // remembers the last lobby type
 
@@ -22,6 +25,8 @@ public class SceneLoader : MonoBehaviour
     {
         JobSession.Select(null);   // a finished job doesn't carry over from the last game
         GameServerLogs.Clear();         // this scene opens on the main menu, so the room has ended
+        if (Loadout != null)
+            Loadout.SetActive(false);
         lobbyBoard.SetActive(false);
         jobBoard.SetActive(false);
         mainMenuCanvas.SetActive(true);
@@ -102,6 +107,18 @@ public class SceneLoader : MonoBehaviour
         EquipmentShop.SetActive(false);
         UpgradesShop.SetActive(false);
         CosmeticsShop.SetActive(false);
+    }
+
+    // Use the same button to open and close the loadout.
+    public void ToggleLoadout()
+    {
+        if (Loadout == null) return;
+
+        bool open = !Loadout.activeSelf;
+        if (Player2Loadout != null)
+            Player2Loadout.SetActive(open && isCoopLobby);
+
+        Loadout.SetActive(open);
     }
 
     // Returns to whichever lobby the player was last in.

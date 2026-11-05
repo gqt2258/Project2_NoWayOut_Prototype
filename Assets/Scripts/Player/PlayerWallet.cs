@@ -23,6 +23,8 @@ public class PlayerWallet : MonoBehaviour
     const int StartingCoins = 1000;   // test amount for a new save
     const string CoinsKey = "PlayerWallet.Coins";
     const string OwnedItemsKey = "PlayerWallet.OwnedItems";
+    const string EquipmentKey = "PlayerWallet.Equipment";
+    public const int BaseEquipmentSlots = 6;
 
 #if UNITY_EDITOR
     // true: every Play in the Unity Editor starts fresh. false: test saving in the Editor.
@@ -33,6 +35,7 @@ public class PlayerWallet : MonoBehaviour
     public static PlayerWallet Instance { get; private set; }
 
     readonly HashSet<string> ownedItems = new HashSet<string>();
+    readonly List<string> equipment = new List<string>();   // item ids, one per filled slot
     readonly Dictionary<TMP_Text, string> coinTexts = new Dictionary<TMP_Text, string>();
     readonly List<TMP_Text> coinChangeTexts = new List<TMP_Text>();
     int coins;
@@ -42,6 +45,19 @@ public class PlayerWallet : MonoBehaviour
 
     public event Action Changed;
     public int Coins => coins;
+    public IReadOnlyList<string> Equipment => equipment;
+    public bool IsEquipmentFull => equipment.Count >= EquipmentSlots;
+
+    // 6 slots, plus 1 or 2 from the inventory upgrades, so 8 at most.
+    public int EquipmentSlots
+    {
+        get
+        {
+            if (ownedItems.Contains("upg_inventory_2")) return BaseEquipmentSlots + 2;
+            if (ownedItems.Contains("upg_inventory_1")) return BaseEquipmentSlots + 1;
+            return BaseEquipmentSlots;
+        }
+    }
 
     [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.BeforeSceneLoad)]
     static void CreateWallet()
@@ -226,13 +242,15 @@ public class PlayerWallet : MonoBehaviour
     public bool TryPurchase(ShopItem item)
     {
         if (item == null || Owns(item) || !CanAfford(item)) return false;
+        if (item.shop == ShopType.Equipment && IsEquipmentFull) return false;
 
         coins -= item.price;
         if (HasVisibleChangeText())
             pendingChange -= item.price;   // no pop-up here means no late pop-up on another screen
         else
             Debug.LogWarning("PlayerWallet: no CoinLogs text is active, so this purchase has no pop-up.");
-        if (item.shop != ShopType.Equipment) ownedItems.Add(item.itemId);
+        if (item.shop == ShopType.Equipment) equipment.Add(item.itemId);
+        else ownedItems.Add(item.itemId);
         SaveAndNotify();
         return true;
     }
@@ -257,6 +275,30 @@ public class PlayerWallet : MonoBehaviour
         SaveAndNotify();
     }
 
+    // Equipment sells for half its price.
+    public int SellPrice(ShopItem item) => item.price / 2;
+
+    // Removes one copy and refunds the player.
+    public bool SellEquipment(ShopItem item)
+    {
+        if (item == null || !equipment.Remove(item.itemId)) return false;
+
+        int refund = SellPrice(item);
+        coins += refund;
+        if (HasVisibleChangeText())
+            pendingChange += refund;
+
+        SaveAndNotify();
+        return true;
+    }
+
+    // Call this when the player uses up a piece of equipment. Removes one copy.
+    public void RemoveEquipment(string itemId)
+    {
+        if (equipment.Remove(itemId))
+            SaveAndNotify();
+    }
+
     // Use for a New Game option, or from this component's menu during Play mode.
     [ContextMenu("Reset Saved Progress")]
     public void ResetProgress()
@@ -264,6 +306,7 @@ public class PlayerWallet : MonoBehaviour
         coins = StartingCoins;
         pendingChange = 0;
         ownedItems.Clear();
+        equipment.Clear();
         SaveAndNotify();
     }
 
@@ -274,6 +317,7 @@ public class PlayerWallet : MonoBehaviour
         {
             PlayerPrefs.DeleteKey(CoinsKey);
             PlayerPrefs.DeleteKey(OwnedItemsKey);
+            PlayerPrefs.DeleteKey(EquipmentKey);
         }
 #endif
 
@@ -283,12 +327,17 @@ public class PlayerWallet : MonoBehaviour
         string saved = PlayerPrefs.GetString(OwnedItemsKey, "");
         foreach (string itemId in saved.Split(new[] { ',' }, StringSplitOptions.RemoveEmptyEntries))
             ownedItems.Add(itemId);
+
+        equipment.Clear();
+        saved = PlayerPrefs.GetString(EquipmentKey, "");
+        equipment.AddRange(saved.Split(new[] { ',' }, StringSplitOptions.RemoveEmptyEntries));
     }
 
     void SaveAndNotify()
     {
         PlayerPrefs.SetInt(CoinsKey, coins);
         PlayerPrefs.SetString(OwnedItemsKey, string.Join(",", ownedItems));
+        PlayerPrefs.SetString(EquipmentKey, string.Join(",", equipment));
         PlayerPrefs.Save();
         RefreshCoinTexts();
         Changed?.Invoke();

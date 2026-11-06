@@ -73,9 +73,9 @@ public class LoadoutUI : MonoBehaviour
                 : null;
 
             if (current != null)
-                upgradeBoxes[i].ShowLoadout(current, $"Level {current.level}: {current.description}");
+                upgradeBoxes[i].ShowLoadout(current, $"Level {current.level}: \n {current.description}");
             else
-                upgradeBoxes[i].ShowLoadout(upgrades[i][0], "Not upgraded");
+                upgradeBoxes[i].ShowLoadout(upgrades[i][0], "Level 0 : \n No upgrades");
         }
     }
 

@@ -162,10 +162,27 @@ public class ShopUI : MonoBehaviour
         if (IsUpgradeShop) return;   // the Upgrades layout has no selected item panel
 
         selected = item;
-        selectedName.text = item != null ? item.displayName : "";
-        selecteddescription.text = item != null ? item.description : "";
-        selectedIcon.sprite = item != null ? item.icon : null;
-        selectedIcon.enabled = item != null && item.icon != null;
+
+        if (selectedName != null)
+            selectedName.text = item != null ? item.displayName : "";
+        else
+            Debug.LogWarning($"{name}: Selected Name is not assigned on ShopUI.", this);
+
+        if (selecteddescription != null)
+            selecteddescription.text = item != null ? item.description : "";
+        else
+            Debug.LogWarning($"{name}: Selecteddescription is not assigned on ShopUI.", this);
+
+        if (selectedIcon != null)
+        {
+            selectedIcon.sprite = item != null ? item.icon : null;
+            selectedIcon.enabled = item != null && item.icon != null;
+        }
+        else
+        {
+            Debug.LogWarning($"{name}: Selected Icon is not assigned on ShopUI.", this);
+        }
+
         RefreshBuyButton();
     }
 
@@ -184,6 +201,11 @@ public class ShopUI : MonoBehaviour
         {
             buyButton.interactable = false;
             buyLabel.text = "Owned";
+        }
+        else if (selected.shop == ShopType.Equipment && PlayerWallet.Instance.IsEquipmentFull)
+        {
+            buyButton.interactable = false;
+            buyLabel.text = "Inventory full";
         }
         else if (!CanAfford(selected))
         {

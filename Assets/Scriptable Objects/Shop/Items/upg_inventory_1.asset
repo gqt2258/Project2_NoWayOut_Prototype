@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: upg_inventory_1
   m_EditorClassIdentifier: Assembly-CSharp::ShopItem
   itemId: upg_inventory_1
-  displayName: Player Inventory Slot Expansion
+  displayName: Inventory Slot Expansion
   shop: 1
   category: Player Inventory Upgrade
   upgradeLine: Player Inventory Slot Expansion

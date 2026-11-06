@@ -241,8 +241,25 @@ public class PlayerWallet : MonoBehaviour
 
     public bool TryPurchase(ShopItem item)
     {
-        if (item == null || Owns(item) || !CanAfford(item)) return false;
-        if (item.shop == ShopType.Equipment && IsEquipmentFull) return false;
+        if (item == null) return false;
+
+        if (Owns(item))
+        {
+            Debug.Log($"Purchase refused: {item.displayName} is already owned.");
+            return false;
+        }
+
+        if (!CanAfford(item))
+        {
+            Debug.Log($"Purchase refused: {item.displayName} costs {item.price}, but you have {coins}.");
+            return false;
+        }
+
+        if (item.shop == ShopType.Equipment && IsEquipmentFull)
+        {
+            Debug.Log($"Purchase refused: equipment is full ({equipment.Count}/{EquipmentSlots}).");
+            return false;
+        }
 
         coins -= item.price;
         if (HasVisibleChangeText())
@@ -251,6 +268,7 @@ public class PlayerWallet : MonoBehaviour
             Debug.LogWarning("PlayerWallet: no CoinLogs text is active, so this purchase has no pop-up.");
         if (item.shop == ShopType.Equipment) equipment.Add(item.itemId);
         else ownedItems.Add(item.itemId);
+        Debug.Log($"Purchased {item.displayName} for {item.price}. Coins left: {coins}. Equipment: {equipment.Count}/{EquipmentSlots}.");
         SaveAndNotify();
         return true;
     }
@@ -297,6 +315,16 @@ public class PlayerWallet : MonoBehaviour
     {
         if (equipment.Remove(itemId))
             SaveAndNotify();
+    }
+
+    // Called when the player leaves the lobby. Only equipment is cleared:
+    // coins, upgrades and cosmetics are kept.
+    public void ResetRun()
+    {
+        if (equipment.Count == 0) return;
+
+        equipment.Clear();
+        SaveAndNotify();
     }
 
     // Use for a New Game option, or from this component's menu during Play mode.

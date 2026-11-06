@@ -69,6 +69,16 @@ public sealed class JobBoardController : MonoBehaviour
         RefreshConfirmButton();
     }
 
+    // Called when the player leaves the lobby. Keeps the same jobs, but none is selected.
+    public void ClearSelection()
+    {
+        selectedIndex = -1;
+        confirmedIndex = -1;
+        JobSession.Select(null);
+        UpdateCardColors();
+        RefreshConfirmButton();
+    }
+
     // Saves the highlighted job. Returns true if a job was saved.
     public bool ConfirmSelectedJob()
     {

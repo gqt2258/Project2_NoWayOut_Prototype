@@ -36,11 +36,15 @@ public class SceneLoader : MonoBehaviour
         EquipmentShop.SetActive(false);
         UpgradesShop.SetActive(false);
         CosmeticsShop.SetActive(false);
+        Loadout.SetActive(false);
+        Player2Loadout.SetActive(false);
     }
 
     public void LoadMainMenu()
     {
         GameServerLogs.Clear();   // leaving the room
+        PlayerWallet.Instance.ResetRun();   // clears equipment only
+        jobBoardController.ClearSelection();   // no job selected
         mainMenuCanvas.SetActive(true);
         lobbyBoard.SetActive(false);
         jobBoard.SetActive(false);
@@ -50,11 +54,15 @@ public class SceneLoader : MonoBehaviour
         EquipmentShop.SetActive(false);
         UpgradesShop.SetActive(false);
         CosmeticsShop.SetActive(false);
+        Loadout.SetActive(false);
+        Player2Loadout.SetActive(false);
     }
 
     public void LoadLobbyCreate()
     {
         GameServerLogs.Clear();   // leaving the room
+        PlayerWallet.Instance.ResetRun();   // clears equipment only
+        jobBoardController.ClearSelection();   // no job selected
         lobbyBoard.SetActive(false);
         mainMenuCanvas.SetActive(false);
         jobBoard.SetActive(false);
@@ -64,6 +72,8 @@ public class SceneLoader : MonoBehaviour
         EquipmentShop.SetActive(false);
         UpgradesShop.SetActive(false);
         CosmeticsShop.SetActive(false);
+        Loadout.SetActive(false);
+        Player2Loadout.SetActive(false);
     }
 
     public void LoadSettings()
@@ -77,6 +87,8 @@ public class SceneLoader : MonoBehaviour
         EquipmentShop.SetActive(false);
         UpgradesShop.SetActive(false);
         CosmeticsShop.SetActive(false);
+        Loadout.SetActive(false);
+        Player2Loadout.SetActive(false);
     }
 
     public void LoadSoloLobbyBoard()
@@ -92,6 +104,8 @@ public class SceneLoader : MonoBehaviour
         EquipmentShop.SetActive(false);
         UpgradesShop.SetActive(false);
         CosmeticsShop.SetActive(false);
+        Loadout.SetActive(false);
+        Player2Loadout.SetActive(false);
     }
 
     public void LoadCoopLobbyBoard()
@@ -107,18 +121,24 @@ public class SceneLoader : MonoBehaviour
         EquipmentShop.SetActive(false);
         UpgradesShop.SetActive(false);
         CosmeticsShop.SetActive(false);
+        Loadout.SetActive(false);
+        Player2Loadout.SetActive(false);
     }
 
-    // Use the same button to open and close the loadout.
-    public void ToggleLoadout()
+    // Loadout button in the lobby. Its Back button uses LoadLastLobby.
+    public void LoadLoadout()
     {
-        if (Loadout == null) return;
-
-        bool open = !Loadout.activeSelf;
-        if (Player2Loadout != null)
-            Player2Loadout.SetActive(open && isCoopLobby);
-
-        Loadout.SetActive(open);
+        lobbyBoard.SetActive(false);
+        jobBoard.SetActive(false);
+        mainMenuCanvas.SetActive(false);
+        Settings.SetActive(false);
+        lobbyCreate.SetActive(false);
+        Shop.SetActive(false);
+        EquipmentShop.SetActive(false);
+        UpgradesShop.SetActive(false);
+        CosmeticsShop.SetActive(false);
+        Player2Loadout.SetActive(isCoopLobby);   // solo only shows Player 1
+        Loadout.SetActive(true);
     }
 
     // Returns to whichever lobby the player was last in.
@@ -142,6 +162,8 @@ public class SceneLoader : MonoBehaviour
         EquipmentShop.SetActive(false);
         UpgradesShop.SetActive(false);
         CosmeticsShop.SetActive(false);
+        Loadout.SetActive(false);
+        Player2Loadout.SetActive(false);
     }
 
     public void LoadEquipmentShop()
@@ -155,6 +177,8 @@ public class SceneLoader : MonoBehaviour
         EquipmentShop.SetActive(true);
         UpgradesShop.SetActive(false);
         CosmeticsShop.SetActive(false);
+        Loadout.SetActive(false);
+        Player2Loadout.SetActive(false);
     }
 
     public void LoadUpgradesShop()
@@ -168,6 +192,8 @@ public class SceneLoader : MonoBehaviour
         EquipmentShop.SetActive(false);
         UpgradesShop.SetActive(true);
         CosmeticsShop.SetActive(false);
+        Loadout.SetActive(false);
+        Player2Loadout.SetActive(false);
     }
 
     public void LoadCosmeticsShop()
@@ -181,6 +207,9 @@ public class SceneLoader : MonoBehaviour
         EquipmentShop.SetActive(false);
         UpgradesShop.SetActive(false);
         CosmeticsShop.SetActive(true);
+        Loadout.SetActive(false);
+        Player2Loadout.SetActive(false);
+
     }
 
     // Confirm button on the job board.

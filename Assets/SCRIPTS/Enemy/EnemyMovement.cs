@@ -66,7 +66,10 @@ public class EnemyMovement : MonoBehaviour
         if (agent == null)
             agent = GetComponent<NavMeshAgent>();
         if (agent != null)
+        {
             agent.updateRotation = false;
+            agent.updateUpAxis = false;   // keeps the enemy flat in 2D
+        }
         ApplyJobTierSpeeds();
         RefreshPath();
 
@@ -76,7 +79,8 @@ public class EnemyMovement : MonoBehaviour
 
     private void Update()
     {
-        if (agent == null)
+        // MazeGenerator turns the agent on once the navmesh is built.
+        if (agent == null || !agent.enabled)
             return;
 
         if (!agent.isOnNavMesh)
@@ -200,7 +204,7 @@ public class EnemyMovement : MonoBehaviour
 
     private void RefreshPath()
     {
-        if (agent == null)
+        if (agent == null || !agent.enabled)
             return;
 
         if (!agent.isOnNavMesh)

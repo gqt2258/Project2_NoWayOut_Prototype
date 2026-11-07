@@ -34,6 +34,20 @@ namespace NoWayOut.Maze
         [Tooltip("Each rewire changes two wall segments, so 3 rewires changes 6 walls.")]
         [SerializeField, Min(1)] private int rewiresPerBatch = 3;
 
+        [Header("Start layout")]
+        [Tooltip("Random rewires before the first frame, so the maze does not start as straight rows. MazeGenerator sets this. 0 keeps the old start.")]
+        [SerializeField, Min(0)] private int initialShuffles;
+
+        [Header("Wall animation")]
+        [Tooltip("How long a shifting wall takes to rise or sink. 0 makes walls appear and disappear instantly.")]
+        [SerializeField, Min(0f)] private float wallAnimationSeconds = 0.4f;
+        [Tooltip("How far the wall art sinks while disappearing, in units. Not used when Wall Shrink Frames are assigned.")]
+        [SerializeField, Min(0f)] private float wallSinkDistance = 0.5f;
+        [Tooltip("Optional. Frames from the full wall to the smallest. Played forwards when a wall disappears, backwards when it appears.")]
+        [SerializeField] private Sprite[] wallShrinkFrames;
+        [Tooltip("Optional. A Particle System prefab played on each tile of a wall as it disappears or appears.")]
+        [SerializeField] private ParticleSystem wallDustPrefab;
+
         [Header("Shift warning")]
         [SerializeField] private TMP_Text shiftWarningText;
         [SerializeField, Min(0f)] private float warningLeadSeconds = 5f;
@@ -47,6 +61,10 @@ namespace NoWayOut.Maze
         private bool navMeshNeedsRebuild;
         private bool initialized;
         private bool warningRoutineRunning;
+        private readonly Dictionary<GameObject, bool> wallTargets = new Dictionary<GameObject, bool>();
+        private readonly Dictionary<GameObject, Coroutine> wallAnimations = new Dictionary<GameObject, Coroutine>();
+        private readonly Dictionary<Transform, Vector3> artStartPositions = new Dictionary<Transform, Vector3>();
+        private readonly Dictionary<SpriteRenderer, Sprite> artStartSprites = new Dictionary<SpriteRenderer, Sprite>();
 
         public event Action MazeChanged;
 
@@ -80,6 +98,26 @@ namespace NoWayOut.Maze
             initialized = BuildMazeFromScene();
         }
 
+        /// <summary>
+        /// Called by MazeGenerator before Awake, so the walls it spawned are mapped
+        /// with the matching grid size and spacing.
+        /// </summary>
+        public void ConfigureGrid(Transform root, int gridRows, int gridColumns, Vector2 firstCenter, Vector2 spacing, int shuffles)
+        {
+            if (initialized)
+            {
+                Debug.LogWarning("ConfigureGrid was called after the maze was built, so it was ignored.", this);
+                return;
+            }
+
+            wallRoot = root;
+            rows = gridRows;
+            columns = gridColumns;
+            firstCellCenter = firstCenter;
+            cellSpacing = spacing;
+            initialShuffles = shuffles;
+        }
+
         private void Start()
         {
             if (!initialized)
@@ -87,7 +125,8 @@ namespace NoWayOut.Maze
 
             ApplyJobTierShiftInterval();
             RefreshLocksFromPlayer();
-            ApplyWallStates();
+            ScrambleMaze(initialShuffles);
+            ApplyWallStates(false);
 
             if (updateNavMeshAfterShift)
                 QueueNavMeshUpdate(forceRebuild: true);
@@ -132,7 +171,7 @@ namespace NoWayOut.Maze
                 return false;
 
             maze = trialMaze;
-            ApplyWallStates();
+            ApplyWallStates(true);
             if (updateNavMeshAfterShift)
                 QueueNavMeshUpdate();
             else
@@ -170,7 +209,7 @@ namespace NoWayOut.Maze
                 if (MazeShiftCore.ShiftMaze(trialMaze, rows, columns, index) && PreservesPlayerEscape(trialMaze))
                 {
                     maze = trialMaze;
-                    ApplyWallStates();
+                    ApplyWallStates(true);
                     if (updateNavMeshAfterShift)
                         QueueNavMeshUpdate();
                     else
@@ -261,7 +300,7 @@ namespace NoWayOut.Maze
             }
 
             maze = workingMaze;
-            ApplyWallStates();
+            ApplyWallStates(true);
             if (updateNavMeshAfterShift)
                 QueueNavMeshUpdate();
             else
@@ -339,6 +378,25 @@ namespace NoWayOut.Maze
             {
                 yield return wait;
                 RequestConfiguredShift();
+            }
+        }
+
+        // Uses the same rewire rules as wall shifts, so the maze always stays one connected tree.
+        private void ScrambleMaze(int shuffleCount)
+        {
+            int done = 0;
+            for (int attempt = 0; attempt < shuffleCount * 4 && done < shuffleCount; attempt++)
+            {
+                int index = UnityEngine.Random.Range(0, maze.Length);
+                if (!maze[index].unlocked || !HasParentEdge(maze[index]))
+                    continue;
+
+                MazeCell[] trialMaze = CloneMaze(maze);
+                if (MazeShiftCore.ShiftMaze(trialMaze, rows, columns, index) && PreservesPlayerEscape(trialMaze))
+                {
+                    maze = trialMaze;
+                    done++;
+                }
             }
         }
 
@@ -594,7 +652,7 @@ namespace NoWayOut.Maze
             return row < 0 || row >= rows || column < 0 || column >= columns ? -1 : row * columns + column;
         }
 
-        private void ApplyWallStates()
+        private void ApplyWallStates(bool animate)
         {
             for (int row = 0; row < rows; row++)
             {
@@ -602,7 +660,7 @@ namespace NoWayOut.Maze
                 {
                     GameObject wall = horizontalWalls[row, column];
                     if (wall != null)
-                        wall.SetActive(maze[row * columns + column].right == EdgeState.Wall);
+                        SetWall(wall, maze[row * columns + column].right == EdgeState.Wall, animate);
                 }
             }
 
@@ -612,8 +670,126 @@ namespace NoWayOut.Maze
                 {
                     GameObject wall = verticalWalls[row, column];
                     if (wall != null)
-                        wall.SetActive(maze[row * columns + column].up == EdgeState.Wall);
+                        SetWall(wall, maze[row * columns + column].up == EdgeState.Wall, animate);
                 }
+            }
+        }
+
+        private void SetWall(GameObject wall, bool show, bool animate)
+        {
+            bool shownNow = wallTargets.TryGetValue(wall, out bool target) ? target : wall.activeSelf;
+            if (shownNow == show)
+                return;
+
+            if (wallAnimations.TryGetValue(wall, out Coroutine running) && running != null)
+                StopCoroutine(running);
+
+            wallTargets[wall] = show;
+
+            if (!animate || wallAnimationSeconds <= 0f)
+            {
+                SetWallArt(wall, 1f);
+                SetWallBlocking(wall, show);
+                wall.SetActive(show);
+                wallAnimations.Remove(wall);
+                return;
+            }
+
+            wallAnimations[wall] = StartCoroutine(AnimateWall(wall, show));
+        }
+
+        // Blocking changes straight away, so the navmesh update right after a shift is
+        // correct. Only the art is animated.
+        private IEnumerator AnimateWall(GameObject wall, bool show)
+        {
+            if (show)
+                wall.SetActive(true);
+
+            SetWallBlocking(wall, show);
+            PlayWallDust(wall);
+
+            for (float time = 0f; time < wallAnimationSeconds; time += Time.deltaTime)
+            {
+                float progress = time / wallAnimationSeconds;
+                SetWallArt(wall, show ? progress : 1f - progress);
+                yield return null;
+            }
+
+            SetWallArt(wall, 1f);
+            if (!show)
+                wall.SetActive(false);
+
+            wallAnimations.Remove(wall);
+        }
+
+        private void PlayWallDust(GameObject wall)
+        {
+            if (wallDustPrefab == null)
+                return;
+
+            foreach (SpriteRenderer art in wall.GetComponentsInChildren<SpriteRenderer>(true))
+            {
+                if (art.gameObject.name == "NavMesh Footprint")
+                    continue;
+
+                Vector3 position = artStartPositions.TryGetValue(art.transform, out Vector3 start)
+                    ? art.transform.parent.TransformPoint(start)
+                    : art.transform.position;
+
+                ParticleSystem dust = Instantiate(wallDustPrefab, position, wallDustPrefab.transform.rotation);
+                ParticleSystem.MainModule main = dust.main;
+                main.loop = false;
+                main.stopAction = ParticleSystemStopAction.Destroy;   // cleans itself up
+                dust.Play();
+            }
+        }
+
+        private static void SetWallBlocking(GameObject wall, bool blocking)
+        {
+            foreach (Collider2D wallCollider in wall.GetComponentsInChildren<Collider2D>(true))
+                wallCollider.enabled = blocking;
+
+            Transform footprint = wall.transform.Find("NavMesh Footprint");
+            if (footprint != null)
+                footprint.gameObject.SetActive(blocking);
+        }
+
+        // amount 1 = fully shown, 0 = sunk and invisible.
+        private void SetWallArt(GameObject wall, float amount)
+        {
+            foreach (SpriteRenderer art in wall.GetComponentsInChildren<SpriteRenderer>(true))
+            {
+                if (art.gameObject.name == "NavMesh Footprint")
+                    continue;
+
+                if (!artStartPositions.TryGetValue(art.transform, out Vector3 start))
+                {
+                    start = art.transform.localPosition;
+                    artStartPositions[art.transform] = start;
+                }
+
+                if (!artStartSprites.TryGetValue(art, out Sprite fullSprite))
+                {
+                    fullSprite = art.sprite;
+                    artStartSprites[art] = fullSprite;
+                }
+
+                Color color = art.color;
+                if (wallShrinkFrames != null && wallShrinkFrames.Length > 0)
+                {
+                    // Pixel frames: no movement or fading, just swap the sprite.
+                    int frame = Mathf.Min(wallShrinkFrames.Length - 1, Mathf.FloorToInt((1f - amount) * wallShrinkFrames.Length));
+                    art.sprite = amount >= 1f ? fullSprite : wallShrinkFrames[frame];
+                    art.transform.localPosition = start;
+                    color.a = 1f;
+                }
+                else
+                {
+                    art.transform.localPosition = start + Vector3.down * (wallSinkDistance * (1f - amount));
+                    color.a = amount;
+                }
+
+                art.color = color;
             }
         }
 

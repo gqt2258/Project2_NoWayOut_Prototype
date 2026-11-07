@@ -8,7 +8,7 @@ using UnityEngine;
 namespace NoWayOut.Maze
 {
     /// <summary>
-    /// Scene adapter for the 6x6 maze. Attach this component to the Walls object.
+    /// Scene adapter for the maze. Attach this component to the Walls object.
     /// Shifting wall objects are matched to the midpoint of adjacent maze cells.
     /// </summary>
     public sealed class MazeShiftController : MonoBehaviour
@@ -19,10 +19,10 @@ namespace NoWayOut.Maze
         [SerializeField] private NavMeshSurface navMeshSurface;
 
         [Header("Maze grid")]
-        [SerializeField, Min(1)] private int rows = 6;
-        [SerializeField, Min(1)] private int columns = 6;
-        [SerializeField] private Vector2 firstCellCenter = new Vector2(-7.38f, -9.09f);
-        [SerializeField, Min(0.1f)] private float cellSpacing = 3f;
+        [SerializeField, Min(1)] private int rows = 13;
+        [SerializeField, Min(1)] private int columns = 13;
+        [SerializeField] private Vector2 firstCellCenter = new Vector2(-19.2f, -9.09f);
+        [SerializeField] private Vector2 cellSpacing = new Vector2(3.445f, 3.515f);
         [SerializeField, Min(0.01f)] private float wallPositionTolerance = 0.25f;
         [SerializeField, Min(0)] private int playerLockRadius = 1;
 
@@ -416,7 +416,7 @@ namespace NoWayOut.Maze
 
         private bool BuildMazeFromScene()
         {
-            if (rows < 2 || columns < 2 || cellSpacing <= 0f)
+            if (rows < 2 || columns < 2 || cellSpacing.x <= 0f || cellSpacing.y <= 0f)
             {
                 Debug.LogError("Maze grid dimensions and cell spacing must be positive.", this);
                 return false;
@@ -481,8 +481,8 @@ namespace NoWayOut.Maze
             {
                 for (int column = 0; column < columns - 1; column++)
                 {
-                    Vector3 local = new Vector3(firstCellCenter.x + (column + 0.5f) * cellSpacing,
-                                                firstCellCenter.y + row * cellSpacing,
+                    Vector3 local = new Vector3(firstCellCenter.x + (column + 0.5f) * cellSpacing.x,
+                                                firstCellCenter.y + row * cellSpacing.y,
                                                 0f);
                     float distanceSquared = (wall.transform.position - wallRoot.TransformPoint(local)).sqrMagnitude;
                     if (distanceSquared <= nearestDistanceSquared)
@@ -499,8 +499,8 @@ namespace NoWayOut.Maze
             {
                 for (int column = 0; column < columns; column++)
                 {
-                    Vector3 local = new Vector3(firstCellCenter.x + column * cellSpacing,
-                                                firstCellCenter.y + (row + 0.5f) * cellSpacing,
+                    Vector3 local = new Vector3(firstCellCenter.x + column * cellSpacing.x,
+                                                firstCellCenter.y + (row + 0.5f) * cellSpacing.y,
                                                 0f);
                     float distanceSquared = (wall.transform.position - wallRoot.TransformPoint(local)).sqrMagnitude;
                     if (distanceSquared <= nearestDistanceSquared)
@@ -629,7 +629,7 @@ namespace NoWayOut.Maze
             Vector3 playerLocal = wallRoot.InverseTransformPoint(player.position);
             int index = MazeShiftCore.WorldToIndex(playerLocal.x, playerLocal.y,
                                                   firstCellCenter.x, firstCellCenter.y,
-                                                  cellSpacing, rows, columns);
+                                                  cellSpacing.x, cellSpacing.y, rows, columns);
             if (index >= 0)
                 MazeShiftCore.SetLocks(maze, rows, columns, index, playerLockRadius);
             else

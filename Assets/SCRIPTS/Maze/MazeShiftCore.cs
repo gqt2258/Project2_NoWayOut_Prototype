@@ -171,13 +171,13 @@ namespace NoWayOut.Maze
             }
         }
 
-        public static int WorldToIndex(float worldX, float worldY, float originX, float originY, float cellSize, int rows, int columns)
+        public static int WorldToIndex(float worldX, float worldY, float originX, float originY, float cellWidth, float cellHeight, int rows, int columns)
         {
-            if (cellSize <= 0f || rows <= 0 || columns <= 0)
+            if (cellWidth <= 0f || cellHeight <= 0f || rows <= 0 || columns <= 0)
                 return -1;
 
-            int column = (int)Math.Round((worldX - originX) / cellSize);
-            int row = (int)Math.Round((worldY - originY) / cellSize);
+            int column = (int)Math.Round((worldX - originX) / cellWidth);
+            int row = (int)Math.Round((worldY - originY) / cellHeight);
             if (row < 0 || row >= rows || column < 0 || column >= columns)
                 return -1;
 

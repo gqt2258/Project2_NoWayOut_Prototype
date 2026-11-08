@@ -49,6 +49,11 @@ public sealed class Jobs : ScriptableObject
         tierSettings = settings;
         rewardCoins = reward;
     }
+
+    JobLocation GetLocation()
+    {
+        return location;
+    }
 }
 
 public static class JobSession

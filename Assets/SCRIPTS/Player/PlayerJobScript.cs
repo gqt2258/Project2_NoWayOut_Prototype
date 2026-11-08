@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
 using UnityEngine.InputSystem;
@@ -5,9 +6,21 @@ using UnityEngine.InputSystem;
 public class PlayerJobScript : MonoBehaviour
 {
     public Jobs CurrentJob { get; private set; }
+    public int PickedUpCount => pickedUpCount;
+    public IReadOnlyList<string> CarriedItems => carriedItems;
+    public IReadOnlyList<string> DepositedItems => depositedItems;
+    public bool HasDepositedCorrectItem => CurrentJob != null && depositedItems.Contains(CurrentJob.CorrectItemId);
 
     private GameObject jobDescriptionPanel;
     private InputAction jobPanelAction;
+
+    [Header("Item progress (Play mode)")]
+    [SerializeField] private int pickedUpCount;
+    [SerializeField] private List<string> carriedItems = new List<string>();
+    [SerializeField] private List<string> depositedItems = new List<string>();
+
+    private Transform depositPoint;
+    [SerializeField, Min(0.1f)] private float depositRadius = 1.5f;
 
     private void Awake()
     {
@@ -18,6 +31,10 @@ public class PlayerJobScript : MonoBehaviour
         if (GetComponent<PlayerInput>() == null)
             return;
 
+        GameObject deposit = GameObject.Find("Deposit");
+        if (deposit != null)
+            depositPoint = deposit.transform;
+
         jobDescriptionPanel = GameObject.Find("Job Description Panel");
         if (jobDescriptionPanel == null)
         {
@@ -27,6 +44,30 @@ public class PlayerJobScript : MonoBehaviour
 
         DisplayCurrentJob();
         jobDescriptionPanel.SetActive(false);
+    }
+
+    private void Update()
+    {
+        if (depositPoint == null || carriedItems.Count == 0)
+            return;
+
+        if (((Vector2)(transform.position - depositPoint.position)).sqrMagnitude > depositRadius * depositRadius)
+            return;
+
+        Debug.Log($"Deposited: {string.Join(", ", carriedItems)}", this);
+        depositedItems.AddRange(carriedItems);
+        carriedItems.Clear();
+    }
+
+    public bool TryCollectItem(string itemId)
+    {
+        if (string.IsNullOrEmpty(itemId) || carriedItems.Contains(itemId) || depositedItems.Contains(itemId))
+            return false;
+
+        carriedItems.Add(itemId);
+        pickedUpCount++;
+        Debug.Log($"Picked up {itemId}.", this);
+        return true;
     }
 
     private void OnEnable()

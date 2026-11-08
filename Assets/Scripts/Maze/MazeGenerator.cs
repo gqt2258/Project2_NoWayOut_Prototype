@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using NavMeshPlus.Components;
 using UnityEngine;
 using UnityEngine.AI;
@@ -68,6 +69,11 @@ namespace NoWayOut.Maze
         [Header("Mini map")]
         [SerializeField] private Transform miniMapCamera;
 
+        [Header("Items (order: H01-H08, P01-P08, M01-M08)")]
+        [SerializeField] private GameObject[] hospitalItems;
+        [SerializeField] private GameObject[] prisonItems;
+        [SerializeField] private GameObject[] mansionItems;
+
         private Vector3Int origin;   // tile at the bottom-left corner of the border
         private Vector2 tileSize;
         private int pitch;           // tiles from one cell to the next: room plus one wall
@@ -111,6 +117,7 @@ namespace NoWayOut.Maze
                                                               new Vector2(pitch * tileSize.x, pitch * tileSize.y),
                                                               GridSize * GridSize * shufflesPerCell);
             PlaceEnemy();
+            SpawnItems();
 
             Debug.Log($"MazeGenerator built a {GridSize}x{GridSize} maze: {InsideTiles(GridSize)} tiles inside the border.", this);
         }
@@ -120,6 +127,83 @@ namespace NoWayOut.Maze
         {
             float centre = 1 + roomTiles / 2f;
             return TileToWorld(column * pitch + centre, row * pitch + centre);
+        }
+
+        private void SpawnItems()
+        {
+            var cells = new List<int>();
+            for (int row = 0; row < GridSize; row++)
+            {
+                for (int column = 0; column < GridSize; column++)
+                {
+                    if (column == doorColumn && (row == 0 || row == GridSize - 1))
+                        continue; // leave the entrance and enemy start clear
+
+                    cells.Add(row * GridSize + column);
+                }
+            }
+
+            if (cells.Count < 13)
+            {
+                Debug.LogError("The maze needs at least 13 open cells for item spawn points.", this);
+                return;
+            }
+
+            var spawnPoints = new List<Transform>(13);
+            for (int i = 0; i < 13; i++)
+            {
+                int randomIndex = Random.Range(i, cells.Count);
+                int chosenCell = cells[randomIndex];
+                cells[randomIndex] = cells[i];
+                cells[i] = chosenCell;
+
+                int cell = cells[i];
+                var point = new GameObject($"Item Spawn Point {i + 1}").transform;
+                point.SetParent(transform);
+                point.position = GetCellWorldPosition(cell / GridSize, cell % GridSize);
+                spawnPoints.Add(point);
+            }
+
+            JobLocation location = JobSession.SelectedJob != null ? JobSession.SelectedJob.Location : JobLocation.Hospital;
+            GameObject[] items = location == JobLocation.Prison ? prisonItems
+                               : location == JobLocation.Mansion ? mansionItems : hospitalItems;
+            string prefix = location == JobLocation.Prison ? "P" : location == JobLocation.Mansion ? "M" : "H";
+
+            if (items == null || items.Length != 8 || new HashSet<GameObject>(items).Count != 8)
+            {
+                Debug.LogError($"Assign eight different {location} item prefabs in MazeGenerator.", this);
+                return;
+            }
+
+            foreach (GameObject item in items)
+            {
+                if (item == null)
+                {
+                    Debug.LogError($"A {location} item prefab is missing in MazeGenerator.", this);
+                    return;
+                }
+            }
+
+            TilemapRenderer wallRenderer = wallTilemap.GetComponent<TilemapRenderer>();
+            for (int i = 0; i < items.Length; i++)
+            {
+                int randomIndex = Random.Range(i, spawnPoints.Count);
+                Transform chosenPoint = spawnPoints[randomIndex];
+                spawnPoints[randomIndex] = spawnPoints[i];
+                spawnPoints[i] = chosenPoint;
+
+                GameObject item = Instantiate(items[i], spawnPoints[i].position, Quaternion.identity, spawnPoints[i]);
+                item.name = items[i].name;
+                var pickup = item.AddComponent<MazeItemPickup>();
+                pickup.Initialize($"{prefix}{i + 1:00}");
+                item.AddComponent<CircleCollider2D>().isTrigger = true;
+
+                if (wallRenderer != null && item.TryGetComponent(out SpriteRenderer sprite))
+                {
+                    sprite.sortingLayerID = wallRenderer.sortingLayerID;
+                    sprite.sortingOrder = wallRenderer.sortingOrder;
+                }
+            }
         }
 
         private bool CanGenerate()

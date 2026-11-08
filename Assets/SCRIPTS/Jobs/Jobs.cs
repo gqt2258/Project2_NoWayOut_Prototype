@@ -20,7 +20,7 @@ public sealed class Jobs : ScriptableObject
 {
     [SerializeField] private string jobId;
     [SerializeField] private string title;
-    [TextArea(2, 4)] [SerializeField] private string story;
+    [TextArea(2, 4)][SerializeField] private string story;
     [SerializeField] private JobLocation location;
     [SerializeField] private int seed;
     [SerializeField] private string correctItemId;
@@ -51,12 +51,38 @@ public sealed class Jobs : ScriptableObject
     }
 }
 
+public enum JobResult
+{
+    None,
+    Success,
+    Failed
+}
+
 public static class JobSession
 {
     private static readonly Queue<string> RecentJobs = new Queue<string>();
     private static readonly HashSet<string> RecentJobSet = new HashSet<string>();
 
     public static Jobs SelectedJob { get; private set; }
+
+    // Set by SceneLoader when the player picks Solo or Co-op. Read in Gameplay.
+    public static bool IsCoop { get; set; }
+
+    // How the last job ended, for the results screen in the Main Menu scene.
+    public static JobResult LastResult { get; private set; }
+    public static Jobs LastResultJob { get; private set; }
+
+    public static void ReportResult(JobResult result)
+    {
+        LastResult = result;
+        LastResultJob = SelectedJob;
+    }
+
+    public static void ClearResult()
+    {
+        LastResult = JobResult.None;
+        LastResultJob = null;
+    }
 
     public static void Select(Jobs job)
     {

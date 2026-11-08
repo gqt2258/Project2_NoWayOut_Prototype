@@ -21,6 +21,10 @@ public class SceneLoader : MonoBehaviour
 
     private bool isCoopLobby = false;   // remembers the last lobby type
 
+    [Header("Results")]
+    [Tooltip("Your results screen. Opened when the scene loads after a job ends.")]
+    [SerializeField] private GameObject resultsPanel;
+
     private void Start()
     {
         JobSession.Select(null);   // a finished job doesn't carry over from the last game
@@ -38,6 +42,18 @@ public class SceneLoader : MonoBehaviour
         CosmeticsShop.SetActive(false);
         Loadout.SetActive(false);
         Player2Loadout.SetActive(false);
+
+        // Back from a match: remember Solo or Co-op, and show the results screen.
+        isCoopLobby = JobSession.IsCoop;
+        if (JobSession.LastResult != JobResult.None && resultsPanel != null)
+        {
+            mainMenuCanvas.SetActive(false);
+            resultsPanel.SetActive(true);
+        }
+        else if (resultsPanel != null)
+        {
+            resultsPanel.SetActive(false);
+        }
     }
 
     public void LoadMainMenu()
@@ -94,6 +110,7 @@ public class SceneLoader : MonoBehaviour
     public void LoadSoloLobbyBoard()
     {
         isCoopLobby = false;
+        JobSession.IsCoop = false;
         lobbyBoard.SetActive(true);
         mainMenuCanvas.SetActive(false);
         jobBoard.SetActive(false);
@@ -111,6 +128,7 @@ public class SceneLoader : MonoBehaviour
     public void LoadCoopLobbyBoard()
     {
         isCoopLobby = true;
+        JobSession.IsCoop = true;
         lobbyBoard.SetActive(true);
         mainMenuCanvas.SetActive(false);
         jobBoard.SetActive(false);
@@ -139,6 +157,16 @@ public class SceneLoader : MonoBehaviour
         CosmeticsShop.SetActive(false);
         Player2Loadout.SetActive(isCoopLobby);   // solo only shows Player 1
         Loadout.SetActive(true);
+    }
+
+    // Results screen button: closes it and goes back to the Solo or Co-op lobby.
+    public void CloseResults()
+    {
+        JobSession.ClearResult();
+        if (resultsPanel != null)
+            resultsPanel.SetActive(false);
+
+        LoadLastLobby();
     }
 
     // Returns to whichever lobby the player was last in.

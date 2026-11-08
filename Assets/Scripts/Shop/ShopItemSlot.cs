@@ -20,6 +20,10 @@ public class ShopItemSlot : MonoBehaviour, IPointerClickHandler
     [SerializeField] private Button upgradeButton;
 
     ShopItem item;
+    bool slotClickable;   // used by ShowIcon, for the gameplay hotbar
+
+    // Fires when a hotbar slot shown with ShowIcon is pressed.
+    public event Action OnSlotClicked;
 
     // Event to notify ShopUI when this panel is clicked
     public event Action<ShopItem> OnItemClicked;
@@ -47,6 +51,29 @@ public class ShopItemSlot : MonoBehaviour, IPointerClickHandler
         {
             OnItemClicked?.Invoke(item);
         }
+
+        if (slotClickable)
+            OnSlotClicked?.Invoke();
+    }
+
+    // Used by the gameplay hotbar: just an icon, for a tool or a job item.
+    public void ShowIcon(Sprite iconSprite, string label, bool clickable)
+    {
+        item = null;
+        slotClickable = clickable;
+        gameObject.SetActive(true);
+
+        if (nameText != null)
+            nameText.text = label;
+
+        if (priceText != null)
+        {
+            priceText.text = "";
+            priceText.gameObject.SetActive(false);
+        }
+
+        icon.sprite = iconSprite;
+        icon.enabled = iconSprite != null;
     }
 
     public void Show(ShopItem newItem, bool owned)
@@ -99,9 +126,15 @@ public class ShopItemSlot : MonoBehaviour, IPointerClickHandler
         item = clickable ? shown : null;
         gameObject.SetActive(true);
 
-        nameText.text = shown != null ? shown.displayName : "Empty";
-        priceText.text = detail;
-        priceText.gameObject.SetActive(!string.IsNullOrEmpty(detail));   // equipment has no detail
+        // Name Text and Price Text are optional here, so a slot can be icon only.
+        if (nameText != null)
+            nameText.text = shown != null ? shown.displayName : "Empty";
+
+        if (priceText != null)
+        {
+            priceText.text = detail;
+            priceText.gameObject.SetActive(!string.IsNullOrEmpty(detail));   // equipment has no detail
+        }
 
         icon.sprite = shown != null ? shown.icon : null;
         icon.enabled = shown != null && shown.icon != null;
@@ -110,6 +143,7 @@ public class ShopItemSlot : MonoBehaviour, IPointerClickHandler
     public void Hide()
     {
         item = null;
+        slotClickable = false;
         gameObject.SetActive(false);
     }
 }

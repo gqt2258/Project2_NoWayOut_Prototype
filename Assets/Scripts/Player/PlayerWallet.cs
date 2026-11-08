@@ -310,6 +310,20 @@ public class PlayerWallet : MonoBehaviour
         return true;
     }
 
+    // Moves all equipment into the match and empties the loadout, so anything
+    // not used during the match is lost when it ends.
+    public List<string> TakeEquipmentForMatch()
+    {
+        var taken = new List<string>(equipment);
+        if (taken.Count > 0)
+        {
+            equipment.Clear();
+            SaveAndNotify();
+        }
+
+        return taken;
+    }
+
     // Call this when the player uses up a piece of equipment. Removes one copy.
     public void RemoveEquipment(string itemId)
     {

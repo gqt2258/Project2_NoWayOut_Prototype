@@ -20,7 +20,10 @@ public class PlayerJobScript : MonoBehaviour
     [SerializeField] private List<string> depositedItems = new List<string>();
 
     private Transform depositPoint;
+    private Interactable depositInteractable;
     [SerializeField, Min(0.1f)] private float depositRadius = 1.5f;
+    [Tooltip("On: items are deposited as soon as the player is near the Deposit. Off: the player presses the Deposit button.")]
+    [SerializeField] private bool autoDeposit = true;
 
     private void Awake()
     {
@@ -33,7 +36,10 @@ public class PlayerJobScript : MonoBehaviour
 
         GameObject deposit = GameObject.Find("Deposit");
         if (deposit != null)
+        {
             depositPoint = deposit.transform;
+            depositInteractable = deposit.GetComponent<Interactable>();
+        }
 
         jobDescriptionPanel = GameObject.Find("Job Description Panel");
         if (jobDescriptionPanel == null)
@@ -48,15 +54,43 @@ public class PlayerJobScript : MonoBehaviour
 
     private void Update()
     {
-        if (depositPoint == null || carriedItems.Count == 0)
+        // The Deposit button is greyed out until there is something to deposit.
+        if (depositInteractable != null)
+            depositInteractable.CanInteract = carriedItems.Count > 0;
+
+        if (!autoDeposit || depositPoint == null || carriedItems.Count == 0)
             return;
 
         if (((Vector2)(transform.position - depositPoint.position)).sqrMagnitude > depositRadius * depositRadius)
             return;
 
+        DepositCarriedItems();
+    }
+
+    // Called automatically near the Deposit, or by the Deposit button's
+    // Interactable when Auto Deposit is off.
+    public void DepositCarriedItems()
+    {
+        if (carriedItems.Count == 0)
+            return;
+
         Debug.Log($"Deposited: {string.Join(", ", carriedItems)}", this);
         depositedItems.AddRange(carriedItems);
         carriedItems.Clear();
+
+        // Frees the inventory slots the job items were using.
+        PlayerLoadout inventory = GetComponent<PlayerLoadout>();
+        if (inventory != null)
+            inventory.RemoveJobItems();
+    }
+
+    // Empties the carried items, for dropping them on the floor. Returns the item IDs.
+    public List<string> DropCarriedItems()
+    {
+        var dropped = new List<string>(carriedItems);
+        pickedUpCount = Mathf.Max(0, pickedUpCount - dropped.Count);
+        carriedItems.Clear();
+        return dropped;
     }
 
     public bool TryCollectItem(string itemId)

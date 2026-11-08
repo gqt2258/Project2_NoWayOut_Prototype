@@ -66,6 +66,10 @@ namespace NoWayOut.Maze
         [Tooltip("Moved to the cell farthest from the Safe Base.")]
         [SerializeField] private Transform enemy;
 
+        [Header("Dropped items")]
+        [Tooltip("Size of dropped tools on the floor, in units.")]
+        [SerializeField, Min(0.1f)] private float droppedToolSize = 0.75f;
+
         [Header("Mini map")]
         [SerializeField] private Transform miniMapCamera;
 
@@ -203,6 +207,67 @@ namespace NoWayOut.Maze
                     sprite.sortingLayerID = wallRenderer.sortingLayerID;
                     sprite.sortingOrder = wallRenderer.sortingOrder;
                 }
+            }
+        }
+
+        // Drops a job item on the floor, such as when the player is revived.
+        public void DropJobItem(string itemId, Vector3 position)
+        {
+            GameObject prefab = GetItemPrefab(itemId);
+            if (prefab == null)
+            {
+                Debug.LogWarning($"No item prefab found for {itemId}, so it could not be dropped.", this);
+                return;
+            }
+
+            GameObject item = Instantiate(prefab, position, Quaternion.identity, transform);
+            item.name = prefab.name;
+            item.AddComponent<MazeItemPickup>().Initialize(itemId);
+            item.AddComponent<CircleCollider2D>().isTrigger = true;
+            MatchWallSorting(item);
+        }
+
+        // Drops a hotbar tool on the floor, shown with its shop icon.
+        public void DropTool(ShopItem tool, Vector3 position)
+        {
+            if (tool == null)
+                return;
+
+            var item = new GameObject($"Dropped {tool.displayName}");
+            item.transform.SetParent(transform, false);
+            item.transform.position = position;
+
+            var sprite = item.AddComponent<SpriteRenderer>();
+            sprite.sprite = tool.icon;
+            if (tool.icon != null)
+            {
+                float largestSide = Mathf.Max(tool.icon.bounds.size.x, tool.icon.bounds.size.y);
+                if (largestSide > 0f)
+                    item.transform.localScale = Vector3.one * (droppedToolSize / largestSide);
+            }
+
+            item.AddComponent<MazeItemPickup>().InitializeTool(tool);
+            item.AddComponent<CircleCollider2D>().isTrigger = true;
+            MatchWallSorting(item);
+        }
+
+        private GameObject GetItemPrefab(string itemId)
+        {
+            if (string.IsNullOrEmpty(itemId) || itemId.Length < 2 || !int.TryParse(itemId.Substring(1), out int number))
+                return null;
+
+            GameObject[] items = itemId[0] == 'P' ? prisonItems : itemId[0] == 'M' ? mansionItems : hospitalItems;
+            int index = number - 1;
+            return items != null && index >= 0 && index < items.Length ? items[index] : null;
+        }
+
+        private void MatchWallSorting(GameObject item)
+        {
+            TilemapRenderer wallRenderer = wallTilemap.GetComponent<TilemapRenderer>();
+            if (wallRenderer != null && item.TryGetComponent(out SpriteRenderer sprite))
+            {
+                sprite.sortingLayerID = wallRenderer.sortingLayerID;
+                sprite.sortingOrder = wallRenderer.sortingOrder;
             }
         }
 

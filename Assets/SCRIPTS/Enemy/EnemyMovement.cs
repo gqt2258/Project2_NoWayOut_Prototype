@@ -35,6 +35,7 @@ public class EnemyMovement : MonoBehaviour
     [SerializeField] private SpriteRenderer spriteRenderer;
 
     private readonly RaycastHit2D[] sightHits = new RaycastHit2D[16];
+    private Collider2D playerCollider;
     private float nextRepathTime;
     private float nextVisionCheckTime;
     private float nextLoiterTime;
@@ -60,6 +61,8 @@ public class EnemyMovement : MonoBehaviour
             if (playerObject != null)
                 player = playerObject.transform;
         }
+        if (player != null)
+            playerCollider = player.GetComponent<Collider2D>();
 
         if (mazeShiftController == null)
             mazeShiftController = FindAnyObjectByType<MazeShiftController>();
@@ -326,7 +329,8 @@ public class EnemyMovement : MonoBehaviour
     private bool CanSeePlayer()
     {
         Vector2 origin = transform.position;
-        Vector2 directionToPlayer = (Vector2)player.position - origin;
+        Vector2 target = playerCollider != null ? playerCollider.bounds.center : (Vector2)player.position;
+        Vector2 directionToPlayer = target - origin;
         float distance = directionToPlayer.magnitude;
         if (distance <= 0.01f)
             return true;

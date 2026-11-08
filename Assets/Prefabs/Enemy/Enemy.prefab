@@ -143,7 +143,7 @@ MonoBehaviour:
   chaseMemorySeconds: 5
   lineOfSightLayers:
     serializedVersion: 2
-    m_Bits: 51
+    m_Bits: 129
   loiterRadius: 4
   loiterIntervalSeconds: 3
   maxChaseSeconds: 15

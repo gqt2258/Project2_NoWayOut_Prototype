@@ -61,31 +61,31 @@ MonoBehaviour:
   itemPools:
   - location: 0
     itemIds:
-    - H01
-    - H02
-    - H03
-    - H04
-    - H05
-    - H06
-    - H07
-    - H08
+    - Doll
+    - Scalpel
+    - Patient Wristband
+    - Stethoscope
+    - Music Box
+    - Medical Chart
+    - Syringe
+    - Glove
   - location: 1
     itemIds:
-    - P01
-    - P02
-    - P03
-    - P04
-    - P05
-    - P06
-    - P07
-    - P08
+    - Key
+    - Tin Cup
+    - Cell Number Plate
+    - Prisoner Diary
+    - Shiv
+    - Prison Uniform
+    - Shackles
+    - Poster
   - location: 2
     itemIds:
-    - M01
-    - M02
-    - M03
-    - M04
-    - M05
-    - M06
-    - M07
-    - M08
+    - Mirror
+    - Plushie
+    - Pocket Watch
+    - Candlestick
+    - Family Portrait
+    - Veil
+    - Rope
+    - Spoon

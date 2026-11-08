@@ -65,6 +65,9 @@ namespace NoWayOut.Maze
         [Tooltip("Moved to the cell farthest from the Safe Base.")]
         [SerializeField] private Transform enemy;
 
+        [Header("Mini map")]
+        [SerializeField] private Transform miniMapCamera;
+
         private Vector3Int origin;   // tile at the bottom-left corner of the border
         private Vector2 tileSize;
         private int pitch;           // tiles from one cell to the next: room plus one wall
@@ -81,6 +84,7 @@ namespace NoWayOut.Maze
 
             pitch = roomTiles + 1;
             GridSize = GetGridSize();
+            PositionMiniMapCamera();
             tileSize = wallTilemap.layoutGrid.cellSize;
             doorColumn = GridSize / 2;
             origin = GetOrigin(GridSize);
@@ -164,6 +168,25 @@ namespace NoWayOut.Maze
         }
 
         private int InsideTiles(int cells) => cells * pitch - 1;
+
+        private void PositionMiniMapCamera()
+        {
+            if (miniMapCamera == null)
+                return;
+
+            switch (InsideTiles(GridSize))
+            {
+                case 17:
+                    miniMapCamera.position = new Vector3(-1.4f, 9f, -19f);
+                    break;
+                case 23:
+                    miniMapCamera.position = new Vector3(-1.4f, 12.2f, -25f);
+                    break;
+                case 29:
+                    miniMapCamera.position = new Vector3(-1.4f, 15.5f, -29.3f);
+                    break;
+            }
+        }
 
         // Puts the safe base just below the bottom border, under the middle cell's gap.
         private Vector3Int GetOrigin(int size)

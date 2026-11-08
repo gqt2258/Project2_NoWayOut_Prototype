@@ -24,6 +24,7 @@ namespace NoWayOut.Maze
         [Header("Tilemaps: under the same Grid, outside Walls")]
         [SerializeField] private Tilemap floorTilemap;
         [SerializeField] private Tilemap wallTilemap;
+        [SerializeField] private Tilemap outerWallTilemap;
         [Tooltip("Floor inside the safe base. Give this tilemap a NavMesh Modifier set to Not Walkable.")]
         [SerializeField] private Tilemap safeBaseFloorTilemap;
 
@@ -120,13 +121,14 @@ namespace NoWayOut.Maze
         private bool CanGenerate()
         {
             string problem = null;
-            if (floorTilemap == null || wallTilemap == null)
-                problem = "Assign the Floor and Wall tilemaps.";
+            if (floorTilemap == null || wallTilemap == null || outerWallTilemap == null)
+                problem = "Assign the Floor, Inner Walls and Outer Walls tilemaps.";
             else if (IsEmpty(floorTiles) || IsEmpty(borderTiles) || IsEmpty(fixedWallTiles) || IsEmpty(shiftingWallSprites))
                 problem = "Add at least one Floor, Border and Fixed Wall tile and one Shifting Wall Sprite, with no empty slots.";
             else if (safeBase != null && safeBaseFloorTilemap == null)
                 problem = "Assign the Safe Base Floor tilemap.";
-            else if (floorTilemap.transform.IsChildOf(transform) || wallTilemap.transform.IsChildOf(transform))
+            else if (floorTilemap.transform.IsChildOf(transform) || wallTilemap.transform.IsChildOf(transform) ||
+                     outerWallTilemap.transform.IsChildOf(transform))
                 problem = "Move the tilemaps out of Walls, or they would be removed.";
             else if (safeBase != null && safeBase.IsChildOf(transform))
                 problem = "Move the Safe Base out of Walls, or it would be removed.";
@@ -209,6 +211,7 @@ namespace NoWayOut.Maze
                     Vector3Int tile = start + new Vector3Int(x, y, 0);
                     floorTilemap.SetTile(tile, null);
                     wallTilemap.SetTile(tile, null);
+                    outerWallTilemap.SetTile(tile, null);
                 }
             }
         }
@@ -229,16 +232,16 @@ namespace NoWayOut.Maze
             int total = GridSize * pitch;
             for (int i = 0; i <= total; i++)
             {
-                PaintTile(i, total, borderTiles);
-                PaintTile(0, i, borderTiles);
-                PaintTile(total, i, borderTiles);
+                PaintOuterTile(i, total, borderTiles);
+                PaintOuterTile(0, i, borderTiles);
+                PaintOuterTile(total, i, borderTiles);
             }
 
             // Painted last, so the bottom corners use the bottom border tiles.
             for (int i = 0; i <= total; i++)
             {
                 if (!IsDoorGap(i))
-                    PaintTile(i, 0, BottomTiles);
+                    PaintOuterTile(i, 0, BottomTiles);
             }
 
             for (int row = 0; row <= GridSize; row++)
@@ -278,18 +281,19 @@ namespace NoWayOut.Maze
                     Vector3Int tile = origin + new Vector3Int(x, y, 0);
                     floorTilemap.SetTile(tile, null);
                     wallTilemap.SetTile(tile, null);
+                    outerWallTilemap.SetTile(tile, null);
                     safeBaseFloorTilemap.SetTile(tile, Pick(baseFloor));
                 }
             }
 
             for (int y = bottom; y < 0; y++)
             {
-                PaintTile(left, y, borderTiles);
-                PaintTile(right, y, borderTiles);
+                PaintOuterTile(left, y, borderTiles);
+                PaintOuterTile(right, y, borderTiles);
             }
 
             for (int x = left; x <= right; x++)
-                PaintTile(x, bottom, BottomTiles);
+                PaintOuterTile(x, bottom, BottomTiles);
         }
 
         // Shows the largest maze and the safe base in the Scene view when Walls is selected.
@@ -325,6 +329,11 @@ namespace NoWayOut.Maze
             wallTilemap.SetTile(origin + new Vector3Int(x, y, 0), Pick(options));
         }
 
+        private void PaintOuterTile(int x, int y, TileBase[] options)
+        {
+            outerWallTilemap.SetTile(origin + new Vector3Int(x, y, 0), Pick(options));
+        }
+
         private void BuildInteriorWalls()
         {
             int last = GridSize - 1;
@@ -358,9 +367,8 @@ namespace NoWayOut.Maze
             }
         }
 
-        // One moving wall: a collider and an invisible navmesh footprint the size of its
-        // base, plus one sprite per tile. The sprites are left out of the navmesh, so tall
-        // art does not block the floor behind it.
+        // One moving wall: a collider and an invisible navmesh footprint that cover
+        // the full wall sprites, plus one visible sprite per tile.
         private void BuildShiftingWall(int startX, int startY, bool vertical, string objectName)
         {
             Vector2 size = vertical ? new Vector2(tileSize.x, roomTiles * tileSize.y)
@@ -371,11 +379,17 @@ namespace NoWayOut.Maze
             var wall = new GameObject(objectName) { tag = "Shifting", layer = wallTilemap.gameObject.layer };
             wall.transform.SetParent(transform, false);
             wall.transform.position = centre;
-            wall.AddComponent<BoxCollider2D>().size = size;
+            // The wall sprites extend half a tile above their base tile.
+            Vector2 colliderSize = new Vector2(size.x, size.y + tileSize.y * 0.5f);
+            Vector2 colliderOffset = new Vector2(0f, tileSize.y * 0.25f);
+            BoxCollider2D wallCollider = wall.AddComponent<BoxCollider2D>();
+            wallCollider.size = colliderSize;
+            wallCollider.offset = colliderOffset;
 
             var footprint = new GameObject("NavMesh Footprint") { layer = wall.layer };
             footprint.transform.SetParent(wall.transform, false);
-            footprint.transform.localScale = new Vector3(size.x, size.y, 1f);
+            footprint.transform.localPosition = colliderOffset;
+            footprint.transform.localScale = new Vector3(colliderSize.x, colliderSize.y, 1f);
             var footprintRenderer = footprint.AddComponent<SpriteRenderer>();
             footprintRenderer.sprite = GetFootprintSprite();
             footprintRenderer.color = Color.clear;   // invisible, but still read by the navmesh
@@ -398,6 +412,7 @@ namespace NoWayOut.Maze
                 {
                     renderer.sortingLayerID = wallRenderer.sortingLayerID;
                     renderer.sortingOrder = wallRenderer.sortingOrder;
+                    renderer.sharedMaterial = wallRenderer.sharedMaterial;
                 }
 
                 AddModifier(art, ignore: true);

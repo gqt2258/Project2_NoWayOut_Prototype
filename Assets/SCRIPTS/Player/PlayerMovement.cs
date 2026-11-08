@@ -42,12 +42,14 @@ public class PlayerMovement : MonoBehaviour
             currentStamina = Mathf.Min(stats.maxStamina, currentStamina + stats.staminaRecoveryPerSecond * Time.deltaTime);
         }
 
-        rb.linearVelocity = moveInput * (isSprinting ? stats.sprintSpeed : stats.moveSpeed);
-
-
         HandleFootsteps();
         HandleAnimation();
 
+    }
+
+    private void FixedUpdate()
+    {
+        rb.linearVelocity = moveInput * (isSprinting ? stats.sprintSpeed : stats.moveSpeed);
     }
     private void HandleAnimation()
     {

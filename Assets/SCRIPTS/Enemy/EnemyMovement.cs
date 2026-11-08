@@ -6,6 +6,7 @@ public class EnemyMovement : MonoBehaviour
 {
     public NavMeshAgent agent;
     public Transform player;
+    private Rigidbody2D body;
     [SerializeField, Min(0.05f)] private float repathIntervalSeconds = 0.25f;
     [SerializeField, Min(0.05f)] private float minimumTargetMovement = 0.5f;
     [SerializeField] private MazeShiftController mazeShiftController;
@@ -52,6 +53,7 @@ public class EnemyMovement : MonoBehaviour
 
     private void Start()
     {
+        body = GetComponent<Rigidbody2D>();
         if (player == null)
         {
             GameObject playerObject = GameObject.Find("Player");
@@ -67,6 +69,7 @@ public class EnemyMovement : MonoBehaviour
             agent = GetComponent<NavMeshAgent>();
         if (agent != null)
         {
+            agent.updatePosition = false;
             agent.updateRotation = false;
             agent.updateUpAxis = false;   // keeps the enemy flat in 2D
         }
@@ -75,6 +78,19 @@ public class EnemyMovement : MonoBehaviour
 
         if (animator == null) animator = GetComponentInChildren<Animator>();
         if (spriteRenderer == null) spriteRenderer = GetComponentInChildren<SpriteRenderer>();
+    }
+
+    private void FixedUpdate()
+    {
+        if (body == null || agent == null)
+            return;
+
+        body.linearVelocity = agent.enabled && agent.isOnNavMesh
+            ? new Vector2(agent.desiredVelocity.x, agent.desiredVelocity.y)
+            : Vector2.zero;
+
+        if (agent.enabled && agent.isOnNavMesh)
+            agent.nextPosition = body.position;
     }
 
     private void Update()

@@ -44,6 +44,9 @@ TagManager:
   - name: Default
     uniqueID: 0
     locked: 0
+  - name: Floor
+    uniqueID: 3084597671
+    locked: 0
   m_RenderingLayers:
   - Default
   m_MigratedRenderPipelines: []

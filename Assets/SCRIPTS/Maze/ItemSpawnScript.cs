@@ -33,12 +33,12 @@ public class ItemSpawnScript : MonoBehaviour
                 availablePoints.Add(point);
         }
 
-        var spawnedItems = new HashSet<GameObject>();
+        var usedPrefabs = new HashSet<GameObject>();
         foreach (GameObject item in items)
         {
             if (availablePoints.Count == 0)
                 break;
-            if (item == null || !spawnedItems.Add(item))
+            if (item == null || !usedPrefabs.Add(item))
                 continue;
 
             int pointIndex = Random.Range(0, availablePoints.Count);

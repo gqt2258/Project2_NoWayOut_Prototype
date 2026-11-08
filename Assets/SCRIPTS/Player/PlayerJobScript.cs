@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
 using UnityEngine.InputSystem;
@@ -5,9 +6,14 @@ using UnityEngine.InputSystem;
 public class PlayerJobScript : MonoBehaviour
 {
     public Jobs CurrentJob { get; private set; }
+    public IReadOnlyList<GameObject> CarriedItems => carriedItems;
+
+    [SerializeField, Min(0.1f)] private float pickupRange = 1.5f;
 
     private GameObject jobDescriptionPanel;
     private InputAction jobPanelAction;
+    private InputAction interactAction;
+    [SerializeField] private List<GameObject> carriedItems = new List<GameObject>();
 
     private void Awake()
     {
@@ -35,6 +41,13 @@ public class PlayerJobScript : MonoBehaviour
         if (playerInput == null || playerInput.actions == null)
             return;
 
+        interactAction = playerInput.actions.FindAction("Player/Interact", false);
+        if (interactAction != null)
+        {
+            interactAction.performed += PickUpNearbyItem;
+            interactAction.Enable();
+        }
+
         jobPanelAction = playerInput.actions.FindAction("UI/JobPanel", false);
         if (jobPanelAction == null)
         {
@@ -49,13 +62,20 @@ public class PlayerJobScript : MonoBehaviour
 
     private void OnDisable()
     {
-        if (jobPanelAction == null)
-            return;
+        if (jobPanelAction != null)
+        {
+            jobPanelAction.started -= ShowJobPanel;
+            jobPanelAction.canceled -= HideJobPanel;
+            jobPanelAction.Disable();
+            jobPanelAction = null;
+        }
 
-        jobPanelAction.started -= ShowJobPanel;
-        jobPanelAction.canceled -= HideJobPanel;
-        jobPanelAction.Disable();
-        jobPanelAction = null;
+        if (interactAction != null)
+        {
+            interactAction.performed -= PickUpNearbyItem;
+            interactAction.Disable();
+            interactAction = null;
+        }
     }
 
     private void DisplayCurrentJob()
@@ -84,5 +104,26 @@ public class PlayerJobScript : MonoBehaviour
     {
         if (jobDescriptionPanel != null)
             jobDescriptionPanel.SetActive(false);
+    }
+
+    private void PickUpNearbyItem(InputAction.CallbackContext context)
+    {
+        GameObject closestItem = null;
+        float closestDistance = pickupRange * pickupRange;
+        foreach (GameObject item in GameObject.FindGameObjectsWithTag("Item"))
+        {
+            float distance = (item.transform.position - transform.position).sqrMagnitude;
+            if (distance < closestDistance)
+            {
+                closestDistance = distance;
+                closestItem = item;
+            }
+        }
+
+        if (closestItem == null)
+            return;
+
+        closestItem.SetActive(false);
+        carriedItems.Add(closestItem);
     }
 }

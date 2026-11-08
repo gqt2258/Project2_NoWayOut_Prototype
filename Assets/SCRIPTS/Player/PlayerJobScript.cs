@@ -7,13 +7,17 @@ public class PlayerJobScript : MonoBehaviour
 {
     public Jobs CurrentJob { get; private set; }
     public IReadOnlyList<GameObject> CarriedItems => carriedItems;
+    public IReadOnlyList<GameObject> DepositedItems => depositedItems;
 
     [SerializeField, Min(0.1f)] private float pickupRange = 1.5f;
+    [SerializeField] private Transform depositPoint;
+    [SerializeField, Min(0.1f)] private float depositRange = 1.5f;
 
     private GameObject jobDescriptionPanel;
     private InputAction jobPanelAction;
     private InputAction interactAction;
     [SerializeField] private List<GameObject> carriedItems = new List<GameObject>();
+    [SerializeField] private List<GameObject> depositedItems = new List<GameObject>();
 
     private void Awake()
     {
@@ -24,6 +28,13 @@ public class PlayerJobScript : MonoBehaviour
         if (GetComponent<PlayerInput>() == null)
             return;
 
+        if (depositPoint == null)
+        {
+            GameObject point = GameObject.Find("Deposit Point");
+            if (point != null)
+                depositPoint = point.transform;
+        }
+
         jobDescriptionPanel = GameObject.Find("Job Description Panel");
         if (jobDescriptionPanel == null)
         {
@@ -33,6 +44,23 @@ public class PlayerJobScript : MonoBehaviour
 
         DisplayCurrentJob();
         jobDescriptionPanel.SetActive(false);
+    }
+
+    private void Update()
+    {
+        if (depositPoint == null || carriedItems.Count == 0 || !depositPoint.TryGetComponent(out DepositPoint deposit))
+            return;
+
+        Vector2 distance = transform.position - depositPoint.position;
+        if (distance.sqrMagnitude > depositRange * depositRange)
+            return;
+
+        foreach (GameObject item in carriedItems)
+        {
+            deposit.Deposit(item);
+            depositedItems.Add(item);
+        }
+        carriedItems.Clear();
     }
 
     private void OnEnable()

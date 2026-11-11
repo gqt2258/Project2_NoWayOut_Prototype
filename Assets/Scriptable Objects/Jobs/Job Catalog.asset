@@ -89,3 +89,76 @@ MonoBehaviour:
     - M06
     - M07
     - M08
+  itemRiddles:
+  - itemId: H01
+    itemName: Doll
+    riddle: "A child’s friend with a still face."
+  - itemId: H02
+    itemName: Scalpel
+    riddle: "It once healed by cutting, and now it only rots."
+  - itemId: H03
+    itemName: Patient Wristband
+    riddle: "A name tied around the wrist; the name is gone."
+  - itemId: H04
+    itemName: Stethoscope
+    riddle: "It once listened for a heartbeat. Now it hears nothing."
+  - itemId: H05
+    itemName: Music Box
+    riddle: "Wind it up and it hums a song for the forgotten."
+  - itemId: H06
+    itemName: Medical Chart
+    riddle: "It records who lived and who did not."
+  - itemId: H07
+    itemName: Syringe
+    riddle: "A needle that never finished its dose."
+  - itemId: H08
+    itemName: Glove
+    riddle: "It held a hand, and the hand was not clean."
+  - itemId: P01
+    itemName: Key
+    riddle: "It opens a door no one wants opened."
+  - itemId: P02
+    itemName: Tin Cup
+    riddle: "It rattled against bars at supper."
+  - itemId: P03
+    itemName: Cell Number Plate
+    riddle: "A number is all that was left of the man…or woman.."
+  - itemId: P04
+    itemName: Prisoner Diary
+    riddle: "The last words of someone’s final moments.."
+  - itemId: P05
+    itemName: Shiv
+    riddle: "Sharpened, hidden from the guards."
+  - itemId: P06
+    itemName: Prison Uniform
+    riddle: "Cloth that marks a man as property."
+  - itemId: P07
+    itemName: Shackles
+    riddle: "They hold no one now, yet they still clink."
+  - itemId: P08
+    itemName: Poster
+    riddle: "Stuck on the wall forever but brings colour to the plain wall ."
+  - itemId: M01
+    itemName: Mirror
+    riddle: "It shows you a face you no longer recognise."
+  - itemId: M02
+    itemName: Plushie
+    riddle: "A soft best friend.."
+  - itemId: M03
+    itemName: Pocket Watch
+    riddle: "Its hands stopped the night the family died."
+  - itemId: M04
+    itemName: Candlestick
+    riddle: "It held the flame that lit the hall."
+  - itemId: M05
+    itemName: Family Portrait
+    riddle: "Painted faces that watch you move."
+  - itemId: M06
+    itemName: Veil
+    riddle: "Worn on a wedding day that never ended."
+  - itemId: M07
+    itemName: Rope
+    riddle: "It once drew the curtain on the last act."
+  - itemId: M08
+    itemName: Spoon
+    riddle: "It fed a family that no longer eats."

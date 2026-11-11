@@ -10466,6 +10466,7 @@ MonoBehaviour:
   Loadout: {fileID: 116627576}
   Player2Loadout: {fileID: 798037540}
   jobBoardController: {fileID: 3300000001}
+  resultsPanel: {fileID: 0}
 --- !u!1 &778304941
 GameObject:
   m_ObjectHideFlags: 0

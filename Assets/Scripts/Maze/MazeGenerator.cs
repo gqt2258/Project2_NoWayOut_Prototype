@@ -136,27 +136,35 @@ namespace NoWayOut.Maze
         private void SpawnItems()
         {
             var cells = new List<int>();
-            for (int row = 0; row < GridSize; row++)
+            var nearEdgeCells = new List<int>();
+            int firstDistantRow = Mathf.Max(1, GridSize / 2 - 1);
+            for (int row = firstDistantRow; row < GridSize; row++)
             {
                 for (int column = 0; column < GridSize; column++)
                 {
-                    if (column == doorColumn && (row == 0 || row == GridSize - 1))
-                        continue; // leave the entrance and enemy start clear
+                    if (row == GridSize - 1 && column == doorColumn)
+                        continue; // leave the enemy start clear
 
-                    cells.Add(row * GridSize + column);
+                    int cell = row * GridSize + column;
+                    if (row == GridSize - 1 || column == 0 || column == GridSize - 1)
+                        cells.Add(cell);
+                    else if (row == GridSize - 2 || column == 1 || column == GridSize - 2)
+                        nearEdgeCells.Add(cell);
                 }
             }
 
+            int outerEdgeCount = cells.Count;
+            cells.AddRange(nearEdgeCells);
             if (cells.Count < 13)
             {
-                Debug.LogError("The maze needs at least 13 open cells for item spawn points.", this);
+                Debug.LogError("The maze needs at least 13 distant edge cells for item spawn points.", this);
                 return;
             }
 
             var spawnPoints = new List<Transform>(13);
             for (int i = 0; i < 13; i++)
             {
-                int randomIndex = Random.Range(i, cells.Count);
+                int randomIndex = Random.Range(i, i < outerEdgeCount ? outerEdgeCount : cells.Count);
                 int chosenCell = cells[randomIndex];
                 cells[randomIndex] = cells[i];
                 cells[i] = chosenCell;
@@ -168,7 +176,8 @@ namespace NoWayOut.Maze
                 spawnPoints.Add(point);
             }
 
-            JobLocation location = JobSession.SelectedJob != null ? JobSession.SelectedJob.Location : JobLocation.Hospital;
+            Jobs job = JobSession.SelectedJob;
+            JobLocation location = job != null ? job.Location : JobLocation.Hospital;
             GameObject[] items = location == JobLocation.Prison ? prisonItems
                                : location == JobLocation.Mansion ? mansionItems : hospitalItems;
             string prefix = location == JobLocation.Prison ? "P" : location == JobLocation.Mansion ? "M" : "H";
@@ -188,24 +197,68 @@ namespace NoWayOut.Maze
                 }
             }
 
-            TilemapRenderer wallRenderer = wallTilemap.GetComponent<TilemapRenderer>();
+            if (job != null && job.TierSettings == null)
+            {
+                Debug.LogError("The selected job needs tier settings to spawn its items.", this);
+                return;
+            }
+
+            int decoyCount = job != null ? job.TierSettings.DecoyCount : 2;
+            if (decoyCount < 0 || decoyCount >= items.Length || decoyCount + 1 > spawnPoints.Count)
+            {
+                Debug.LogError($"Invalid decoy count {decoyCount} for {location}.", this);
+                return;
+            }
+
+            int correctNumber = 0;
+            if (job != null && (string.IsNullOrEmpty(job.CorrectItemId) || job.CorrectItemId.Length != 3 ||
+                                !int.TryParse(job.CorrectItemId.Substring(1), out correctNumber) ||
+                                job.CorrectItemId != $"{prefix}{correctNumber:00}" ||
+                                correctNumber < 1 || correctNumber > items.Length))
+            {
+                Debug.LogError($"The correct item ID must be {prefix}01 to {prefix}08.", this);
+                return;
+            }
+
+            int correctIndex = job != null ? correctNumber - 1 : Random.Range(0, items.Length);
+            var decoyIndexes = new List<int>();
             for (int i = 0; i < items.Length; i++)
+                if (i != correctIndex)
+                    decoyIndexes.Add(i);
+
+            var chosenIndexes = new List<int> { correctIndex };
+            for (int i = 0; i < decoyCount; i++)
+            {
+                int randomIndex = Random.Range(i, decoyIndexes.Count);
+                int chosenDecoy = decoyIndexes[randomIndex];
+                decoyIndexes[randomIndex] = decoyIndexes[i];
+                decoyIndexes[i] = chosenDecoy;
+                chosenIndexes.Add(chosenDecoy);
+            }
+
+            TilemapRenderer wallRenderer = wallTilemap.GetComponent<TilemapRenderer>();
+            for (int i = 0; i < chosenIndexes.Count; i++)
             {
                 int randomIndex = Random.Range(i, spawnPoints.Count);
                 Transform chosenPoint = spawnPoints[randomIndex];
                 spawnPoints[randomIndex] = spawnPoints[i];
                 spawnPoints[i] = chosenPoint;
 
-                GameObject item = Instantiate(items[i], spawnPoints[i].position, Quaternion.identity, spawnPoints[i]);
-                item.name = items[i].name;
+                int itemIndex = chosenIndexes[i];
+                GameObject item = Instantiate(items[itemIndex], spawnPoints[i].position, Quaternion.identity, spawnPoints[i]);
+                item.name = items[itemIndex].name;
                 var pickup = item.AddComponent<MazeItemPickup>();
-                pickup.Initialize($"{prefix}{i + 1:00}");
+                pickup.Initialize($"{prefix}{itemIndex + 1:00}");
                 item.AddComponent<CircleCollider2D>().isTrigger = true;
 
-                if (wallRenderer != null && item.TryGetComponent(out SpriteRenderer sprite))
+                if (item.TryGetComponent(out SpriteRenderer sprite))
                 {
-                    sprite.sortingLayerID = wallRenderer.sortingLayerID;
-                    sprite.sortingOrder = wallRenderer.sortingOrder;
+                    sprite.color = itemIndex == correctIndex ? Color.green : Color.white;
+                    if (wallRenderer != null)
+                    {
+                        sprite.sortingLayerID = wallRenderer.sortingLayerID;
+                        sprite.sortingOrder = wallRenderer.sortingOrder;
+                    }
                 }
             }
         }
@@ -225,6 +278,9 @@ namespace NoWayOut.Maze
             item.AddComponent<MazeItemPickup>().Initialize(itemId);
             item.AddComponent<CircleCollider2D>().isTrigger = true;
             MatchWallSorting(item);
+            if (item.TryGetComponent(out SpriteRenderer sprite))
+                sprite.color = JobSession.SelectedJob != null && itemId == JobSession.SelectedJob.CorrectItemId
+                             ? Color.green : Color.white;
         }
 
         // Drops a hotbar tool on the floor, shown with its shop icon.

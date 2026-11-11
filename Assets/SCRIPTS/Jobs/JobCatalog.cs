@@ -16,11 +16,32 @@ public sealed class JobItemPool
     public string[] itemIds;
 }
 
+[Serializable]
+public sealed class JobItemRiddle
+{
+    public string itemId;
+    public string itemName;
+    [TextArea(2, 4)] public string riddle;
+}
+
 [CreateAssetMenu(fileName = "JobCatalog", menuName = "No Way Out/Job Catalog")]
 public sealed class JobCatalog : ScriptableObject
 {
     [SerializeField] private JobStoryEntry[] stories;
     [SerializeField] private JobItemPool[] itemPools;
+    [SerializeField] private JobItemRiddle[] itemRiddles;
+
+    public JobItemRiddle FindItemRiddle(string itemId)
+    {
+        if (itemRiddles == null)
+            return null;
+
+        foreach (JobItemRiddle item in itemRiddles)
+            if (item != null && item.itemId == itemId)
+                return item;
+
+        return null;
+    }
 
     public bool TryGetRandomStoryAndItem(JobLocation location, out string title, out string story, out string itemId)
     {

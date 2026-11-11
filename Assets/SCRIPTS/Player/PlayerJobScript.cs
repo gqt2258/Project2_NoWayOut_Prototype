@@ -12,7 +12,7 @@ public class PlayerJobScript : MonoBehaviour
     public IReadOnlyList<string> DepositedItems => depositedItems;
     public bool HasDepositedCorrectItem => CurrentJob != null && depositedItems.Contains(CurrentJob.CorrectItemId);
 
-    private GameObject jobDescriptionPanel;
+    [SerializeField] private GameObject jobDescriptionPanel;
     private InputAction jobPanelAction;
     [SerializeField] private Button jobPanelButton;
     private bool buttonPanelOpen;
@@ -45,7 +45,6 @@ public class PlayerJobScript : MonoBehaviour
             depositInteractable = deposit.GetComponent<Interactable>();
         }
 
-        jobDescriptionPanel = GameObject.Find("Job Description Panel");
         if (jobDescriptionPanel == null)
         {
             Debug.LogWarning("Job Description Panel was not found in the scene.", this);

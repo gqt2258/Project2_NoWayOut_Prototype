@@ -3007,6 +3007,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 7f0b6189edbbd7d4eb65e611d608d3df, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::PlayerJobScript
+  jobDescriptionPanel: {fileID: 0}
   jobPanelButton: {fileID: 0}
   pickedUpCount: 0
   carriedItems: []
@@ -6014,6 +6015,10 @@ PrefabInstance:
       propertyPath: jobPanelButton
       value: 
       objectReference: {fileID: 1596844289}
+    - target: {fileID: 5667797656690697362, guid: 95db552fa8af00e4785beae5b129470f, type: 3}
+      propertyPath: jobDescriptionPanel
+      value: 
+      objectReference: {fileID: 1733757145}
     - target: {fileID: 7878811516614966225, guid: 95db552fa8af00e4785beae5b129470f, type: 3}
       propertyPath: m_Name
       value: Player

@@ -550,7 +550,6 @@ MonoBehaviour:
   revivesPerMatch: 1
   reviveBar: {fileID: 0}
   dropScatter: 0.4
-  mainMenuSceneName: Main Menu
   spawnPoint: {fileID: 0}
 --- !u!95 &8891674535513741995
 Animator:

@@ -85,6 +85,13 @@ public class PlayerJobScript : MonoBehaviour
         PlayerLoadout inventory = GetComponent<PlayerLoadout>();
         if (inventory != null)
             inventory.RemoveJobItems();
+
+        if (HasDepositedCorrectItem)
+        {
+            GameplayEndScreen endScreen = FindAnyObjectByType<GameplayEndScreen>();
+            if (endScreen != null)
+                endScreen.ShowWin();
+        }
     }
 
     // Empties the carried items, for dropping them on the floor. Returns the item IDs.

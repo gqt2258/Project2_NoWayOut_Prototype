@@ -1,7 +1,6 @@
 using System.Collections;
 using NoWayOut.Maze;
 using UnityEngine;
-using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 
 public class PlayerHealth : MonoBehaviour
@@ -18,8 +17,6 @@ public class PlayerHealth : MonoBehaviour
     [SerializeField] private Slider reviveBar;
     [Tooltip("How far apart dropped items are scattered, in units.")]
     [SerializeField, Min(0f)] private float dropScatter = 0.4f;
-    [Tooltip("Loaded when the job fails. Your results screen there shows the result.")]
-    [SerializeField] private string mainMenuSceneName = "Main Menu";
 
     private int currentHealth;
     private int revivesLeft;
@@ -149,9 +146,9 @@ public class PlayerHealth : MonoBehaviour
         jobFailed = true;
         Debug.Log("No revives left. The job has failed.", this);
 
-        JobSession.ReportResult(JobResult.Failed);
-        Time.timeScale = 1f;
-        SceneManager.LoadScene(mainMenuSceneName);
+        GameplayEndScreen endScreen = FindAnyObjectByType<GameplayEndScreen>();
+        if (endScreen != null)
+            endScreen.ShowLose();
     }
 
     private void RefreshReviveBar()

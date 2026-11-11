@@ -1,6 +1,5 @@
 using UnityEngine;
 using UnityEngine.InputSystem;
-using UnityEngine.UI;
 
 public class PlayerMovement : MonoBehaviour
 {
@@ -14,20 +13,16 @@ public class PlayerMovement : MonoBehaviour
     [SerializeField, Min(0.1f)] private float walkAnimationSpeed = 0.7f;
     [SerializeField, Min(0.1f)] private float idleAnimationSpeed = 0.6f;
 
-    [Header("Joystick running")]
-    [Tooltip("How far the joystick must be pushed to run. 0.9 = 90% of the way to the edge.")]
-    [SerializeField, Range(0.5f, 1f)] private float joystickRunThreshold = 0.9f;
-
     [Header("UI")]
-    [Tooltip("The Stamina Bar slider under Stats. Assign it on the Player in the Gameplay scene.")]
-    [SerializeField] private Slider staminaBar;
+    [Tooltip("The StaminaBar component under Stats. Assign it on the Player in the Gameplay scene.")]
+    [SerializeField] private StaminaBar staminaBar;
 
     private float currentStamina;
     private float lastSprintTime = float.NegativeInfinity;
     private Vector2 moveInput;
     private bool isSprinting;
     private bool sprintHeld;        // Shift, or any other Sprint binding
-    private bool moveFromStick;     // true for the on-screen joystick or a gamepad, false for the keyboard
+    private bool sprintButtonHeld;
     private bool runLocked;         // after stamina runs out, the player must stop trying to run first
     private float speedMultiplier = 1f;     // set by PlayerLoadout from the walk speed upgrade
     private float staminaMultiplier = 1f;   // set by PlayerLoadout from the run stamina upgrade
@@ -40,6 +35,8 @@ public class PlayerMovement : MonoBehaviour
         speedMultiplier = 1f + speedBonus;
         staminaMultiplier = 1f + staminaBonus;
         currentStamina = MaxStamina;
+        if (staminaBar != null)
+            staminaBar.SetMaxStamina(MaxStamina);
     }
 
     private void RefreshStaminaBar()
@@ -47,8 +44,7 @@ public class PlayerMovement : MonoBehaviour
         if (staminaBar == null)
             return;
 
-        staminaBar.maxValue = MaxStamina;   // grows with the run stamina upgrade
-        staminaBar.value = currentStamina;
+        staminaBar.SetStamina(currentStamina);
     }
 
     private void Awake()
@@ -57,6 +53,8 @@ public class PlayerMovement : MonoBehaviour
             rb = GetComponent<Rigidbody2D>();
 
         currentStamina = MaxStamina;
+        if (staminaBar != null)
+            staminaBar.SetMaxStamina(MaxStamina);
     }
 
     private void Update()
@@ -131,7 +129,6 @@ public class PlayerMovement : MonoBehaviour
     public void Move(InputAction.CallbackContext context)
     {
         moveInput = context.ReadValue<Vector2>();
-        moveFromStick = context.control != null && !(context.control.device is Keyboard);
     }
 
     public void Sprint(InputAction.CallbackContext context)
@@ -139,16 +136,19 @@ public class PlayerMovement : MonoBehaviour
         sprintHeld = context.ReadValueAsButton();
     }
 
-    // Runs while Shift is held, or while the joystick is pushed near its edge.
-    // When stamina runs out, running stops until the player lets go of Shift or
-    // eases the joystick back, like the old Shift behaviour.
+    public void SetSprintButtonHeld(bool held)
+    {
+        sprintButtonHeld = held;
+    }
+
+    // Sprint only while moving with Shift or the sprint button held.
+    // After stamina runs out, release sprint before running again.
     private void UpdateRunning()
     {
-        bool stickPushedFar = moveFromStick &&
-                              moveInput.sqrMagnitude >= joystickRunThreshold * joystickRunThreshold;
-        bool wantsToRun = sprintHeld || stickPushedFar;
+        bool wantsToRun = sprintHeld || sprintButtonHeld;
+        bool isMoving = moveInput.sqrMagnitude > 0.01f;
 
-        if (!wantsToRun)
+        if (!wantsToRun || !isMoving)
         {
             if (isSprinting)
             {
@@ -156,7 +156,8 @@ public class PlayerMovement : MonoBehaviour
                 lastSprintTime = Time.time;
             }
 
-            runLocked = false;
+            if (!wantsToRun)
+                runLocked = false;
         }
         else if (!isSprinting && !runLocked && currentStamina > 0f)
         {

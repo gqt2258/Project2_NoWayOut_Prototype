@@ -2,6 +2,7 @@ using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
 using UnityEngine.InputSystem;
+using UnityEngine.UI;
 
 public class PlayerJobScript : MonoBehaviour
 {
@@ -13,6 +14,9 @@ public class PlayerJobScript : MonoBehaviour
 
     private GameObject jobDescriptionPanel;
     private InputAction jobPanelAction;
+    [SerializeField] private Button jobPanelButton;
+    private bool buttonPanelOpen;
+    private bool jobPanelHeld;
 
     [Header("Item progress (Play mode)")]
     [SerializeField] private int pickedUpCount;
@@ -106,6 +110,9 @@ public class PlayerJobScript : MonoBehaviour
 
     private void OnEnable()
     {
+        if (jobPanelButton != null)
+            jobPanelButton.onClick.AddListener(ToggleJobPanel);
+
         PlayerInput playerInput = GetComponent<PlayerInput>();
         if (playerInput == null || playerInput.actions == null)
             return;
@@ -124,6 +131,9 @@ public class PlayerJobScript : MonoBehaviour
 
     private void OnDisable()
     {
+        if (jobPanelButton != null)
+            jobPanelButton.onClick.RemoveListener(ToggleJobPanel);
+
         if (jobPanelAction == null)
             return;
 
@@ -151,13 +161,25 @@ public class PlayerJobScript : MonoBehaviour
 
     private void ShowJobPanel(InputAction.CallbackContext context)
     {
-        if (jobDescriptionPanel != null)
-            jobDescriptionPanel.SetActive(true);
+        jobPanelHeld = true;
+        UpdateJobPanel();
     }
 
     private void HideJobPanel(InputAction.CallbackContext context)
     {
+        jobPanelHeld = false;
+        UpdateJobPanel();
+    }
+
+    public void ToggleJobPanel()
+    {
+        buttonPanelOpen = !buttonPanelOpen;
+        UpdateJobPanel();
+    }
+
+    private void UpdateJobPanel()
+    {
         if (jobDescriptionPanel != null)
-            jobDescriptionPanel.SetActive(false);
+            jobDescriptionPanel.SetActive(buttonPanelOpen || jobPanelHeld);
     }
 }

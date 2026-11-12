@@ -3757,7 +3757,7 @@ RectTransform:
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
   m_AnchoredPosition: {x: 0, y: 0}
-  m_SizeDelta: {x: 100, y: 100}
+  m_SizeDelta: {x: 170, y: 170}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1290473117
 MonoBehaviour:
@@ -4286,6 +4286,7 @@ MonoBehaviour:
   MonsterSeenBass: {fileID: 8300000, guid: 461afd0ecec250c43b6612a9b8964920, type: 3}
   MonsterScream: {fileID: 8300000, guid: 2adcee2fd085ecc49b7429f86a9482cf, type: 3}
   MonsterSlash: {fileID: 8300000, guid: 062d451527a70524e9b7a6dfc0b89c17, type: 3}
+  ShopBuy: {fileID: 0}
   musicVolume: 0.4
   sfxVolume: 1
   fadeTime: 0.5
@@ -6196,8 +6197,8 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 0, y: 0}
-  m_AnchoredPosition: {x: 129.8, y: 127.2}
-  m_SizeDelta: {x: 260.0878, y: 260.09}
+  m_AnchoredPosition: {x: 205, y: 203}
+  m_SizeDelta: {x: 300, y: 300}
   m_Pivot: {x: 0, y: 0}
 --- !u!114 &2032061551
 MonoBehaviour:
@@ -7084,6 +7085,10 @@ PrefabInstance:
       propertyPath: jobDescriptionPanel
       value: 
       objectReference: {fileID: 1733757145}
+    - target: {fileID: 6683490971555374618, guid: 95db552fa8af00e4785beae5b129470f, type: 3}
+      propertyPath: m_SortingOrder
+      value: 8
+      objectReference: {fileID: 0}
     - target: {fileID: 7878811516614966225, guid: 95db552fa8af00e4785beae5b129470f, type: 3}
       propertyPath: m_Name
       value: Player

@@ -382,13 +382,13 @@ namespace NoWayOut.Maze
             switch (InsideTiles(GridSize))
             {
                 case 17:
-                    miniMapCamera.position = new Vector3(-1.4f, 9f, -19f);
+                    miniMapCamera.position = new Vector3(-1.4f, 9.41f, -25.5f);
                     break;
                 case 23:
-                    miniMapCamera.position = new Vector3(-1.4f, 12.2f, -25f);
+                    miniMapCamera.position = new Vector3(-1.4f, 12.2f, -32f);
                     break;
                 case 29:
-                    miniMapCamera.position = new Vector3(-1.4f, 15.5f, -29.3f);
+                    miniMapCamera.position = new Vector3(-1.4f, 15.5f, -39f);
                     break;
             }
         }

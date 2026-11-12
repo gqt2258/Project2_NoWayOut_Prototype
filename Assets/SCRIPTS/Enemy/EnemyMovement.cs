@@ -36,6 +36,7 @@ public class EnemyMovement : MonoBehaviour
 
     private readonly RaycastHit2D[] sightHits = new RaycastHit2D[16];
     private Collider2D playerCollider;
+    private MonsterIndicator monsterIndicator;
     private float nextRepathTime;
     private float nextVisionCheckTime;
     private float nextLoiterTime;
@@ -62,7 +63,10 @@ public class EnemyMovement : MonoBehaviour
                 player = playerObject.transform;
         }
         if (player != null)
+        {
             playerCollider = player.GetComponent<Collider2D>();
+            monsterIndicator = player.GetComponentInChildren<MonsterIndicator>(true);
+        }
 
         if (mazeShiftController == null)
             mazeShiftController = FindAnyObjectByType<MazeShiftController>();
@@ -127,6 +131,8 @@ public class EnemyMovement : MonoBehaviour
                     chaseStartTime = Time.time;
                     unreachableSince = -1f;
                     SetChaseDestination();
+                    if (monsterIndicator != null)
+                        monsterIndicator.Show(transform);
 
                     // Seen + scream together, once per chase
                     if (AudioManager.Instance != null)

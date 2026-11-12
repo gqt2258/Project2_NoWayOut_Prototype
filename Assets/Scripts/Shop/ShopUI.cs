@@ -170,8 +170,6 @@ public class ShopUI : MonoBehaviour
 
         if (selecteddescription != null)
             selecteddescription.text = item != null ? item.description : "";
-        else
-            Debug.LogWarning($"{name}: Selecteddescription is not assigned on ShopUI.", this);
 
         if (selectedIcon != null)
         {

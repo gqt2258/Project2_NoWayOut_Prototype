@@ -24028,10 +24028,10 @@ MonoBehaviour:
   SfxSource: {fileID: 316260246}
   PlayerMovement: {fileID: 1799005738}
   AmbienceSource: {fileID: 1320731203}
-  MenuMusic: {fileID: 8300000, guid: 1df168f64dc7dc34b9aecd880ad564d9, type: 3}
-  GameMusic: {fileID: 8300000, guid: 95bf7fd9703e5ce4683df4fe6dc5ac38, type: 3}
+  MenuMusic: {fileID: 8300000, guid: da4f1f6f959146a4787d8d246f63476b, type: 3}
+  GameMusic: {fileID: 8300000, guid: 31e861c7e9692e04bab037eb0ed23e65, type: 3}
   GameAmbience: {fileID: 8300000, guid: 7fffa38c5460705458eac5df50101d47, type: 3}
-  ambienceVolume: 0.3
+  ambienceVolume: 0.1
   SystemError: {fileID: 8300000, guid: 27d84d8679b9c494ebbf9a02b2865831, type: 3}
   ButtonClicks:
   - {fileID: 8300000, guid: cf0293aef5dd78345af17ee47e25db48, type: 3}
@@ -24047,9 +24047,10 @@ MonoBehaviour:
   MonsterSeenBass: {fileID: 8300000, guid: 461afd0ecec250c43b6612a9b8964920, type: 3}
   MonsterScream: {fileID: 8300000, guid: 2adcee2fd085ecc49b7429f86a9482cf, type: 3}
   MonsterSlash: {fileID: 8300000, guid: 062d451527a70524e9b7a6dfc0b89c17, type: 3}
-  musicVolume: 0.4
+  ShopBuy: {fileID: 8300000, guid: 50e8900582ee5b44faa80012fdf41668, type: 3}
+  musicVolume: 0.5
   sfxVolume: 1
-  fadeTime: 0.5
+  fadeTime: 1
   menuScenes:
   - Main Menu
   - Lobby Board

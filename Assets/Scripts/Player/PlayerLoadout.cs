@@ -89,6 +89,11 @@ public class PlayerLoadout : MonoBehaviour
         while (contents.Count < slotCount)
             contents.Add(null);
 
+        var brought = contents.Where(content => content != null).Select(content => content.tool.displayName).ToList();
+        Debug.Log(brought.Count > 0
+            ? $"Brought into the match ({brought.Count}/{slotCount} slots): {string.Join(", ", brought)}"
+            : $"No equipment brought into the match ({slotCount} slots). The loadout was empty.", this);
+
         BuildHotbar();
         RefreshSelectedText();
     }

@@ -269,6 +269,8 @@ public class PlayerWallet : MonoBehaviour
         if (item.shop == ShopType.Equipment) equipment.Add(item.itemId);
         else ownedItems.Add(item.itemId);
         Debug.Log($"Purchased {item.displayName} for {item.price}. Coins left: {coins}. Equipment: {equipment.Count}/{EquipmentSlots}.");
+        if (AudioManager.Instance != null)
+            AudioManager.Instance.PlaySFX(AudioManager.Instance.ShopBuy);
         SaveAndNotify();
         return true;
     }

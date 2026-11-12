@@ -33,6 +33,7 @@ public class AudioManager : MonoBehaviour
     public AudioClip MonsterSeenBass;
     public AudioClip MonsterScream;
     public AudioClip MonsterSlash;
+    public AudioClip ShopBuy;
 
 
     [Header("Volume")]

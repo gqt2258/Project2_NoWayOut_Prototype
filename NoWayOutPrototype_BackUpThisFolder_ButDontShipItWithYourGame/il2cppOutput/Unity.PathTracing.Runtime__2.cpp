@@ -588,7 +588,7 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void __JobReflectionRegistrationOutput__43737
 #pragma clang diagnostic ignored "-Winvalid-offsetof"
 #pragma clang diagnostic ignored "-Wunused-variable"
 #endif
-// Method Definition Index: 52657
+// Method Definition Index: 52700
 IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR ByteU5BU5D_tA6237BF417AE52AD70CFB4EF24A7A82613DF9031* SerializationHelpers_EncodeToR2D_m71307B7B8C9F4F79456D9A2AAC215495AD11A1FB (Texture2D_tE6505BC111DD8A424A9DBE8E05D7D09E11FFFCF4* ___0_tex, const RuntimeMethod* method) 
 {
 	static bool s_Il2CppMethodInitialized;
@@ -641,7 +641,7 @@ IL_0026:
 		return L_11;
 	}
 }
-// Method Definition Index: 52658
+// Method Definition Index: 52701
 IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void SerializationHelpers_ReadbackTexture_m5FE0091A15A9D509A0815D3BE4DEE226C5926860 (Texture2D_tE6505BC111DD8A424A9DBE8E05D7D09E11FFFCF4* ___0_texture, AsyncGPUReadbackRequest_t6A735D3E0F1DEF8F43EBD0E6FE550FAE564519C7 ___1_request, const RuntimeMethod* method) 
 {
 	static bool s_Il2CppMethodInitialized;
@@ -691,7 +691,7 @@ IL_0024:
 		return;
 	}
 }
-// Method Definition Index: 52659
+// Method Definition Index: 52702
 IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void SerializationHelpers_WriteRenderTexture_m2F82B0037C93427993C21E137517ED42A41584A2 (CommandBuffer_tB56007DC84EF56296C325EC32DD12AC1E3DC91F7* ___0_cmd, RenderTargetIdentifier_tA528663AC6EB3911D8E91AA40F7070FA5455442B ___1_renderTex, int32_t ___2_textureFormat, int32_t ___3_width, int32_t ___4_height, String_t* ___5_path, const RuntimeMethod* method) 
 {
 	static bool s_Il2CppMethodInitialized;
@@ -795,7 +795,7 @@ IL_0081:
 		return;
 	}
 }
-// Method Definition Index: 52660
+// Method Definition Index: 52703
 IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void SerializationHelpers_WriteRenderTexture_m6437632AC238973D1DE07533E527480505A3BE35 (CommandBuffer_tB56007DC84EF56296C325EC32DD12AC1E3DC91F7* ___0_cmd, String_t* ___1_path, RenderTexture_tBA90C4C3AD9EECCFDDCC632D97C29FAB80D60D27* ___2_renderTex, const RuntimeMethod* method) 
 {
 	//<source_info:<no-source>:1>
@@ -825,7 +825,7 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void SerializationHelpers_WriteRenderTexture_
 #pragma clang diagnostic ignored "-Winvalid-offsetof"
 #pragma clang diagnostic ignored "-Wunused-variable"
 #endif
-// Method Definition Index: 52661
+// Method Definition Index: 52704
 IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void U3CU3Ec__DisplayClass2_0__ctor_mBB12C34A06DB19BE3C8FE47CAE19F07E94F6470E (U3CU3Ec__DisplayClass2_0_tA1B345B0EF788EBCDCB0B47A2BD62230686E91D2* __this, const RuntimeMethod* method) 
 {
 	//<source_info:<no-source>:1>
@@ -834,7 +834,7 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void U3CU3Ec__DisplayClass2_0__ctor_mBB12C34A
 		return;
 	}
 }
-// Method Definition Index: 52662
+// Method Definition Index: 52705
 IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void U3CU3Ec__DisplayClass2_0_U3CWriteRenderTextureU3Eb__0_m568AD6C7C0FC51665DAEC74B75F68DEB111C0091 (U3CU3Ec__DisplayClass2_0_tA1B345B0EF788EBCDCB0B47A2BD62230686E91D2* __this, AsyncGPUReadbackRequest_t6A735D3E0F1DEF8F43EBD0E6FE550FAE564519C7 ___0_request, const RuntimeMethod* method) 
 {
 	//<source_info:<no-source>:1>
@@ -869,7 +869,7 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void U3CU3Ec__DisplayClass2_0_U3CWriteRenderT
 #pragma clang diagnostic ignored "-Winvalid-offsetof"
 #pragma clang diagnostic ignored "-Wunused-variable"
 #endif
-// Method Definition Index: 52663
+// Method Definition Index: 52706
 IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void __JobReflectionRegistrationOutput__4373703915155920805_CreateJobReflectionData_mF3D2480D9BF9EAA645F061D05A59AF0F6A1D9D24 (const RuntimeMethod* method) 
 {
 	static bool s_Il2CppMethodInitialized;
@@ -910,7 +910,7 @@ IL_0016:
 		return;
 	}
 }
-// Method Definition Index: 52664
+// Method Definition Index: 52707
 IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void __JobReflectionRegistrationOutput__4373703915155920805_EarlyInit_mC3E7B3C10A6AF9451B6DF5CD775F1B560A71A8BB (const RuntimeMethod* method) 
 {
 	//<source_info:<no-source>:1>
@@ -922,7 +922,7 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void __JobReflectionRegistrationOutput__43737
 #ifdef __clang__
 #pragma clang diagnostic pop
 #endif
-// Method Definition Index: 2621
+// Method Definition Index: 2622
 IL2CPP_MANAGED_FORCE_INLINE IL2CPP_METHOD_ATTR ByteU5BU5D_tA6237BF417AE52AD70CFB4EF24A7A82613DF9031* Array_Empty_TisByte_t94D9231AC217BE4D2E004C4CD32DF6D099EA41A3_m6080CA526758F4FA182A066B2780D1761CD36ED5_inline (const RuntimeMethod* method) 
 {
 	il2cpp_rgctx_method_init(method);
@@ -934,7 +934,7 @@ IL2CPP_MANAGED_FORCE_INLINE IL2CPP_METHOD_ATTR ByteU5BU5D_tA6237BF417AE52AD70CFB
 		return L_0;
 	}
 }
-// Method Definition Index: 616
+// Method Definition Index: 617
 IL2CPP_MANAGED_FORCE_INLINE IL2CPP_METHOD_ATTR Il2CppSharedGenericObject* Func_2_Invoke_m0E8D5B2914DF50FFC02B2CFEF6FF956D55AC12DE_gshared_inline (Func_2_tBE6BE5A4E4F7FED7B1EE3446A907877305B72A87* __this, Il2CppSharedGenericObject* ___0_arg, const RuntimeMethod* method) 
 {
 	//<source_info:<no-source>:1>

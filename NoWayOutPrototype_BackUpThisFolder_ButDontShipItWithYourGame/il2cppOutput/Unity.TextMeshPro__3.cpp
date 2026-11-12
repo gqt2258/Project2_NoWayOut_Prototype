@@ -92,7 +92,7 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR bool HashSet_1_Add_mDA8E52933A6A885D9FCF549C9
 #pragma clang diagnostic ignored "-Winvalid-offsetof"
 #pragma clang diagnostic ignored "-Wunused-variable"
 #endif
-// Method Definition Index: 45484
+// Method Definition Index: 45525
 IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void TMP_TextParsingUtilities__cctor_mEE5F7444F4B17038658A67A8C46BCE39169D141F (const RuntimeMethod* method) 
 {
 	static bool s_Il2CppMethodInitialized;

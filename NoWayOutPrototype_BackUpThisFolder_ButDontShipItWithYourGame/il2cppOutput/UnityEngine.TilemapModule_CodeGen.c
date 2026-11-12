@@ -76,6 +76,8 @@ extern void Tilemap_get_tileAnchorRatio_m966D835C57CC78A8DD4346943C0014B329453EE
 extern void Tilemap_get_orientationMatrix_mF63DF1E4FC7E4B7DE10CE67DFDBB130262784F24 (void);
 extern void Tilemap_GetTileAsset_m3B9C96C2E2488141C4F6EBD52C6D807C801C6922 (void);
 extern void Tilemap_GetTile_m8500FBFF853C9E813810929BD29D7A866B516225 (void);
+extern void Tilemap_SetTileAsset_m88D70B08B3D291F99EB34F01136C2D4EEBE45D4B (void);
+extern void Tilemap_SetTile_m880BD0CC6B69A4B15495C4FBD2CBEA50D1BE23BA (void);
 extern void Tilemap_HasTile_mC868AB1BEA16A2C686BF5CC3C3267780791804F6 (void);
 extern void Tilemap_RefreshTile_mEF4F94212FD9B311431DFFAFE092A4A6EBA580DF (void);
 extern void Tilemap_RefreshTilesNative_m41910B001068E9FD45A18CB06132B6F2AFA95C9A (void);
@@ -99,6 +101,7 @@ extern void Tilemap_get_size_Injected_mE4A4FAFA70C3B5BA87CF8E64CD0BCCB8E11323EA 
 extern void Tilemap_get_tileAnchorRatio_Injected_m1BE4F0DC80D1995CAF3EAC7D02FDE71246EB3742 (void);
 extern void Tilemap_get_orientationMatrix_Injected_mD54025C0654F2E07D74364E44A287136074F8646 (void);
 extern void Tilemap_GetTileAsset_Injected_mC4D3F18DDF3496564747BCD4E56631E21456093C (void);
+extern void Tilemap_SetTileAsset_Injected_mC24A398B065AFB28E88A51F38DA4762DD5DCBD4E (void);
 extern void Tilemap_RefreshTile_Injected_m9EF6875C16B8F425284A6E681CD466C09B753643 (void);
 extern void Tilemap_RefreshTilesNative_Injected_m2A4E6F3D461FED890CBE7D23A5188187DDCAF0F0 (void);
 extern void Tilemap_GetSprite_Injected_m67336B8364F5F92D2B6245817ED20E37567AE9D8 (void);
@@ -132,7 +135,7 @@ extern void TileAnimationData_get_flags_mF2A55E6A4868FAC4FC1BF9BAE41BA3D0CCCE2E1
 extern void TileAnimationData_set_flags_m5C1157264844D313EB81E33FFD5CB7EAE165603D (void);
 extern void TileAnimationEntityIdData_set_animatedSpritesEntityIds_m792A8DCCFA03256A4938778F901427D81F4DFE9C (void);
 extern void TileAnimationEntityIdData_CopyFrom_mF0C69B090E504430F0B7E485FA84281548C660C9 (void);
-static Il2CppMethodPointer s_methodPointers[125] = 
+static Il2CppMethodPointer s_methodPointers[128] = 
 {
 	EmbeddedAttribute__ctor_mD50EDB45C2BD1341CE17CCD54C941B38289493DE,
 	RefSafetyRulesAttribute__ctor_m6C121C8417F440E71F1B112D983BFE8FCEFE50F6,
@@ -203,6 +206,8 @@ static Il2CppMethodPointer s_methodPointers[125] =
 	Tilemap_get_orientationMatrix_mF63DF1E4FC7E4B7DE10CE67DFDBB130262784F24,
 	Tilemap_GetTileAsset_m3B9C96C2E2488141C4F6EBD52C6D807C801C6922,
 	Tilemap_GetTile_m8500FBFF853C9E813810929BD29D7A866B516225,
+	Tilemap_SetTileAsset_m88D70B08B3D291F99EB34F01136C2D4EEBE45D4B,
+	Tilemap_SetTile_m880BD0CC6B69A4B15495C4FBD2CBEA50D1BE23BA,
 	Tilemap_HasTile_mC868AB1BEA16A2C686BF5CC3C3267780791804F6,
 	Tilemap_RefreshTile_mEF4F94212FD9B311431DFFAFE092A4A6EBA580DF,
 	Tilemap_RefreshTilesNative_m41910B001068E9FD45A18CB06132B6F2AFA95C9A,
@@ -226,6 +231,7 @@ static Il2CppMethodPointer s_methodPointers[125] =
 	Tilemap_get_tileAnchorRatio_Injected_m1BE4F0DC80D1995CAF3EAC7D02FDE71246EB3742,
 	Tilemap_get_orientationMatrix_Injected_mD54025C0654F2E07D74364E44A287136074F8646,
 	Tilemap_GetTileAsset_Injected_mC4D3F18DDF3496564747BCD4E56631E21456093C,
+	Tilemap_SetTileAsset_Injected_mC24A398B065AFB28E88A51F38DA4762DD5DCBD4E,
 	Tilemap_RefreshTile_Injected_m9EF6875C16B8F425284A6E681CD466C09B753643,
 	Tilemap_RefreshTilesNative_Injected_m2A4E6F3D461FED890CBE7D23A5188187DDCAF0F0,
 	Tilemap_GetSprite_Injected_m67336B8364F5F92D2B6245817ED20E37567AE9D8,
@@ -263,13 +269,13 @@ static Il2CppMethodPointer s_methodPointers[125] =
 extern void TilemapBuffer_Dispose_mB03811D59A6F26BE5368C04F59237F90BD486621_AdjustorThunk (void);
 static Il2CppTokenAdjustorThunkPair s_adjustorThunks[1] = 
 {
-	{ 0x06000067, TilemapBuffer_Dispose_mB03811D59A6F26BE5368C04F59237F90BD486621_AdjustorThunk },
+	{ 0x0600006A, TilemapBuffer_Dispose_mB03811D59A6F26BE5368C04F59237F90BD486621_AdjustorThunk },
 };
 IL2CPP_EXTERN_C const Il2CppCodeGenModule g_UnityEngine_TilemapModule_CodeGenModule;
 const Il2CppCodeGenModule g_UnityEngine_TilemapModule_CodeGenModule = 
 {
 	"UnityEngine.TilemapModule.dll",
-	125,
+	128,
 	s_methodPointers,
 	1,
 	s_adjustorThunks,

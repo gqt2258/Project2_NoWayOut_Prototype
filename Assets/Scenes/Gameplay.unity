@@ -4287,8 +4287,8 @@ MonoBehaviour:
   MonsterScream: {fileID: 8300000, guid: 2adcee2fd085ecc49b7429f86a9482cf, type: 3}
   MonsterSlash: {fileID: 8300000, guid: 062d451527a70524e9b7a6dfc0b89c17, type: 3}
   ShopBuy: {fileID: 0}
-  musicVolume: 0.4
-  sfxVolume: 1
+  musicVolume: 0.7
+  sfxVolume: 0.7
   fadeTime: 0.5
   menuScenes:
   - Main Menu
@@ -6197,7 +6197,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 0, y: 0}
-  m_AnchoredPosition: {x: 205, y: 203}
+  m_AnchoredPosition: {x: 251, y: 150}
   m_SizeDelta: {x: 300, y: 300}
   m_Pivot: {x: 0, y: 0}
 --- !u!114 &2032061551

@@ -1,0 +1,57 @@
+﻿#include "pch-c.h"
+
+
+#include "codegen/il2cpp-codegen-metadata.h"
+
+
+
+
+
+extern void EmbeddedAttribute__ctor_m7FF5B4E3620EF8A22C32F8DF43762DCC61F7E1A9 (void);
+extern void RefSafetyRulesAttribute__ctor_m78F1D9F933EB9DA67BD8C2EB8F4D924BBF2974A5 (void);
+extern void ParticleSystem_Play_m4A59E0A2C7CA49EF75287A067305ABB314A16E62 (void);
+extern void ParticleSystem_Play_mD943E601BFE16CB9BB5D1F5E6AED5C36F5F11EF5 (void);
+extern void ParticleSystem_Emit_m3E9E6359087607E84E0D4D35844D80D9452AD72D (void);
+extern void ParticleSystem_Emit_Internal_m54D6D9A78E8634846C9DB6445C0E0A0885E8A20E (void);
+extern void ParticleSystem_get_main_mD86DFCD96150E2CE760CD2F37052BB3BCA33C189 (void);
+extern void ParticleSystem__ctor_mABC4A409D6EC077A89AD3AEF259CE48D32EC47EF (void);
+extern void ParticleSystem_Play_Injected_m91CD45036262F0312C8948FEDADAD9787B7817FE (void);
+extern void ParticleSystem_Emit_Internal_Injected_m2FDA9094E323EDFE3C1F5F2CE8DA7830E728556D (void);
+extern void MainModule__ctor_m5F7D2DD815C741DE3FA18A0C1BB2F2776612EF7A (void);
+extern void MainModule_set_loop_mB3FC83A6DA8D248D15C53388D6B9B7711ADD89BE (void);
+extern void MainModule_set_stopAction_m29CE04746112F2B1E289F1880DE2710233151DEF (void);
+extern void ParticleSystemRenderer_GetMeshes_m3CA9AA8947C7F0468F6C0B7F1344D747EA43D440 (void);
+extern void ParticleSystemRenderer_GetMeshes_Injected_m6DADBA008313172FAE4E6150C67ADA770858C483 (void);
+static Il2CppMethodPointer s_methodPointers[15] = 
+{
+	EmbeddedAttribute__ctor_m7FF5B4E3620EF8A22C32F8DF43762DCC61F7E1A9,
+	RefSafetyRulesAttribute__ctor_m78F1D9F933EB9DA67BD8C2EB8F4D924BBF2974A5,
+	ParticleSystem_Play_m4A59E0A2C7CA49EF75287A067305ABB314A16E62,
+	ParticleSystem_Play_mD943E601BFE16CB9BB5D1F5E6AED5C36F5F11EF5,
+	ParticleSystem_Emit_m3E9E6359087607E84E0D4D35844D80D9452AD72D,
+	ParticleSystem_Emit_Internal_m54D6D9A78E8634846C9DB6445C0E0A0885E8A20E,
+	ParticleSystem_get_main_mD86DFCD96150E2CE760CD2F37052BB3BCA33C189,
+	ParticleSystem__ctor_mABC4A409D6EC077A89AD3AEF259CE48D32EC47EF,
+	ParticleSystem_Play_Injected_m91CD45036262F0312C8948FEDADAD9787B7817FE,
+	ParticleSystem_Emit_Internal_Injected_m2FDA9094E323EDFE3C1F5F2CE8DA7830E728556D,
+	MainModule__ctor_m5F7D2DD815C741DE3FA18A0C1BB2F2776612EF7A,
+	MainModule_set_loop_mB3FC83A6DA8D248D15C53388D6B9B7711ADD89BE,
+	MainModule_set_stopAction_m29CE04746112F2B1E289F1880DE2710233151DEF,
+	ParticleSystemRenderer_GetMeshes_m3CA9AA8947C7F0468F6C0B7F1344D747EA43D440,
+	ParticleSystemRenderer_GetMeshes_Injected_m6DADBA008313172FAE4E6150C67ADA770858C483,
+};
+IL2CPP_EXTERN_C const Il2CppCodeGenModule g_UnityEngine_ParticleSystemModule_CodeGenModule;
+const Il2CppCodeGenModule g_UnityEngine_ParticleSystemModule_CodeGenModule = 
+{
+	"UnityEngine.ParticleSystemModule.dll",
+	15,
+	s_methodPointers,
+	0,
+	NULL,
+	0,
+	NULL,
+	NULL,
+	NULL,
+	NULL,
+	NULL,
+};

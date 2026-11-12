@@ -1026,8 +1026,8 @@ static Il2CppTokenAdjustorThunkPair s_adjustorThunks[11] =
 };
 static const Il2CppTokenIndexMethodTuple s_reversePInvokeIndices[14] = 
 {
-	{ 0x0600002B, 0,  (void**)&SkinDeformBatchedJob_1_CopyBuffer_m80F94597588E1FBBEEFE1FF4523670C0B4582B3D_RuntimeMethod_var, 112485 },
-	{ 0x0600002B, 1,  (void**)&SkinDeformBatchedJob_1_CopyBuffer_mD4E5196A2A34BA57BB5014D8DA93DDBF28CDD848_RuntimeMethod_var, 112488 },
+	{ 0x0600002B, 0,  (void**)&SkinDeformBatchedJob_1_CopyBuffer_m80F94597588E1FBBEEFE1FF4523670C0B4582B3D_RuntimeMethod_var, 112693 },
+	{ 0x0600002B, 1,  (void**)&SkinDeformBatchedJob_1_CopyBuffer_mD4E5196A2A34BA57BB5014D8DA93DDBF28CDD848_RuntimeMethod_var, 112696 },
 	{ 0x0600008E, 43,  (void**)&MeshUtilities_GenerateUTessOutline_mF8B6B6F53493D70B565AE6CAB4C8EB0F92C587C3_RuntimeMethod_var, 0 },
 	{ 0x0600008F, 45,  (void**)&MeshUtilities_GetOutlineEdgesFallback_mF1A82692E47081EE850A763132037483BC771594_RuntimeMethod_var, 0 },
 	{ 0x06000090, 41,  (void**)&MeshUtilities_AddToEdgeMap_mBEB573240B6E8E866CE0AF931B387102D45170B2_RuntimeMethod_var, 0 },

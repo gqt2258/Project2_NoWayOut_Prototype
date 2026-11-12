@@ -582,7 +582,7 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void DelegateAutoCleanup__ctor_mE4B45A8781C4F
 #pragma clang diagnostic ignored "-Winvalid-offsetof"
 #pragma clang diagnostic ignored "-Wunused-variable"
 #endif
-// Method Definition Index: 60322
+// Method Definition Index: 60738
 IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void EmbeddedAttribute__ctor_m21A058F23627F8E6DB17BCE0D170B7F70952FE43 (EmbeddedAttribute_tC2A37290843BB012985AD7CDB41AB02872C5F8C6* __this, const RuntimeMethod* method) 
 {
 	//<source_info:<no-source>:1>
@@ -599,7 +599,7 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void EmbeddedAttribute__ctor_m21A058F23627F8E
 #pragma clang diagnostic ignored "-Winvalid-offsetof"
 #pragma clang diagnostic ignored "-Wunused-variable"
 #endif
-// Method Definition Index: 60323
+// Method Definition Index: 60739
 IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void RefSafetyRulesAttribute__ctor_mF529A1A065F46DCF6EBE5DEC64C5961D5234FE90 (RefSafetyRulesAttribute_t0604A9931FE0E7B477CBB7B289D21A750B0647BC* __this, int32_t ___0_p, const RuntimeMethod* method) 
 {
 	//<source_info:<no-source>:1>
@@ -618,7 +618,7 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void RefSafetyRulesAttribute__ctor_mF529A1A06
 #pragma clang diagnostic ignored "-Winvalid-offsetof"
 #pragma clang diagnostic ignored "-Wunused-variable"
 #endif
-// Method Definition Index: 60324
+// Method Definition Index: 60740
 IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void __UnityModuleInitialization_Initialize_m577193A41170F244A17377E5587BFAD95B5D351C (const RuntimeMethod* method) 
 {
 	static bool s_Il2CppMethodInitialized;
@@ -666,7 +666,7 @@ IL2CPP_EXTERN_C  void DelegatePInvokeWrapper_NativeUpdateCallback_tC5CA5A9117B79
 	il2cppPInvokeFunc(___0_updateType, ___1_buffer);
 
 }
-// Method Definition Index: 60325
+// Method Definition Index: 60741
 IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void NativeUpdateCallback__ctor_m04FDCD50564E7535FADAFF34BBA83500585A84F5 (NativeUpdateCallback_tC5CA5A9117B79251968A4DA3758552EFE1D37495* __this, RuntimeObject* ___0_object, intptr_t ___1_method, const RuntimeMethod* method) 
 {
 	//<source_info:<no-source>:1>
@@ -701,7 +701,7 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void NativeUpdateCallback__ctor_m04FDCD50564E
 	}
 	__this->___extra_arg = (intptr_t)NativeUpdateCallback_Invoke_mC4B7018AE8ED52FB9C6805F65C57A81812D21333_Multicast;
 }
-// Method Definition Index: 60326
+// Method Definition Index: 60742
 IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void NativeUpdateCallback_Invoke_mC4B7018AE8ED52FB9C6805F65C57A81812D21333 (NativeUpdateCallback_tC5CA5A9117B79251968A4DA3758552EFE1D37495* __this, int32_t ___0_updateType, NativeInputEventBuffer_t4EE5873AD7998E0E83C9F8585C338AB14C9101FD* ___1_buffer, const RuntimeMethod* method) 
 {
 	//<source_info:<no-source>:1>
@@ -748,7 +748,7 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void NativeUpdateCallback_Invoke_mC4B7018AE8E
 #pragma clang diagnostic ignored "-Winvalid-offsetof"
 #pragma clang diagnostic ignored "-Wunused-variable"
 #endif
-// Method Definition Index: 60327
+// Method Definition Index: 60743
 IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR Action_2_t6AAF2E215E74E16A4EEF0A0749A4A325D99F5BA6* NativeInputSystem_get_onDeviceDiscovered_mD55A996A1107331B95C4D9409B8D4C98BADB8FCC (const RuntimeMethod* method) 
 {
 	static bool s_Il2CppMethodInitialized;
@@ -765,7 +765,7 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR Action_2_t6AAF2E215E74E16A4EEF0A0749A4A325D99
 		return L_0;
 	}
 }
-// Method Definition Index: 60328
+// Method Definition Index: 60744
 IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void NativeInputSystem_set_onDeviceDiscovered_m8DEE711BB866D1C923DA537B7DE62BF03094D855 (Action_2_t6AAF2E215E74E16A4EEF0A0749A4A325D99F5BA6* ___0_value, const RuntimeMethod* method) 
 {
 	static bool s_Il2CppMethodInitialized;
@@ -786,7 +786,7 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void NativeInputSystem_set_onDeviceDiscovered
 		return;
 	}
 }
-// Method Definition Index: 60329
+// Method Definition Index: 60745
 IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void NativeInputSystem_Clear_m21EAE98C3BDA1269AB27AE9DD3474F83B38CA724 (const RuntimeMethod* method) 
 {
 	static bool s_Il2CppMethodInitialized;
@@ -803,7 +803,7 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void NativeInputSystem_Clear_m21EAE98C3BDA126
 		return;
 	}
 }
-// Method Definition Index: 60330
+// Method Definition Index: 60746
 IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void NativeInputSystem_NotifyDeviceDiscovered_m861CCAFB4DD314DB3DC58FBD0398800CF9272C03 (int32_t ___0_deviceId, String_t* ___1_deviceDescriptor, const RuntimeMethod* method) 
 {
 	static bool s_Il2CppMethodInitialized;
@@ -838,7 +838,7 @@ IL_0011:
 		return;
 	}
 }
-// Method Definition Index: 60331
+// Method Definition Index: 60747
 IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR bool NativeInputSystem_NotifyBeforeUpdate_m2E083FFCE8D30FEF497A488BB1BD013157AA4798 (int32_t ___0_updateType, const RuntimeMethod* method) 
 {
 	static bool s_Il2CppMethodInitialized;
@@ -899,7 +899,7 @@ IL_0024:
 		return (bool)1;
 	}
 }
-// Method Definition Index: 60332
+// Method Definition Index: 60748
 IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void NativeInputSystem_ProcessInputUpdate_mCA6744E5BB12FA2D14583F76127672A620E775AA (int32_t ___0_updateType, intptr_t ___1_eventBuffer, const RuntimeMethod* method) 
 {
 	static bool s_Il2CppMethodInitialized;
@@ -945,7 +945,7 @@ IL_001a:
 		return;
 	}
 }
-// Method Definition Index: 60333
+// Method Definition Index: 60749
 IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void NativeInputSystem_DoSendMouseEvents_m1D11FB9DBBB4E2CD0C22F18B8A2F439E1F2E40EB (bool ___0_leftButtonPressed, bool ___1_wasPressedThisFrame, float ___2_posX, float ___3_posY, const RuntimeMethod* method) 
 {
 	static bool s_Il2CppMethodInitialized;
@@ -983,7 +983,7 @@ IL_0016:
 		return;
 	}
 }
-// Method Definition Index: 60334
+// Method Definition Index: 60750
 IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void NativeInputSystem_set_hasDeviceDiscoveredCallback_m0979ABC04DBA52617481EDF743D8B48CC089A1C8 (bool ___0_value, const RuntimeMethod* method) 
 {
 	//<source_info:<no-source>:1>
@@ -993,7 +993,7 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void NativeInputSystem_set_hasDeviceDiscovere
 	_il2cpp_icall_func = (NativeInputSystem_set_hasDeviceDiscoveredCallback_m0979ABC04DBA52617481EDF743D8B48CC089A1C8_ftn)il2cpp_codegen_resolve_icall ("UnityEngineInternal.Input.NativeInputSystem::set_hasDeviceDiscoveredCallback(System.Boolean)");
 	_il2cpp_icall_func(___0_value);
 }
-// Method Definition Index: 60335
+// Method Definition Index: 60751
 IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR double NativeInputSystem_get_currentTime_mB10D8CF832AA53952843986F29675B3BC71AAEC9 (const RuntimeMethod* method) 
 {
 	//<source_info:<no-source>:1>
@@ -1004,7 +1004,7 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR double NativeInputSystem_get_currentTime_mB10
 	double icallRetVal = _il2cpp_icall_func();
 	return icallRetVal;
 }
-// Method Definition Index: 60336
+// Method Definition Index: 60752
 IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR double NativeInputSystem_get_currentTimeOffsetToRealtimeSinceStartup_mE5FB513F17BBF2FF45494D1939C44DEBF3040B55 (const RuntimeMethod* method) 
 {
 	//<source_info:<no-source>:1>
@@ -1015,7 +1015,7 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR double NativeInputSystem_get_currentTimeOffse
 	double icallRetVal = _il2cpp_icall_func();
 	return icallRetVal;
 }
-// Method Definition Index: 60337
+// Method Definition Index: 60753
 IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR int32_t NativeInputSystem_AllocateDeviceId_m0F5EA2F96B8C2DB31D86E14B7F3C34105E6D67BA (const RuntimeMethod* method) 
 {
 	//<source_info:<no-source>:1>
@@ -1026,7 +1026,7 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR int32_t NativeInputSystem_AllocateDeviceId_m0
 	int32_t icallRetVal = _il2cpp_icall_func();
 	return icallRetVal;
 }
-// Method Definition Index: 60338
+// Method Definition Index: 60754
 IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void NativeInputSystem_QueueInputEvent_m9363FC2953D733EA8A3AE58470A90B4767ED0B7B (intptr_t ___0_inputEvent, const RuntimeMethod* method) 
 {
 	//<source_info:<no-source>:1>
@@ -1036,7 +1036,7 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void NativeInputSystem_QueueInputEvent_m9363F
 	_il2cpp_icall_func = (NativeInputSystem_QueueInputEvent_m9363FC2953D733EA8A3AE58470A90B4767ED0B7B_ftn)il2cpp_codegen_resolve_icall ("UnityEngineInternal.Input.NativeInputSystem::QueueInputEvent(System.IntPtr)");
 	_il2cpp_icall_func(___0_inputEvent);
 }
-// Method Definition Index: 60339
+// Method Definition Index: 60755
 IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR int64_t NativeInputSystem_IOCTL_m11AC7B69197C6214E794B563D48FD60E848901E7 (int32_t ___0_deviceId, int32_t ___1_code, intptr_t ___2_data, int32_t ___3_sizeInBytes, const RuntimeMethod* method) 
 {
 	//<source_info:<no-source>:1>
@@ -1047,7 +1047,7 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR int64_t NativeInputSystem_IOCTL_m11AC7B69197C
 	int64_t icallRetVal = _il2cpp_icall_func(___0_deviceId, ___1_code, ___2_data, ___3_sizeInBytes);
 	return icallRetVal;
 }
-// Method Definition Index: 60340
+// Method Definition Index: 60756
 IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void NativeInputSystem_SetPollingFrequency_mDEF2E1093D0776906BC95CC8E29A143C115910A0 (float ___0_hertz, const RuntimeMethod* method) 
 {
 	//<source_info:<no-source>:1>
@@ -1057,7 +1057,7 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void NativeInputSystem_SetPollingFrequency_mD
 	_il2cpp_icall_func = (NativeInputSystem_SetPollingFrequency_mDEF2E1093D0776906BC95CC8E29A143C115910A0_ftn)il2cpp_codegen_resolve_icall ("UnityEngineInternal.Input.NativeInputSystem::SetPollingFrequency(System.Single)");
 	_il2cpp_icall_func(___0_hertz);
 }
-// Method Definition Index: 60341
+// Method Definition Index: 60757
 IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR float NativeInputSystem_GetPollingFrequency_mFFB29B13E084272DF1BC203E5F2A73266270979F (const RuntimeMethod* method) 
 {
 	//<source_info:<no-source>:1>
@@ -1068,7 +1068,7 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR float NativeInputSystem_GetPollingFrequency_m
 	float icallRetVal = _il2cpp_icall_func();
 	return icallRetVal;
 }
-// Method Definition Index: 60342
+// Method Definition Index: 60758
 IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void NativeInputSystem_Update_m898216ECCA26122D827C2FB45FC4A20296031036 (int32_t ___0_updateType, const RuntimeMethod* method) 
 {
 	//<source_info:<no-source>:1>
@@ -1078,7 +1078,7 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void NativeInputSystem_Update_m898216ECCA2612
 	_il2cpp_icall_func = (NativeInputSystem_Update_m898216ECCA26122D827C2FB45FC4A20296031036_ftn)il2cpp_codegen_resolve_icall ("UnityEngineInternal.Input.NativeInputSystem::Update(UnityEngineInternal.Input.NativeInputUpdateType)");
 	_il2cpp_icall_func(___0_updateType);
 }
-// Method Definition Index: 60343
+// Method Definition Index: 60759
 IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR bool NativeInputSystem_get_normalizeScrollWheelDelta_mF633DF00F7F5823179F3473BC5E07BE9BF75A04F (const RuntimeMethod* method) 
 {
 	//<source_info:<no-source>:1>
@@ -1089,7 +1089,7 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR bool NativeInputSystem_get_normalizeScrollWhe
 	bool icallRetVal = _il2cpp_icall_func();
 	return icallRetVal;
 }
-// Method Definition Index: 60344
+// Method Definition Index: 60760
 IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void NativeInputSystem_set_normalizeScrollWheelDelta_mA6CCECFB417A30D7AEB05FDB313FEA28963F012D (bool ___0_value, const RuntimeMethod* method) 
 {
 	//<source_info:<no-source>:1>
@@ -1099,7 +1099,7 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void NativeInputSystem_set_normalizeScrollWhe
 	_il2cpp_icall_func = (NativeInputSystem_set_normalizeScrollWheelDelta_mA6CCECFB417A30D7AEB05FDB313FEA28963F012D_ftn)il2cpp_codegen_resolve_icall ("UnityEngineInternal.Input.NativeInputSystem::set_normalizeScrollWheelDelta(System.Boolean)");
 	_il2cpp_icall_func(___0_value);
 }
-// Method Definition Index: 60345
+// Method Definition Index: 60761
 IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR float NativeInputSystem_GetScrollWheelDeltaPerTick_mD4FBEBF03836656D5DE3D39A8CEB3CB395DB607B (const RuntimeMethod* method) 
 {
 	//<source_info:<no-source>:1>
@@ -1110,7 +1110,7 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR float NativeInputSystem_GetScrollWheelDeltaPe
 	float icallRetVal = _il2cpp_icall_func();
 	return icallRetVal;
 }
-// Method Definition Index: 60346
+// Method Definition Index: 60762
 IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR bool NativeInputSystem_get_useImplicitMouseEventScriptCallbacks_m61D9B15E56C6FF00A9EEA9F8FABADBE2390C1A43 (const RuntimeMethod* method) 
 {
 	//<source_info:<no-source>:1>
@@ -1121,7 +1121,7 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR bool NativeInputSystem_get_useImplicitMouseEv
 	bool icallRetVal = _il2cpp_icall_func();
 	return icallRetVal;
 }
-// Method Definition Index: 60347
+// Method Definition Index: 60763
 IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void NativeInputSystem___AutoStaticsCleanup_Unity_Scripting_LifecycleManagement_CodeLoadedScope_Exiting_m8B3E4C06472838FCF19819B65F496F6C8BAF768A (const RuntimeMethod* method) 
 {
 	static bool s_Il2CppMethodInitialized;
@@ -1145,7 +1145,7 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void NativeInputSystem___AutoStaticsCleanup_U
 		return;
 	}
 }
-// Method Definition Index: 60348
+// Method Definition Index: 60764
 IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void NativeInputSystem_UnityEngineInternal_Input_NativeInputSystem_Clear_RegisterLifecycleMethod_m5367DA948D8330C725330EECE49A69A3BB106918 (const RuntimeMethod* method) 
 {
 	static bool s_Il2CppMethodInitialized;
@@ -1211,7 +1211,7 @@ IL_0039:
 		return;
 	}
 }
-// Method Definition Index: 60349
+// Method Definition Index: 60765
 IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void NativeInputSystem__cctor_mADBD6616441651B2AFE2AD8AF64D63DF0BA66693 (const RuntimeMethod* method) 
 {
 	static bool s_Il2CppMethodInitialized;
@@ -1264,7 +1264,7 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void NativeInputSystem__cctor_mADBD6616441651
 #pragma clang diagnostic ignored "-Winvalid-offsetof"
 #pragma clang diagnostic ignored "-Wunused-variable"
 #endif
-// Method Definition Index: 60350
+// Method Definition Index: 60766
 IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR bool InputFocusEvent_get_hasApplicationFocus_m344427AED1ACE991F16CAAF780C84ED664A73E78 (InputFocusEvent_t1896C5AC04A6D2E59427BB5F35AA1B248DFBA1CD* __this, const RuntimeMethod* method) 
 {
 	//<source_info:<no-source>:1>
@@ -1276,7 +1276,7 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR bool InputFocusEvent_get_hasApplicationFocus_
 #ifdef __clang__
 #pragma clang diagnostic pop
 #endif
-// Method Definition Index: 3198
+// Method Definition Index: 3199
 IL2CPP_MANAGED_FORCE_INLINE IL2CPP_METHOD_ATTR void* IntPtr_ToPointer_m1A0612EED3A1C8B8850BE2943CFC42523064B4F6_inline (intptr_t* __this, const RuntimeMethod* method) 
 {
 	//<source_info:<no-source>:1>
@@ -1285,28 +1285,28 @@ IL2CPP_MANAGED_FORCE_INLINE IL2CPP_METHOD_ATTR void* IntPtr_ToPointer_m1A0612EED
 		return (void*)(L_0);
 	}
 }
-// Method Definition Index: 60326
+// Method Definition Index: 60742
 IL2CPP_MANAGED_FORCE_INLINE IL2CPP_METHOD_ATTR void NativeUpdateCallback_Invoke_mC4B7018AE8ED52FB9C6805F65C57A81812D21333_inline (NativeUpdateCallback_tC5CA5A9117B79251968A4DA3758552EFE1D37495* __this, int32_t ___0_updateType, NativeInputEventBuffer_t4EE5873AD7998E0E83C9F8585C338AB14C9101FD* ___1_buffer, const RuntimeMethod* method) 
 {
 	//<source_info:<no-source>:1>
 	typedef void (*FunctionPointerType) (RuntimeObject*, int32_t, NativeInputEventBuffer_t4EE5873AD7998E0E83C9F8585C338AB14C9101FD*, const RuntimeMethod*);
 	((FunctionPointerType)__this->___invoke_impl)((Il2CppObject*)__this->___method_code, ___0_updateType, ___1_buffer, reinterpret_cast<RuntimeMethod*>(__this->___method));
 }
-// Method Definition Index: 604
+// Method Definition Index: 605
 IL2CPP_MANAGED_FORCE_INLINE IL2CPP_METHOD_ATTR void Action_2_Invoke_mA3C1AB3632D1E2BE1238EFFE08B3F82D8EDC9738_gshared_inline (Action_2_t98484D5E010470A78B21BE26672B8EA6A5E2444A* __this, int32_t ___0_arg1, Il2CppSharedGenericObject* ___1_arg2, const RuntimeMethod* method) 
 {
 	//<source_info:<no-source>:1>
 	typedef void (*FunctionPointerType) (RuntimeObject*, int32_t, Il2CppSharedGenericObject*, const RuntimeMethod*);
 	((FunctionPointerType)__this->___invoke_impl)((Il2CppObject*)__this->___method_code, ___0_arg1, ___1_arg2, reinterpret_cast<RuntimeMethod*>(__this->___method));
 }
-// Method Definition Index: 616
+// Method Definition Index: 617
 IL2CPP_MANAGED_FORCE_INLINE IL2CPP_METHOD_ATTR bool Func_2_Invoke_m36B8F113FD824518C95D724A04CD9EBE4EA4B89F_gshared_inline (Func_2_t36FB4A17A64C7F0152DC723CD532EEBF06F0B8DE* __this, int32_t ___0_arg, const RuntimeMethod* method) 
 {
 	//<source_info:<no-source>:1>
 	typedef bool (*FunctionPointerType) (RuntimeObject*, int32_t, const RuntimeMethod*);
 	return ((FunctionPointerType)__this->___invoke_impl)((Il2CppObject*)__this->___method_code, ___0_arg, reinterpret_cast<RuntimeMethod*>(__this->___method));
 }
-// Method Definition Index: 602
+// Method Definition Index: 603
 IL2CPP_MANAGED_FORCE_INLINE IL2CPP_METHOD_ATTR void Action_1_Invoke_mE118EB8C2BFC9D370FE37C05DE4F2CD6CBE9DB54_gshared_inline (Action_1_t5FD82308A537DD6AD12A51AF0790FA13C5BE2D65* __this, int32_t ___0_obj, const RuntimeMethod* method) 
 {
 	//<source_info:<no-source>:1>

@@ -5901,7 +5901,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!224 &1865717043
 RectTransform:
   m_ObjectHideFlags: 0
@@ -7616,12 +7616,28 @@ PrefabInstance:
     m_TransformParent: {fileID: 0}
     m_Modifications:
     - target: {fileID: 248385945190824479, guid: 3e1c0625fbbd41046a691b684fa3a5a3, type: 3}
+      propertyPath: m_Size.x
+      value: 1.4738882
+      objectReference: {fileID: 0}
+    - target: {fileID: 248385945190824479, guid: 3e1c0625fbbd41046a691b684fa3a5a3, type: 3}
+      propertyPath: m_Size.y
+      value: 3.5038533
+      objectReference: {fileID: 0}
+    - target: {fileID: 248385945190824479, guid: 3e1c0625fbbd41046a691b684fa3a5a3, type: 3}
       propertyPath: m_Enabled
       value: 1
       objectReference: {fileID: 0}
+    - target: {fileID: 248385945190824479, guid: 3e1c0625fbbd41046a691b684fa3a5a3, type: 3}
+      propertyPath: m_Offset.x
+      value: -0.008204818
+      objectReference: {fileID: 0}
+    - target: {fileID: 248385945190824479, guid: 3e1c0625fbbd41046a691b684fa3a5a3, type: 3}
+      propertyPath: m_Offset.y
+      value: -0.12307334
+      objectReference: {fileID: 0}
     - target: {fileID: 330938996585130624, guid: 3e1c0625fbbd41046a691b684fa3a5a3, type: 3}
       propertyPath: m_Height
-      value: 1
+      value: 3.5
       objectReference: {fileID: 0}
     - target: {fileID: 330938996585130624, guid: 3e1c0625fbbd41046a691b684fa3a5a3, type: 3}
       propertyPath: m_Radius

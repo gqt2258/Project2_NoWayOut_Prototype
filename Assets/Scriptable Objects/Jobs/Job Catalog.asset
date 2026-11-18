@@ -91,74 +91,122 @@ MonoBehaviour:
     - M08
   itemRiddles:
   - itemId: H01
-    itemName: Doll
-    riddle: "A child’s friend with a still face."
+    itemName: "Doll"
+    lowClue: "A child’s friend with a still face."
+    midClue: "It was held every night, but never held back."
+    highClue: "Company, long after they left."
   - itemId: H02
-    itemName: Scalpel
-    riddle: "It once healed by cutting, and now it only rots."
+    itemName: "Scalpel"
+    lowClue: "It once healed by cutting, and now it only rots."
+    midClue: "Small and sharp, it opened people to save them."
+    highClue: "It hurt to help."
   - itemId: H03
-    itemName: Patient Wristband
-    riddle: "A name tied around the wrist; the name is gone."
+    itemName: "Patient Wristband"
+    lowClue: "A name tied around the wrist; the name is gone."
+    midClue: "It said who you were while you lay still."
+    highClue: "Proof of someone no one remembers."
   - itemId: H04
-    itemName: Stethoscope
-    riddle: "It once listened for a heartbeat. Now it hears nothing."
+    itemName: "Stethoscope"
+    lowClue: "It once listened for a heartbeat. Now it hears nothing."
+    midClue: "It hung around a neck and listened to chests."
+    highClue: "It waits for a sound that never comes."
   - itemId: H05
-    itemName: Music Box
-    riddle: "Wind it up and it hums a song for the forgotten."
+    itemName: "Music Box"
+    lowClue: "Wind it up and it hums a song for the forgotten."
+    midClue: "Turn it and it remembers a tune."
+    highClue: "A small song that plays for no one."
   - itemId: H06
-    itemName: Medical Chart
-    riddle: "It records who lived and who did not."
+    itemName: "Medical Chart"
+    lowClue: "It records who lived and who did not."
+    midClue: "Pages that followed every patient’s last days."
+    highClue: "Everything about you, written by strangers."
   - itemId: H07
-    itemName: Syringe
-    riddle: "A needle that never finished its dose."
+    itemName: "Syringe"
+    lowClue: "A needle that never finished its dose."
+    midClue: "It was meant to heal, but stopped halfway."
+    highClue: "Something left unfinished."
   - itemId: H08
-    itemName: Glove
-    riddle: "It held a hand, and the hand was not clean."
+    itemName: "Glove"
+    lowClue: "It held a hand, and the hand was not clean."
+    midClue: "Worn to keep hands safe from what they touched."
+    highClue: "An empty shape of someone."
   - itemId: P01
-    itemName: Key
-    riddle: "It opens a door no one wants opened."
+    itemName: "Key"
+    lowClue: "It opens a door no one wants opened."
+    midClue: "Small, metal, and the only way out."
+    highClue: "What everyone here wants, but no one holds."
   - itemId: P02
-    itemName: Tin Cup
-    riddle: "It rattled against bars at supper."
+    itemName: "Tin Cup"
+    lowClue: "It rattled against bars at supper."
+    midClue: "Meals came in it, and noise came out."
+    highClue: "It made the only music here."
   - itemId: P03
-    itemName: Cell Number Plate
-    riddle: "A number is all that was left of the man…or woman.."
+    itemName: "Cell Number Plate"
+    lowClue: "A number is all that was left of the man…or woman.."
+    midClue: "It named the room, not the person inside."
+    highClue: "Here, you were only counted."
   - itemId: P04
-    itemName: Prisoner Diary
-    riddle: "The last words of someone’s final moments.."
+    itemName: "Prisoner Diary"
+    lowClue: "The last words of someone’s final moments.."
+    midClue: "Days were written in it when nothing else could leave."
+    highClue: "A voice that never got out."
   - itemId: P05
-    itemName: Shiv
-    riddle: "Sharpened, hidden from the guards."
+    itemName: "Shiv"
+    lowClue: "Sharpened, hidden from the guards."
+    midClue: "Made in secret from something harmless."
+    highClue: "A small promise of trouble."
   - itemId: P06
-    itemName: Prison Uniform
-    riddle: "Cloth that marks a man as property."
+    itemName: "Prison Uniform"
+    lowClue: "Cloth that marks a man as property."
+    midClue: "Everyone wore the same one, and no one chose it."
+    highClue: "It made everyone the same."
   - itemId: P07
-    itemName: Shackles
-    riddle: "They hold no one now, yet they still clink."
+    itemName: "Shackles"
+    lowClue: "They hold no one now, yet they still clink."
+    midClue: "They kept hands and feet close together."
+    highClue: "Even empty, they remember the weight."
   - itemId: P08
-    itemName: Poster
-    riddle: "Stuck on the wall forever but brings colour to the plain wall ."
+    itemName: "Poster"
+    lowClue: "Stuck on the wall forever but brings colour to the plain wall ."
+    midClue: "Paper that dreamed of somewhere else."
+    highClue: "A view that isn’t really there."
   - itemId: M01
-    itemName: Mirror
-    riddle: "It shows you a face you no longer recognise."
+    itemName: "Mirror"
+    lowClue: "It shows you a face you no longer recognise."
+    midClue: "It copies everything and keeps nothing."
+    highClue: "It only knows you from the front."
   - itemId: M02
-    itemName: Plushie
-    riddle: "A soft best friend.."
+    itemName: "Plushie"
+    lowClue: "A soft best friend.."
+    midClue: "Stuffed, stitched and squeezed in the dark."
+    highClue: "Comfort that never spoke."
   - itemId: M03
-    itemName: Pocket Watch
-    riddle: "Its hands stopped the night the family died."
+    itemName: "Pocket Watch"
+    lowClue: "Its hands stopped the night the family died."
+    midClue: "It was carried close and counted every second."
+    highClue: "It kept time until time stopped mattering."
   - itemId: M04
-    itemName: Candlestick
-    riddle: "It held the flame that lit the hall."
+    itemName: "Candlestick"
+    lowClue: "It held the flame that lit the hall."
+    midClue: "It stood still while the light did the work."
+    highClue: "It held something that was never meant to stay."
   - itemId: M05
-    itemName: Family Portrait
-    riddle: "Painted faces that watch you move."
+    itemName: "Family Portrait"
+    lowClue: "Painted faces that watch you move."
+    midClue: "Everyone posed and smiled for it, once."
+    highClue: "The family that is still all together."
   - itemId: M06
-    itemName: Veil
-    riddle: "Worn on a wedding day that never ended."
+    itemName: "Veil"
+    lowClue: "Worn on a wedding day that never ended."
+    midClue: "Thin enough to see through, meant to hide a face."
+    highClue: "A promise left hanging."
   - itemId: M07
-    itemName: Rope
-    riddle: "It once drew the curtain on the last act."
+    itemName: "Rope"
+    lowClue: "It once drew the curtain on the last act."
+    midClue: "Twisted fibres that pulled and held."
+    highClue: "It held things together, until it didn’t."
   - itemId: M08
-    itemName: Spoon
-    riddle: "It fed a family that no longer eats."
+    itemName: "Spoon"
+    lowClue: "It fed a family that no longer eats."
+    midClue: "It went from bowl to mouth at every meal."
+    highClue: "The smallest part of every dinner."

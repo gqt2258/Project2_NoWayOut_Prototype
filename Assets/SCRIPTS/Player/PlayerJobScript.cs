@@ -156,6 +156,7 @@ public class PlayerJobScript : MonoBehaviour
         SetPanelText("Job Location", CurrentJob != null ? CurrentJob.Location.ToString() : "");
         SetPanelText("Job Difficulty", CurrentJob != null ? CurrentJob.Tier.ToString() : "");
         SetPanelText("Job Reward", CurrentJob != null ? $"{CurrentJob.RewardCoins} Coins" : "");
+        SetPanelText("Job Clues", CurrentJob != null ? CurrentJob.ItemClue : "");
     }
 
     private void SetPanelText(string objectName, string value)

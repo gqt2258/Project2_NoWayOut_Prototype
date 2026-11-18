@@ -24,6 +24,7 @@ public sealed class Jobs : ScriptableObject
     [SerializeField] private JobLocation location;
     [SerializeField] private int seed;
     [SerializeField] private string correctItemId;
+    [TextArea(2, 4)][SerializeField] private string itemClue;
     [SerializeField] private JobTierSettings tierSettings;
     [SerializeField] private int rewardCoins;
 
@@ -33,12 +34,13 @@ public sealed class Jobs : ScriptableObject
     public JobLocation Location => location;
     public int Seed => seed;
     public string CorrectItemId => correctItemId;
+    public string ItemClue => itemClue;
     public JobTierSettings TierSettings => tierSettings;
     public JobTier Tier => tierSettings != null ? tierSettings.Tier : JobTier.Low;
     public int RewardCoins => rewardCoins;
 
     public void Initialize(string id, string jobTitle, string jobStory, JobLocation jobLocation,
-                          int jobSeed, string itemId, JobTierSettings settings, int reward)
+                          int jobSeed, string itemId, string clue, JobTierSettings settings, int reward)
     {
         jobId = id;
         title = jobTitle;
@@ -46,6 +48,7 @@ public sealed class Jobs : ScriptableObject
         location = jobLocation;
         seed = jobSeed;
         correctItemId = itemId;
+        itemClue = clue;
         tierSettings = settings;
         rewardCoins = reward;
     }

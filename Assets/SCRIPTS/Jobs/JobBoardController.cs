@@ -185,13 +185,20 @@ public sealed class JobBoardController : MonoBehaviour
             if (attempt < attempts - 1 && JobSession.WasRecentlyUsed(location, itemId))
                 continue;
 
-            usedOnBoard.Add(key);
             int seed = Random.Range(10000, 1000000);
             int reward = Random.Range(settings.MinimumRewardCoins, settings.MaximumRewardCoins + 1);
             string jobId = $"J{seed}";
+            JobItemRiddle itemRiddle = catalog.FindItemRiddle(itemId);
+            string clue = itemRiddle != null ? itemRiddle.GetClue(settings.Tier) : null;
+            if (string.IsNullOrWhiteSpace(clue))
+            {
+                Debug.LogError($"Missing {settings.Tier} clue for {itemId} in the Job Catalog.", this);
+                return null;
+            }
             Jobs job = ScriptableObject.CreateInstance<Jobs>();
+            usedOnBoard.Add(key);
             job.name = jobId;
-            job.Initialize(jobId, title, story, location, seed, itemId, settings, reward);
+            job.Initialize(jobId, title, story, location, seed, itemId, clue, settings, reward);
             return job;
         }
 

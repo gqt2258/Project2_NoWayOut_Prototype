@@ -21,7 +21,19 @@ public sealed class JobItemRiddle
 {
     public string itemId;
     public string itemName;
-    [TextArea(2, 4)] public string riddle;
+    [TextArea(2, 4)] public string lowClue;
+    [TextArea(2, 4)] public string midClue;
+    [TextArea(2, 4)] public string highClue;
+
+    public string GetClue(JobTier tier)
+    {
+        switch (tier)
+        {
+            case JobTier.Mid: return midClue;
+            case JobTier.High: return highClue;
+            default: return lowClue;
+        }
+    }
 }
 
 [CreateAssetMenu(fileName = "JobCatalog", menuName = "No Way Out/Job Catalog")]

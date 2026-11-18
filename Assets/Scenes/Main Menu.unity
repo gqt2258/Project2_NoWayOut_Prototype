@@ -6702,7 +6702,7 @@ GameObject:
   - component: {fileID: 472568540}
   - component: {fileID: 472568539}
   m_Layer: 5
-  m_Name: Co-op Room (1)
+  m_Name: Refresh
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -10557,6 +10557,7 @@ GameObject:
   - component: {fileID: 772806588}
   - component: {fileID: 772806589}
   - component: {fileID: 3300000001}
+  - component: {fileID: 3300000010}
   m_Layer: 0
   m_Name: UI Manager
   m_TagString: Untagged
@@ -12577,7 +12578,7 @@ MonoBehaviour:
   NetworkConfig:
     ProtocolVersion: 0
     NetworkTransport: {fileID: 889312260}
-    PlayerPrefab: {fileID: 0}
+    PlayerPrefab: {fileID: 100000, guid: a6e55b6706cf4a9885e9f59bc5ed91b1, type: 3}
     Prefabs:
       NetworkPrefabsLists:
       - {fileID: 11400000, guid: 3c06ed0cca9921645b3a1356cfa53eb6, type: 2}
@@ -24175,7 +24176,7 @@ MonoBehaviour:
       m_Calls:
       - m_Target: {fileID: 772806589}
         m_TargetAssemblyTypeName: SceneLoader, Assembly-CSharp
-        m_MethodName: LoadCoopLobbyBoard
+        m_MethodName: HostCoop
         m_Mode: 1
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
@@ -29582,6 +29583,23 @@ MonoBehaviour:
   - {fileID: 778304943}
   acceptButton: {fileID: 1616305586}
   gameplaySceneName: Gameplay
+--- !u!114 &3300000010
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 772806587}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a6e55b6706cf4a9885e9f59bc5ed91b2, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::NearbyGames
+  refreshButton: {fileID: 472568539}
+  roomButtons:
+  - {fileID: 377771713}
+  - {fileID: 250660471}
+  - {fileID: 828737435}
 --- !u!1660057539 &9223372036854775807
 SceneRoots:
   m_ObjectHideFlags: 0

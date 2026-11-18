@@ -3,6 +3,7 @@ using TMPro;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 using UnityEngine.UI;
+using Unity.Netcode;
 
 public sealed class JobBoardController : MonoBehaviour
 {
@@ -103,7 +104,11 @@ public sealed class JobBoardController : MonoBehaviour
         }
 
         JobSession.RecordAccepted(JobSession.SelectedJob);
-        SceneManager.LoadScene(gameplaySceneName);
+        NetworkManager network = NetworkManager.Singleton;
+        if (JobSession.IsCoop && network != null && network.IsServer)
+            network.SceneManager.LoadScene(gameplaySceneName, LoadSceneMode.Single);
+        else
+            SceneManager.LoadScene(gameplaySceneName);
     }
 
     private bool HasAllOffers()

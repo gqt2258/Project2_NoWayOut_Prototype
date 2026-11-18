@@ -1,6 +1,7 @@
 using UnityEngine;
 using UnityEngine.SceneManagement;
 using UnityEngine.UI;
+using Unity.Netcode;
 
 public class SwitchSceneScript : MonoBehaviour
 {
@@ -15,6 +16,8 @@ public class SwitchSceneScript : MonoBehaviour
     public void ReturnToMainMenu()
     {
         Time.timeScale = 1f;
+        if (NetworkManager.Singleton != null && NetworkManager.Singleton.IsListening)
+            NetworkManager.Singleton.Shutdown();
         JobSession.ClearResult();
         SceneManager.LoadScene("Main Menu");
     }

@@ -1,4 +1,6 @@
 using UnityEngine;
+using Unity.Netcode;
+using Unity.Netcode.Transports.UTP;
 
 public class SceneLoader : MonoBehaviour
 {
@@ -20,6 +22,7 @@ public class SceneLoader : MonoBehaviour
 
 
     private bool isCoopLobby = false;   // remembers the last lobby type
+    private bool joiningCoop;
 
     [Header("Results")]
     [Tooltip("Your results screen. Opened when the scene loads after a job ends.")]
@@ -58,6 +61,11 @@ public class SceneLoader : MonoBehaviour
 
     public void LoadMainMenu()
     {
+        GetComponent<NearbyGames>()?.StopDiscovery();
+        StopWatchingForGuests();
+        if (NetworkManager.Singleton != null && NetworkManager.Singleton.IsListening)
+            NetworkManager.Singleton.Shutdown();
+
         GameServerLogs.Clear();   // leaving the room
         PlayerWallet.Instance.ResetRun();   // clears equipment only
         jobBoardController.ClearSelection();   // no job selected
@@ -90,6 +98,7 @@ public class SceneLoader : MonoBehaviour
         CosmeticsShop.SetActive(false);
         Loadout.SetActive(false);
         Player2Loadout.SetActive(false);
+        GetComponent<NearbyGames>()?.Refresh();
     }
 
     public void LoadSettings()
@@ -109,6 +118,11 @@ public class SceneLoader : MonoBehaviour
 
     public void LoadSoloLobbyBoard()
     {
+        GetComponent<NearbyGames>()?.StopDiscovery();
+        StopWatchingForGuests();
+        if (NetworkManager.Singleton != null && NetworkManager.Singleton.IsListening)
+            NetworkManager.Singleton.Shutdown();
+
         isCoopLobby = false;
         JobSession.IsCoop = false;
         lobbyBoard.SetActive(true);
@@ -141,6 +155,110 @@ public class SceneLoader : MonoBehaviour
         CosmeticsShop.SetActive(false);
         Loadout.SetActive(false);
         Player2Loadout.SetActive(false);
+    }
+
+    public void HostCoop()
+    {
+        NetworkManager network = NetworkManager.Singleton;
+        UnityTransport transport = network != null ? network.GetComponent<UnityTransport>() : null;
+        if (network == null || transport == null)
+        {
+            GameServerLogs.AddError("Co-op networking is not set up");
+            return;
+        }
+
+        if (network.IsListening && !network.IsHost)
+        {
+            GameServerLogs.AddError("Leave the current room before hosting");
+            return;
+        }
+
+        transport.SetConnectionData("127.0.0.1", 7777, "0.0.0.0");
+        if (!network.IsListening && !network.StartHost())
+        {
+            GameServerLogs.AddError("Could not start the co-op host");
+            return;
+        }
+
+        network.OnClientConnectedCallback -= OnGuestConnected;
+        network.OnClientConnectedCallback += OnGuestConnected;
+        GetComponent<NearbyGames>()?.StartHosting();
+        LoadCoopLobbyBoard();
+    }
+
+    private void OnGuestConnected(ulong clientId)
+    {
+        if (NetworkManager.Singleton != null && clientId != NetworkManager.Singleton.LocalClientId)
+            GameServerLogs.Add("A player has joined");
+    }
+
+    private void StopWatchingForGuests()
+    {
+        if (NetworkManager.Singleton != null)
+            NetworkManager.Singleton.OnClientConnectedCallback -= OnGuestConnected;
+    }
+
+    public void JoinCoop(string address)
+    {
+        NetworkManager network = NetworkManager.Singleton;
+        UnityTransport transport = network != null ? network.GetComponent<UnityTransport>() : null;
+        if (network == null || transport == null)
+        {
+            GameServerLogs.AddError("Co-op networking is not set up");
+            return;
+        }
+
+        if (network.IsListening)
+        {
+            GameServerLogs.AddError("Leave the current room before joining another");
+            return;
+        }
+
+        transport.SetConnectionData(address, 7777);
+        network.OnClientConnectedCallback += OnCoopConnected;
+        network.OnClientDisconnectCallback += OnCoopDisconnected;
+        joiningCoop = true;
+        if (!network.StartClient())
+        {
+            StopWaitingForCoop();
+            GameServerLogs.AddError("Could not connect to the co-op host");
+        }
+    }
+
+    private void OnCoopConnected(ulong clientId)
+    {
+        if (!joiningCoop || clientId != NetworkManager.Singleton.LocalClientId)
+            return;
+
+        StopWaitingForCoop();
+        LoadCoopLobbyBoard();
+        GameServerLogs.Add("A player has joined");
+    }
+
+    private void OnCoopDisconnected(ulong clientId)
+    {
+        if (!joiningCoop || clientId != NetworkManager.Singleton.LocalClientId)
+            return;
+
+        StopWaitingForCoop();
+        GameServerLogs.AddError("Could not connect to the co-op host");
+    }
+
+    private void StopWaitingForCoop()
+    {
+        joiningCoop = false;
+        NetworkManager network = NetworkManager.Singleton;
+        if (network == null)
+            return;
+
+        network.OnClientConnectedCallback -= OnCoopConnected;
+        network.OnClientDisconnectCallback -= OnCoopDisconnected;
+    }
+
+    private void OnDestroy()
+    {
+        StopWaitingForCoop();
+        StopWatchingForGuests();
     }
 
     // Loadout button in the lobby. Its Back button uses LoadLastLobby.
@@ -250,6 +368,12 @@ public class SceneLoader : MonoBehaviour
     // Start button in the lobby.
     public void StartGame()
     {
+        if (JobSession.IsCoop && (NetworkManager.Singleton == null || !NetworkManager.Singleton.IsServer))
+        {
+            GameServerLogs.AddError("Only the host can start the co-op game");
+            return;
+        }
+
         if (JobSession.SelectedJob == null)
         {
             GameServerLogs.AddError("Pick a job from the Job Board first");

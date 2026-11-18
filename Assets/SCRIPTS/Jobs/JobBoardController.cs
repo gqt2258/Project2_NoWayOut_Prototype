@@ -83,6 +83,9 @@ public sealed class JobBoardController : MonoBehaviour
     // Saves the highlighted job. Returns true if a job was saved.
     public bool ConfirmSelectedJob()
     {
+        if (JobSession.IsCoop && (NetworkManager.Singleton == null || !NetworkManager.Singleton.IsServer))
+            return false;
+
         if (selectedIndex < 0 || selectedIndex >= offers.Length || offers[selectedIndex] == null)
         {
             Debug.LogWarning("Select a job before confirming it.", this);
@@ -91,6 +94,21 @@ public sealed class JobBoardController : MonoBehaviour
 
         confirmedIndex = selectedIndex;
         JobSession.Select(offers[confirmedIndex]);
+        return true;
+    }
+
+    public bool UseHostJob(SharedJobData data)
+    {
+        int index = data != null ? (int)data.tier : -1;
+        if (tierSettings == null || index < 0 || index >= tierSettings.Length || tierSettings[index] == null ||
+            tierSettings[index].Tier != data.tier)
+            return false;
+
+        Jobs job = ScriptableObject.CreateInstance<Jobs>();
+        job.name = data.id;
+        job.Initialize(data.id, data.title, data.story, data.location, data.seed,
+            data.correctItemId, data.clue, tierSettings[index], data.rewardCoins);
+        JobSession.Select(job);
         return true;
     }
 
@@ -103,12 +121,26 @@ public sealed class JobBoardController : MonoBehaviour
             return;
         }
 
-        JobSession.RecordAccepted(JobSession.SelectedJob);
         NetworkManager network = NetworkManager.Singleton;
-        if (JobSession.IsCoop && network != null && network.IsServer)
-            network.SceneManager.LoadScene(gameplaySceneName, LoadSceneMode.Single);
+        if (JobSession.IsCoop && (network == null || !network.IsServer))
+            return;
+
+        if (JobSession.IsCoop)
+        {
+            NetworkJobSync sync = network.LocalClient.PlayerObject != null
+                ? network.LocalClient.PlayerObject.GetComponent<NetworkJobSync>() : null;
+            if (sync == null || !sync.ShareJob(JobSession.SelectedJob, () =>
+                {
+                    JobSession.RecordAccepted(JobSession.SelectedJob);
+                    network.SceneManager.LoadScene(gameplaySceneName, LoadSceneMode.Single);
+                }))
+                GameServerLogs.AddError("Could not share the job with the other player");
+        }
         else
+        {
+            JobSession.RecordAccepted(JobSession.SelectedJob);
             SceneManager.LoadScene(gameplaySceneName);
+        }
     }
 
     private bool HasAllOffers()

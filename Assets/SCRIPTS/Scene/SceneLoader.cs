@@ -298,6 +298,12 @@ public class SceneLoader : MonoBehaviour
 
     public void LoadJobBoard()
     {
+        if (JobSession.IsCoop && (NetworkManager.Singleton == null || !NetworkManager.Singleton.IsServer))
+        {
+            GameServerLogs.AddError("Only the host can choose the co-op job");
+            return;
+        }
+
         lobbyBoard.SetActive(false);
         jobBoard.SetActive(true);
         mainMenuCanvas.SetActive(false);

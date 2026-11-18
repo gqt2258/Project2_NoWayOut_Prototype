@@ -7,14 +7,34 @@ namespace NoWayOut.Maze
         private string itemId;
         private ShopItem tool;   // set when this is a dropped hotbar tool instead of a job item
 
+        public bool IsJobItem => tool == null && !string.IsNullOrEmpty(itemId);
+
         public void Initialize(string id)
         {
             itemId = id;
+            SetRadarVisible(false);
         }
 
         public void InitializeTool(ShopItem droppedTool)
         {
             tool = droppedTool;
+        }
+
+        public SpriteRenderer GetRadarIcon()
+        {
+            int radarLayer = LayerMask.NameToLayer("MiniMapIcon");
+            foreach (SpriteRenderer sprite in GetComponentsInChildren<SpriteRenderer>(true))
+                if (sprite.gameObject.layer == radarLayer)
+                    return sprite;
+            return null;
+        }
+
+        public void SetRadarVisible(bool visible)
+        {
+            int radarLayer = LayerMask.NameToLayer("MiniMapIcon");
+            foreach (SpriteRenderer sprite in GetComponentsInChildren<SpriteRenderer>(true))
+                if (sprite.gameObject.layer == radarLayer)
+                    sprite.enabled = visible;
         }
 
         private void OnTriggerEnter2D(Collider2D other)
@@ -23,7 +43,10 @@ namespace NoWayOut.Maze
             {
                 PlayerLoadout loadout = other.GetComponentInParent<PlayerLoadout>();
                 if (loadout != null && loadout.TryAddItem(tool))
+                {
+                    loadout.GetComponent<RadarController>()?.RevealTool(tool);
                     Destroy(gameObject);
+                }
                 return;
             }
 

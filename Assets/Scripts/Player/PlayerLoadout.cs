@@ -67,6 +67,12 @@ public class PlayerLoadout : MonoBehaviour
 
     public bool HasFreeSlot => contents.IndexOf(null) >= 0;
 
+    void Awake()
+    {
+        if (GetComponent<RadarController>() == null)
+            gameObject.AddComponent<RadarController>();
+    }
+
     void Start()
     {
         PlayerWallet wallet = PlayerWallet.Instance;
@@ -168,6 +174,7 @@ public class PlayerLoadout : MonoBehaviour
         AfterSelectionChange();
 
         Debug.Log($"Used {tool.displayName}.", this);
+        GetComponent<RadarController>()?.RevealTool(tool);
         ItemUsed?.Invoke(tool);
     }
 

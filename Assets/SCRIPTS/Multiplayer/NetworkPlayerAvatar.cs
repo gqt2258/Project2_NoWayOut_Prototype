@@ -9,6 +9,7 @@ public sealed class NetworkPlayerAvatar : NetworkBehaviour
     private readonly NetworkVariable<Vector2> position = new NetworkVariable<Vector2>();
     private Transform localPlayer;
     private float nextSendTime;
+    public Vector2 ReportedPosition => position.Value;
 
     private void Update()
     {

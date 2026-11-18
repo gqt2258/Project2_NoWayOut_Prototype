@@ -3,6 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using NavMeshPlus.Components;
 using TMPro;
+using Unity.Netcode;
 using UnityEngine;
 
 namespace NoWayOut.Maze
@@ -125,14 +126,74 @@ namespace NoWayOut.Maze
 
             ApplyJobTierShiftInterval();
             RefreshLocksFromPlayer();
+            UnityEngine.Random.State previousRandom = UnityEngine.Random.state;
+            if (JobSession.IsCoop && JobSession.SelectedJob != null)
+                UnityEngine.Random.InitState(JobSession.SelectedJob.Seed ^ 0x4D415A45);
             ScrambleMaze(initialShuffles);
+            UnityEngine.Random.state = previousRandom;
             ApplyWallStates(false);
 
             if (updateNavMeshAfterShift)
                 QueueNavMeshUpdate(forceRebuild: true);
 
-            if (automaticShiftIntervalSeconds > 0f)
+            if (automaticShiftIntervalSeconds > 0f && CanChooseShift())
                 StartCoroutine(AutomaticShiftLoop());
+        }
+
+        private static bool CanChooseShift()
+        {
+            return !JobSession.IsCoop || (NetworkManager.Singleton != null && NetworkManager.Singleton.IsServer);
+        }
+
+        public string GetWallSnapshot()
+        {
+            if (!initialized)
+                return null;
+
+            bool[] walls = CaptureWallStates(maze);
+            byte[] snapshot = new byte[(walls.Length + 7) / 8];
+            for (int i = 0; i < walls.Length; i++)
+                if (walls[i])
+                    snapshot[i / 8] |= (byte)(1 << (i % 8));
+            return Convert.ToBase64String(snapshot);
+        }
+
+        public void ApplyWallSnapshot(string snapshot)
+        {
+            if (!initialized || string.IsNullOrEmpty(snapshot))
+                return;
+            if (snapshot == GetWallSnapshot())
+                return;
+
+            byte[] walls;
+            try { walls = Convert.FromBase64String(snapshot); }
+            catch (FormatException) { return; }
+            int edgeCount = rows * (columns - 1) + (rows - 1) * columns;
+            if (walls.Length != (edgeCount + 7) / 8)
+                return;
+
+            int edge = 0;
+            for (int row = 0; row < rows; row++)
+                for (int column = 0; column < columns - 1; column++)
+                {
+                    bool wall = (walls[edge / 8] & (1 << (edge++ % 8))) != 0;
+                    maze[row * columns + column].right = wall ? EdgeState.Wall : EdgeState.Child;
+                    maze[row * columns + column + 1].left = wall ? EdgeState.Wall : EdgeState.Parent;
+                }
+
+            for (int row = 0; row < rows - 1; row++)
+                for (int column = 0; column < columns; column++)
+                {
+                    bool wall = (walls[edge / 8] & (1 << (edge++ % 8))) != 0;
+                    maze[row * columns + column].up = wall ? EdgeState.Wall : EdgeState.Child;
+                    maze[(row + 1) * columns + column].down = wall ? EdgeState.Wall : EdgeState.Parent;
+                }
+
+            ApplyWallStates(true);
+            if (updateNavMeshAfterShift)
+                QueueNavMeshUpdate();
+            else
+                MazeChanged?.Invoke();
         }
 
         private void ApplyJobTierShiftInterval()
@@ -162,7 +223,7 @@ namespace NoWayOut.Maze
             // A rewire closes one edge and opens one edge (two wall objects total).
             // Wait for NavMeshPlus to finish before accepting another one so two
             // separate rewires cannot overlap while navigation is rebuilding.
-            if (!initialized || navMeshUpdateRunning || cellIndex < 0 || cellIndex >= maze.Length)
+            if (!CanChooseShift() || !initialized || navMeshUpdateRunning || cellIndex < 0 || cellIndex >= maze.Length)
                 return false;
 
             RefreshLocksFromPlayer();
@@ -183,7 +244,7 @@ namespace NoWayOut.Maze
         /// <summary>Convenience entry point for timers or events that should pick a valid cell.</summary>
         public bool TryShiftRandomUnlockedCell()
         {
-            if (!initialized || navMeshUpdateRunning)
+            if (!CanChooseShift() || !initialized || navMeshUpdateRunning)
                 return false;
 
             RefreshLocksFromPlayer();
@@ -235,7 +296,7 @@ namespace NoWayOut.Maze
         {
             const int expectedWallChangesPerShift = 2;
 
-            if (!initialized || navMeshUpdateRunning || shiftCount < 1)
+            if (!CanChooseShift() || !initialized || navMeshUpdateRunning || shiftCount < 1)
                 return false;
 
             RefreshLocksFromPlayer();
@@ -328,10 +389,37 @@ namespace NoWayOut.Maze
 
         public void RequestConfiguredShift()
         {
-            if (!initialized || navMeshUpdateRunning || warningRoutineRunning)
+            if (!CanChooseShift() || !initialized || navMeshUpdateRunning || warningRoutineRunning)
                 return;
 
+            if (JobSession.IsCoop && NetworkManager.Singleton.LocalClient.PlayerObject != null)
+                NetworkManager.Singleton.LocalClient.PlayerObject.GetComponent<NetworkJobSync>()?.WarnOtherPlayers();
             StartCoroutine(ShowWarningThenShift());
+        }
+
+        public void ShowRemoteWarning()
+        {
+            if (!warningRoutineRunning)
+                StartCoroutine(RemoteWarning());
+        }
+
+        private IEnumerator RemoteWarning()
+        {
+            warningRoutineRunning = true;
+            if (shiftWarningText != null)
+                shiftWarningText.gameObject.SetActive(true);
+            if (AudioManager.Instance != null)
+                AudioManager.Instance.PlaySFX(AudioManager.Instance.WallWarning);
+
+            for (int seconds = Mathf.CeilToInt(warningLeadSeconds); seconds > 0; seconds--)
+            {
+                if (shiftWarningText != null)
+                    shiftWarningText.text = $"{warningMessage}{seconds}";
+                yield return new WaitForSeconds(1f);
+            }
+
+            HideShiftWarning();
+            warningRoutineRunning = false;
         }
 
         private IEnumerator ShowWarningThenShift()

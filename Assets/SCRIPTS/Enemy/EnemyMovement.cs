@@ -1,6 +1,7 @@
 using UnityEngine;
 using UnityEngine.AI;
 using NoWayOut.Maze;
+using Unity.Netcode;
 
 public class EnemyMovement : MonoBehaviour
 {
@@ -47,6 +48,10 @@ public class EnemyMovement : MonoBehaviour
     private bool subscribedToMaze;
     private bool isChasing;
     private Vector3 lastRequestedPosition;
+    private Transform localPlayer;
+    private float nextRemoteHitTime;
+
+    public bool IsChasing => isChasing;
 
     private void OnEnable()
     {
@@ -56,6 +61,18 @@ public class EnemyMovement : MonoBehaviour
     private void Start()
     {
         body = GetComponent<Rigidbody2D>();
+        if (JobSession.IsCoop && NetworkManager.Singleton != null && !NetworkManager.Singleton.IsServer)
+        {
+            if (agent == null)
+                agent = GetComponent<NavMeshAgent>();
+            if (agent != null)
+                agent.enabled = false;
+            if (body != null)
+                body.simulated = false;
+            enabled = false;
+            return;
+        }
+
         if (player == null)
         {
             GameObject playerObject = GameObject.Find("Player");
@@ -64,6 +81,7 @@ public class EnemyMovement : MonoBehaviour
         }
         if (player != null)
         {
+            localPlayer = player;
             playerCollider = player.GetComponent<Collider2D>();
             monsterIndicator = player.GetComponentInChildren<MonsterIndicator>(true);
         }
@@ -121,7 +139,7 @@ public class EnemyMovement : MonoBehaviour
         {
             nextVisionCheckTime = Time.time + visionCheckIntervalSeconds;
 
-            bool canSee = Time.time >= ignorePlayerUntil && CanSeePlayer();
+            bool canSee = Time.time >= ignorePlayerUntil && ChooseVisiblePlayer();
             if (canSee)
             {
                 lastSeenTime = Time.time;
@@ -131,8 +149,10 @@ public class EnemyMovement : MonoBehaviour
                     chaseStartTime = Time.time;
                     unreachableSince = -1f;
                     SetChaseDestination();
-                    if (monsterIndicator != null)
-                        monsterIndicator.Show(transform);
+                    if (player == localPlayer)
+                        monsterIndicator?.Show(transform);
+                    else
+                        AlertRemotePlayer();
 
                     // Seen + scream together, once per chase
                     if (AudioManager.Instance != null)
@@ -185,6 +205,83 @@ public class EnemyMovement : MonoBehaviour
         }
 
         HandleAnimation();
+        DamageRemotePlayer();
+    }
+
+    public void ApplyRemoteState(Vector2 position, bool chasing)
+    {
+        transform.position = new Vector3(position.x, position.y, transform.position.z);
+        isChasing = chasing;
+        if (animator == null)
+            animator = GetComponentInChildren<Animator>();
+        HandleAnimation();
+    }
+
+    private bool ChooseVisiblePlayer()
+    {
+        Transform closest = null;
+        Collider2D closestCollider = null;
+        float closestDistance = float.PositiveInfinity;
+
+        if (localPlayer != null && CanSee(localPlayer, localPlayer.GetComponent<Collider2D>()))
+        {
+            closest = localPlayer;
+            closestCollider = localPlayer.GetComponent<Collider2D>();
+            closestDistance = (localPlayer.position - transform.position).sqrMagnitude;
+        }
+
+        if (JobSession.IsCoop)
+            foreach (NetworkPlayerAvatar avatar in FindObjectsByType<NetworkPlayerAvatar>(FindObjectsSortMode.None))
+            {
+                if (!avatar.IsSpawned || avatar.IsOwner || !CanSee(avatar.transform, null))
+                    continue;
+                float distance = (avatar.transform.position - transform.position).sqrMagnitude;
+                if (distance < closestDistance)
+                {
+                    closest = avatar.transform;
+                    closestCollider = null;
+                    closestDistance = distance;
+                }
+            }
+
+        if (closest == null)
+            return false;
+
+        if (isChasing && player != closest && closest != localPlayer)
+        {
+            player = closest;
+            AlertRemotePlayer();
+        }
+        player = closest;
+        playerCollider = closestCollider;
+        return true;
+    }
+
+    private void DamageRemotePlayer()
+    {
+        if (!JobSession.IsCoop || player == null || player == localPlayer ||
+            Time.time < nextRemoteHitTime ||
+            (player.position - transform.position).sqrMagnitude > 1f)
+            return;
+
+        if (NetworkManager.Singleton == null || NetworkManager.Singleton.LocalClient.PlayerObject == null)
+            return;
+        NetworkJobSync sync = NetworkManager.Singleton.LocalClient.PlayerObject.GetComponent<NetworkJobSync>();
+        if (sync != null)
+        {
+            sync.DamageRemotePlayer(player.GetComponent<NetworkObject>().OwnerClientId);
+            nextRemoteHitTime = Time.time + 1f;
+        }
+    }
+
+    private void AlertRemotePlayer()
+    {
+        if (NetworkManager.Singleton == null || NetworkManager.Singleton.LocalClient.PlayerObject == null || player == null)
+            return;
+        NetworkObject avatar = player.GetComponent<NetworkObject>();
+        NetworkJobSync sync = NetworkManager.Singleton.LocalClient.PlayerObject.GetComponent<NetworkJobSync>();
+        if (avatar != null && sync != null)
+            sync.AlertRemotePlayer(avatar.OwnerClientId);
     }
 
     private void HandleAnimation()
@@ -332,10 +429,10 @@ public class EnemyMovement : MonoBehaviour
         chaseSpeed = settings.MonsterChaseSpeed;
     }
 
-    private bool CanSeePlayer()
+    private bool CanSee(Transform targetTransform, Collider2D targetCollider)
     {
         Vector2 origin = transform.position;
-        Vector2 target = playerCollider != null ? playerCollider.bounds.center : (Vector2)player.position;
+        Vector2 target = targetCollider != null ? targetCollider.bounds.center : (Vector2)targetTransform.position;
         Vector2 directionToPlayer = target - origin;
         float distance = directionToPlayer.magnitude;
         if (distance <= 0.01f)
@@ -359,7 +456,8 @@ public class EnemyMovement : MonoBehaviour
             }
         }
 
-        return closestCollider != null && IsPlayerCollider(closestCollider);
+        return targetCollider == null ? closestCollider == null : closestCollider != null &&
+            (closestCollider == targetCollider || closestCollider.transform.IsChildOf(targetTransform));
     }
 
     private bool IsEnemyCollider(Collider2D collider)
@@ -367,8 +465,4 @@ public class EnemyMovement : MonoBehaviour
         return collider.transform == transform || collider.transform.IsChildOf(transform);
     }
 
-    private bool IsPlayerCollider(Collider2D collider)
-    {
-        return collider.transform == player || collider.transform.IsChildOf(player);
-    }
 }

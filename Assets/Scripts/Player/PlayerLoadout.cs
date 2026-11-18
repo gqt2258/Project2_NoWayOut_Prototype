@@ -110,6 +110,11 @@ public class PlayerLoadout : MonoBehaviour
         return tool != null && TryAdd(new SlotContent { tool = tool });
     }
 
+    public ShopItem FindTool(string id)
+    {
+        return database != null ? database.items.Find(item => item != null && item.itemId == id) : null;
+    }
+
     // Puts a picked-up job item into the first empty slot. False when the inventory is full.
     public bool TryAddJobItem(string itemId, string itemName, Sprite icon)
     {

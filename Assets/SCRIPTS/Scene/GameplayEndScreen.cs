@@ -1,6 +1,7 @@
 using UnityEngine;
 using UnityEngine.SceneManagement;
 using UnityEngine.UI;
+using Unity.Netcode;
 
 public class GameplayEndScreen : MonoBehaviour
 {
@@ -10,6 +11,7 @@ public class GameplayEndScreen : MonoBehaviour
     [SerializeField] private Button loseReturnButton;
 
     private bool finished;
+    public bool IsFinished => finished;
 
     private void Awake()
     {
@@ -21,22 +23,39 @@ public class GameplayEndScreen : MonoBehaviour
 
     public void ShowWin()
     {
-        ShowResult(winScreen, JobResult.Success);
+        ShowResult(JobResult.Success);
     }
 
     public void ShowLose()
     {
-        ShowResult(loseScreen, JobResult.Failed);
+        ShowResult(JobResult.Failed);
     }
 
-    private void ShowResult(GameObject screen, JobResult result)
+    private void ShowResult(JobResult result)
+    {
+        if (finished)
+            return;
+
+        if (JobSession.IsCoop && NetworkManager.Singleton != null && NetworkManager.Singleton.IsListening)
+        {
+            NetworkJobSync sync = NetworkManager.Singleton.LocalClient.PlayerObject != null
+                ? NetworkManager.Singleton.LocalClient.PlayerObject.GetComponent<NetworkJobSync>() : null;
+            if (sync != null)
+                sync.RequestResult(result);
+            return;
+        }
+
+        ApplySharedResult(result);
+    }
+
+    public void ApplySharedResult(JobResult result)
     {
         if (finished)
             return;
 
         finished = true;
         JobSession.ReportResult(result);
-        screen.SetActive(true);
+        (result == JobResult.Success ? winScreen : loseScreen).SetActive(true);
         Time.timeScale = 0f;
     }
 
@@ -44,6 +63,16 @@ public class GameplayEndScreen : MonoBehaviour
     {
         Time.timeScale = 1f;
         JobSession.ClearResult();
+        if (JobSession.IsCoop && NetworkManager.Singleton != null && NetworkManager.Singleton.IsListening)
+        {
+            NetworkJobSync sync = NetworkManager.Singleton.LocalClient.PlayerObject != null
+                ? NetworkManager.Singleton.LocalClient.PlayerObject.GetComponent<NetworkJobSync>() : null;
+            if (sync != null)
+            {
+                sync.ReturnTogether();
+                return;
+            }
+        }
         SceneManager.LoadScene("Main Menu");
     }
 

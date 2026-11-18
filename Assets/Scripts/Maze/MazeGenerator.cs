@@ -3,6 +3,7 @@ using NavMeshPlus.Components;
 using UnityEngine;
 using UnityEngine.AI;
 using UnityEngine.Tilemaps;
+using Unity.Netcode;
 
 namespace NoWayOut.Maze
 {
@@ -89,37 +90,48 @@ namespace NoWayOut.Maze
             if (!CanGenerate())
                 return;
 
-            pitch = roomTiles + 1;
-            GridSize = GetGridSize();
-            tileSize = wallTilemap.layoutGrid.cellSize;
-            doorColumn = GridSize / 2;
-            origin = GetOrigin(GridSize);
+            // Both players build the same fixed walls, art and item positions.
+            Random.State previousRandom = Random.state;
+            if (JobSession.IsCoop && JobSession.SelectedJob != null)
+                Random.InitState(JobSession.SelectedJob.Seed);
 
-            if (removeExistingChildren)
-                RemoveChildren();
+            try
+            {
+                pitch = roomTiles + 1;
+                GridSize = GetGridSize();
+                tileSize = wallTilemap.layoutGrid.cellSize;
+                doorColumn = GridSize / 2;
+                origin = GetOrigin(GridSize);
 
-            ClearTiles();
-            PaintFloor();
-            PaintBorderAndPosts();
-            BuildInteriorWalls();
-            PaintSafeBase();
+                if (removeExistingChildren)
+                    RemoveChildren();
 
-            // Keeps the enemy's agent off until the navmesh exists, so it does not
-            // fail to attach while the maze is still being built.
-            NavMeshAgent enemyAgent = enemy != null ? enemy.GetComponent<NavMeshAgent>() : null;
-            if (enemyAgent != null)
-                enemyAgent.enabled = false;
+                ClearTiles();
+                PaintFloor();
+                PaintBorderAndPosts();
+                BuildInteriorWalls();
+                PaintSafeBase();
 
-            Vector3 firstCellCenter = transform.InverseTransformPoint(GetCellWorldPosition(0, 0));
-            shiftController = GetComponent<MazeShiftController>();
-            shiftController.MazeChanged += OnFirstNavMeshReady;
-            shiftController.ConfigureGrid(transform, GridSize, GridSize, firstCellCenter,
-                                                              new Vector2(pitch * tileSize.x, pitch * tileSize.y),
-                                                              GridSize * GridSize * shufflesPerCell);
-            PlaceEnemy();
-            SpawnItems();
+                // Keep the agent off until the navmesh exists.
+                NavMeshAgent enemyAgent = enemy != null ? enemy.GetComponent<NavMeshAgent>() : null;
+                if (enemyAgent != null)
+                    enemyAgent.enabled = false;
 
-            Debug.Log($"MazeGenerator built a {GridSize}x{GridSize} maze: {InsideTiles(GridSize)} tiles inside the border.", this);
+                Vector3 firstCellCenter = transform.InverseTransformPoint(GetCellWorldPosition(0, 0));
+                shiftController = GetComponent<MazeShiftController>();
+                shiftController.MazeChanged += OnFirstNavMeshReady;
+                shiftController.ConfigureGrid(transform, GridSize, GridSize, firstCellCenter,
+                    new Vector2(pitch * tileSize.x, pitch * tileSize.y),
+                    GridSize * GridSize * shufflesPerCell);
+                PlaceEnemy();
+                SpawnItems();
+
+                Debug.Log($"MazeGenerator built a {GridSize}x{GridSize} maze: {InsideTiles(GridSize)} tiles inside the border.", this);
+            }
+            finally
+            {
+                Random.state = previousRandom;
+            }
         }
 
         /// <summary>World position of a cell's centre. Row 0 is next to the Safe Base.</summary>
@@ -244,7 +256,7 @@ namespace NoWayOut.Maze
                 GameObject item = Instantiate(items[itemIndex], spawnPoints[i].position, Quaternion.identity, spawnPoints[i]);
                 item.name = items[itemIndex].name;
                 var pickup = item.AddComponent<MazeItemPickup>();
-                pickup.Initialize($"{prefix}{itemIndex + 1:00}");
+                pickup.Initialize($"{prefix}{itemIndex + 1:00}", $"spawn-{i}");
                 item.AddComponent<CircleCollider2D>().isTrigger = true;
 
                 if (item.TryGetComponent(out SpriteRenderer sprite))
@@ -262,6 +274,22 @@ namespace NoWayOut.Maze
         // Drops a job item on the floor, such as when the player is revived.
         public void DropJobItem(string itemId, Vector3 position)
         {
+            if (JobSession.IsCoop && NetworkManager.Singleton != null && NetworkManager.Singleton.IsListening)
+            {
+                NetworkJobSync sync = NetworkManager.Singleton.LocalClient.PlayerObject != null
+                    ? NetworkManager.Singleton.LocalClient.PlayerObject.GetComponent<NetworkJobSync>() : null;
+                if (sync != null)
+                {
+                    sync.DropJobItem(itemId, position);
+                    return;
+                }
+            }
+
+            SpawnSharedJobItem(itemId, position, null);
+        }
+
+        public void SpawnSharedJobItem(string itemId, Vector3 position, string key)
+        {
             GameObject prefab = GetItemPrefab(itemId);
             if (prefab == null)
             {
@@ -271,7 +299,7 @@ namespace NoWayOut.Maze
 
             GameObject item = Instantiate(prefab, position, Quaternion.identity, transform);
             item.name = prefab.name;
-            item.AddComponent<MazeItemPickup>().Initialize(itemId);
+            item.AddComponent<MazeItemPickup>().Initialize(itemId, key);
             item.AddComponent<CircleCollider2D>().isTrigger = true;
             MatchWallSorting(item);
             if (item.TryGetComponent(out SpriteRenderer sprite))
@@ -281,6 +309,25 @@ namespace NoWayOut.Maze
 
         // Drops a hotbar tool on the floor, shown with its shop icon.
         public void DropTool(ShopItem tool, Vector3 position)
+        {
+            if (tool == null)
+                return;
+
+            if (JobSession.IsCoop && NetworkManager.Singleton != null && NetworkManager.Singleton.IsListening)
+            {
+                NetworkJobSync sync = NetworkManager.Singleton.LocalClient.PlayerObject != null
+                    ? NetworkManager.Singleton.LocalClient.PlayerObject.GetComponent<NetworkJobSync>() : null;
+                if (sync != null)
+                {
+                    sync.DropTool(tool.itemId, position);
+                    return;
+                }
+            }
+
+            SpawnSharedTool(tool, position, null);
+        }
+
+        public void SpawnSharedTool(ShopItem tool, Vector3 position, string key)
         {
             if (tool == null)
                 return;
@@ -298,7 +345,7 @@ namespace NoWayOut.Maze
                     item.transform.localScale = Vector3.one * (droppedToolSize / largestSide);
             }
 
-            item.AddComponent<MazeItemPickup>().InitializeTool(tool);
+            item.AddComponent<MazeItemPickup>().InitializeTool(tool, key);
             item.AddComponent<CircleCollider2D>().isTrigger = true;
             MatchWallSorting(item);
         }
@@ -660,6 +707,9 @@ namespace NoWayOut.Maze
         private void OnFirstNavMeshReady()
         {
             shiftController.MazeChanged -= OnFirstNavMeshReady;
+
+            if (JobSession.IsCoop && NetworkManager.Singleton != null && !NetworkManager.Singleton.IsServer)
+                return;
 
             NavMeshAgent agent = enemy != null ? enemy.GetComponent<NavMeshAgent>() : null;
             if (agent == null)

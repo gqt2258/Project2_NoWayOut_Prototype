@@ -70,9 +70,6 @@ namespace NoWayOut.Maze
         [Tooltip("Size of dropped tools on the floor, in units.")]
         [SerializeField, Min(0.1f)] private float droppedToolSize = 0.75f;
 
-        [Header("Mini map")]
-        [SerializeField] private Transform miniMapCamera;
-
         [Header("Items (order: H01-H08, P01-P08, M01-M08)")]
         [SerializeField] private GameObject[] hospitalItems;
         [SerializeField] private GameObject[] prisonItems;
@@ -94,7 +91,6 @@ namespace NoWayOut.Maze
 
             pitch = roomTiles + 1;
             GridSize = GetGridSize();
-            PositionMiniMapCamera();
             tileSize = wallTilemap.layoutGrid.cellSize;
             doorColumn = GridSize / 2;
             origin = GetOrigin(GridSize);
@@ -373,25 +369,6 @@ namespace NoWayOut.Maze
         }
 
         private int InsideTiles(int cells) => cells * pitch - 1;
-
-        private void PositionMiniMapCamera()
-        {
-            if (miniMapCamera == null)
-                return;
-
-            switch (InsideTiles(GridSize))
-            {
-                case 17:
-                    miniMapCamera.position = new Vector3(-1.4f, 9.41f, -25.5f);
-                    break;
-                case 23:
-                    miniMapCamera.position = new Vector3(-1.4f, 12.2f, -32f);
-                    break;
-                case 29:
-                    miniMapCamera.position = new Vector3(-1.4f, 15.5f, -39f);
-                    break;
-            }
-        }
 
         // Puts the safe base just below the bottom border, under the middle cell's gap.
         private Vector3Int GetOrigin(int size)

@@ -42,6 +42,7 @@ namespace NoWayOut.Maze
         [Header("Wall animation")]
         [Tooltip("How long a shifting wall takes to rise or sink. 0 makes walls appear and disappear instantly.")]
         [SerializeField, Min(0f)] private float wallAnimationSeconds = 0.4f;
+        [SerializeField, Range(0f, 1f)] private float wallShiftVolume = 0.3f;
         [Tooltip("How far the wall art sinks while disappearing, in units. Not used when Wall Shrink Frames are assigned.")]
         [SerializeField, Min(0f)] private float wallSinkDistance = 0.5f;
         [Tooltip("Optional. Frames from the full wall to the smallest. Played forwards when a wall disappears, backwards when it appears.")]
@@ -444,10 +445,8 @@ namespace NoWayOut.Maze
                 secondsLeft--;
             }
 
-            // 3. Shift the walls, then play the shift sound only if walls actually changed
-            bool shifted = TryShiftRandomUnlockedCells(rewiresPerBatch);
-            if (shifted && AudioManager.Instance != null)
-                AudioManager.Instance.PlaySFX(AudioManager.Instance.WallShift);
+            // Each wall plays its own sound when its state changes.
+            TryShiftRandomUnlockedCells(rewiresPerBatch);
 
             HideShiftWarning();
             warningRoutineRunning = false;
@@ -586,6 +585,7 @@ namespace NoWayOut.Maze
                     continue;
 
                 shiftingCount++;
+                EnsureWallAudio(item.gameObject);
                 if (TryMapShiftingWall(item.gameObject))
                     mappedCount++;
             }
@@ -774,7 +774,7 @@ namespace NoWayOut.Maze
 
             wallTargets[wall] = show;
 
-            if (!animate || wallAnimationSeconds <= 0f)
+            if (!animate)
             {
                 SetWallArt(wall, 1f);
                 SetWallBlocking(wall, show);
@@ -783,7 +783,67 @@ namespace NoWayOut.Maze
                 return;
             }
 
+            if (wallAnimationSeconds <= 0f)
+            {
+                wall.SetActive(true);
+                SetWallVisible(wall, show);
+                SetWallBlocking(wall, show);
+                SetWallArt(wall, show ? 1f : 0f);
+                PlayWallSound(wall);
+                if (!show)
+                    wallAnimations[wall] = StartCoroutine(HideAfterSound(wall));
+                else
+                    wallAnimations.Remove(wall);
+                return;
+            }
+
             wallAnimations[wall] = StartCoroutine(AnimateWall(wall, show));
+        }
+
+        private static void EnsureWallAudio(GameObject wall)
+        {
+            Transform audioObject = wall.transform.Find("Wall Audio");
+            if (audioObject == null)
+            {
+                audioObject = new GameObject("Wall Audio").transform;
+                audioObject.SetParent(wall.transform, false);
+            }
+
+            AudioSource source = audioObject.GetComponent<AudioSource>();
+            if (source == null)
+                source = audioObject.gameObject.AddComponent<AudioSource>();
+            source.playOnAwake = false;
+            source.loop = false;
+            if (AudioManager.Instance != null)
+                source.clip = AudioManager.Instance.WallShift;
+        }
+
+        private void PlayWallSound(GameObject wall)
+        {
+            AudioManager audio = AudioManager.Instance;
+            if (audio == null)
+                return;
+
+            AudioSource source = wall.transform.Find("Wall Audio")?.GetComponent<AudioSource>();
+            if (source == null)
+                return;
+
+            audio.ConfigureSpatialSource(source, 14f);
+            source.clip = audio.WallShift;
+            source.Stop();
+            audio.PlaySpatialSFX(source, source.clip, wallShiftVolume);
+        }
+
+        private IEnumerator HideAfterSound(GameObject wall)
+        {
+            AudioSource source = wall.transform.Find("Wall Audio")?.GetComponent<AudioSource>();
+            while (source != null && source.isPlaying)
+                yield return null;
+
+            wall.SetActive(false);
+            SetWallVisible(wall, true);
+            SetWallArt(wall, 1f);
+            wallAnimations.Remove(wall);
         }
 
         // Blocking changes straight away, so the navmesh update right after a shift is
@@ -791,10 +851,14 @@ namespace NoWayOut.Maze
         private IEnumerator AnimateWall(GameObject wall, bool show)
         {
             if (show)
+            {
                 wall.SetActive(true);
+                SetWallVisible(wall, true);
+            }
 
             SetWallBlocking(wall, show);
             PlayWallDust(wall);
+            PlayWallSound(wall);
 
             for (float time = 0f; time < wallAnimationSeconds; time += Time.deltaTime)
             {
@@ -803,11 +867,26 @@ namespace NoWayOut.Maze
                 yield return null;
             }
 
-            SetWallArt(wall, 1f);
+            SetWallArt(wall, show ? 1f : 0f);
             if (!show)
+            {
+                SetWallVisible(wall, false);
+                AudioSource source = wall.transform.Find("Wall Audio")?.GetComponent<AudioSource>();
+                while (source != null && source.isPlaying)
+                    yield return null;
                 wall.SetActive(false);
+                SetWallVisible(wall, true);
+                SetWallArt(wall, 1f);
+            }
 
             wallAnimations.Remove(wall);
+        }
+
+        private static void SetWallVisible(GameObject wall, bool visible)
+        {
+            foreach (SpriteRenderer art in wall.GetComponentsInChildren<SpriteRenderer>(true))
+                if (art.gameObject.name != "NavMesh Footprint")
+                    art.enabled = visible;
         }
 
         private void PlayWallDust(GameObject wall)

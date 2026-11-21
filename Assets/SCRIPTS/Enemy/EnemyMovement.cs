@@ -50,6 +50,7 @@ public class EnemyMovement : MonoBehaviour
     private Vector3 lastRequestedPosition;
     private Transform localPlayer;
     private float nextRemoteHitTime;
+    private AudioSource enemyAudio;
 
     public bool IsChasing => isChasing;
 
@@ -61,6 +62,9 @@ public class EnemyMovement : MonoBehaviour
     private void Start()
     {
         body = GetComponent<Rigidbody2D>();
+        Transform audioObject = transform.Find("Enemy Audio");
+        enemyAudio = audioObject != null ? audioObject.GetComponent<AudioSource>() : null;
+        AudioManager.Instance?.ConfigureSpatialSource(enemyAudio, 18f);
         if (JobSession.IsCoop && NetworkManager.Singleton != null && !NetworkManager.Singleton.IsServer)
         {
             if (agent == null)
@@ -154,12 +158,7 @@ public class EnemyMovement : MonoBehaviour
                     else
                         AlertRemotePlayer();
 
-                    // Seen + scream together, once per chase
-                    if (AudioManager.Instance != null)
-                    {
-                        AudioManager.Instance.PlaySFX(AudioManager.Instance.MonsterSeenBass);
-                        AudioManager.Instance.PlaySFX(AudioManager.Instance.MonsterScream);
-                    }
+                    PlayEnemySound(0);
                 }
             }
             else if (isChasing && Time.time - lastSeenTime >= chaseMemorySeconds)
@@ -217,6 +216,25 @@ public class EnemyMovement : MonoBehaviour
         HandleAnimation();
     }
 
+    public void PlayEnemySound(int sound, bool broadcast = true)
+    {
+        AudioManager audio = AudioManager.Instance;
+        if (audio == null)
+            return;
+
+        if (sound == 0)
+        {
+            audio.PlaySpatialSFX(enemyAudio, audio.MonsterSeenBass);
+            audio.PlaySpatialSFX(enemyAudio, audio.MonsterScream);
+        }
+        else if (sound == 1)
+            audio.PlaySpatialSFX(enemyAudio, audio.MonsterSlash);
+
+        if (broadcast && JobSession.IsCoop && NetworkManager.Singleton != null && NetworkManager.Singleton.IsServer &&
+            NetworkManager.Singleton.LocalClient.PlayerObject != null)
+            NetworkManager.Singleton.LocalClient.PlayerObject.GetComponent<NetworkJobSync>()?.BroadcastEnemySound(sound);
+    }
+
     private bool ChooseVisiblePlayer()
     {
         Transform closest = null;
@@ -231,7 +249,7 @@ public class EnemyMovement : MonoBehaviour
         }
 
         if (JobSession.IsCoop)
-            foreach (NetworkPlayerAvatar avatar in FindObjectsByType<NetworkPlayerAvatar>(FindObjectsSortMode.None))
+            foreach (NetworkPlayerAvatar avatar in FindObjectsByType<NetworkPlayerAvatar>())
             {
                 if (!avatar.IsSpawned || avatar.IsOwner || !CanSee(avatar.transform, null))
                     continue;
@@ -301,8 +319,7 @@ public class EnemyMovement : MonoBehaviour
         PlayerHealth playerHealth = collision.gameObject.GetComponentInParent<PlayerHealth>();
         if (playerHealth != null && playerHealth.TakeDamage(GetComponent<Collider2D>()))
         {
-            if (AudioManager.Instance != null)
-                AudioManager.Instance.PlaySFX(AudioManager.Instance.MonsterSlash);
+            PlayEnemySound(1);
         }
     }
 

@@ -155,27 +155,59 @@ public class AudioManager : MonoBehaviour
     {
         if (clip != null) SfxSource.PlayOneShot(clip, sfxVolume);
     }
-    public void PlayerMoves(bool moving, bool running)
+
+    public void ConfigureSpatialSource(AudioSource source, float audibleDistance)
     {
+        if (source == null) return;
+
+        source.playOnAwake = false;
+        source.spatialBlend = 1f;
+        source.rolloffMode = AudioRolloffMode.Linear;
+        source.minDistance = 1f;
+        source.maxDistance = audibleDistance;
+        source.dopplerLevel = 0f;
+        source.mute = !SFXOn;
+
+        AudioListener listener = Camera.main != null ? Camera.main.GetComponent<AudioListener>() : null;
+        if (listener == null)
+            listener = FindAnyObjectByType<AudioListener>();
+        if (listener != null && source.transform.parent != null)
+        {
+            Vector3 origin = source.transform.parent.position;
+            source.transform.position = new Vector3(origin.x, origin.y, listener.transform.position.z);
+        }
+    }
+
+    public void PlaySpatialSFX(AudioSource source, AudioClip clip, float volumeScale = 1f)
+    {
+        if (!SFXOn || source == null || clip == null) return;
+        source.volume = sfxVolume * volumeScale;
+        source.PlayOneShot(clip);
+    }
+
+    public void PlayerMoves(AudioSource source, bool moving, bool running)
+    {
+        if (source == null) return;
+        moving &= SFXOn;
         if (!moving)
         {
-            if (PlayerMovement.isPlaying) PlayerMovement.Stop();
+            if (source.isPlaying) source.Stop();
             return;
         }
 
         AudioClip clip = running ? PlayerRun : PlayerWalk;
         if (clip == null) return;
 
-        if (PlayerMovement.clip != clip)
+        if (source.clip != clip)
         {
-            PlayerMovement.clip = clip;
-            PlayerMovement.loop = true;
-            PlayerMovement.volume = sfxVolume;
-            PlayerMovement.Play();
+            source.clip = clip;
+            source.loop = true;
+            source.volume = sfxVolume;
+            source.Play();
         }
-        else if (!PlayerMovement.isPlaying)
+        else if (!source.isPlaying)
         {
-            PlayerMovement.Play();
+            source.Play();
         }
     }
 
@@ -198,6 +230,9 @@ public class AudioManager : MonoBehaviour
         SFXOn = on;
         SfxSource.mute = !on;
         AmbienceSource.mute = !on;
+        foreach (AudioSource source in FindObjectsByType<AudioSource>())
+            if (source.spatialBlend >= 0.99f)
+                source.mute = !on;
         PlayerPrefs.SetInt("sfx", on ? 1 : 0);
         PlayerPrefs.Save();
     }

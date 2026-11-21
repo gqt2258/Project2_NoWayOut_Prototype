@@ -28,6 +28,7 @@ public class PlayerHealth : MonoBehaviour
     private Collider2D[] playerColliders;
     private SpriteRenderer[] spriteRenderers;
     private Rigidbody2D body;
+    private AudioSource hurtAudio;
 
     public int RevivesLeft => revivesLeft;
 
@@ -44,6 +45,14 @@ public class PlayerHealth : MonoBehaviour
         RefreshReviveBar();
     }
 
+    private void Start()
+    {
+        var audioObject = new GameObject("Player Hurt Audio");
+        audioObject.transform.SetParent(transform, false);
+        hurtAudio = audioObject.AddComponent<AudioSource>();
+        AudioManager.Instance?.ConfigureSpatialSource(hurtAudio, 12f);
+    }
+
     // Returns true only when damage was actually taken
     public bool TakeDamage(Collider2D enemyCollider)
     {
@@ -54,7 +63,7 @@ public class PlayerHealth : MonoBehaviour
         healthBar.SetHealth(currentHealth);
 
         if (AudioManager.Instance != null)
-            AudioManager.Instance.PlaySFX(AudioManager.Instance.PlayerHurt);
+            AudioManager.Instance.PlaySpatialSFX(hurtAudio, AudioManager.Instance.PlayerHurt);
 
         if (currentHealth <= 0)
             HandleAllHeartsLost();
@@ -145,6 +154,9 @@ public class PlayerHealth : MonoBehaviour
     {
         jobFailed = true;
         Debug.Log("No revives left. The job has failed.", this);
+
+        if (AudioManager.Instance != null)
+            AudioManager.Instance.PlaySpatialSFX(hurtAudio, AudioManager.Instance.PlayerDied);
 
         GameplayEndScreen endScreen = FindAnyObjectByType<GameplayEndScreen>();
         if (endScreen != null)

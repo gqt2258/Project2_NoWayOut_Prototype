@@ -54,7 +54,7 @@ public sealed class NetworkJobSync : NetworkBehaviour
     [Rpc(SendTo.NotServer)]
     private void ReceiveShiftWarningRpc()
     {
-        FindFirstObjectByType<MazeShiftController>()?.ShowRemoteWarning();
+        FindAnyObjectByType<MazeShiftController>()?.ShowRemoteWarning();
     }
 
     public void DropTool(string toolId, Vector3 position)
@@ -73,9 +73,9 @@ public sealed class NetworkJobSync : NetworkBehaviour
 
     private void SpawnDroppedTool(string toolId, Vector3 position)
     {
-        PlayerLoadout loadout = FindFirstObjectByType<PlayerLoadout>();
+        PlayerLoadout loadout = FindAnyObjectByType<PlayerLoadout>();
         ShopItem tool = loadout != null ? loadout.FindTool(toolId) : null;
-        MazeGenerator generator = FindFirstObjectByType<MazeGenerator>();
+        MazeGenerator generator = FindAnyObjectByType<MazeGenerator>();
         if (tool == null || generator == null)
             return;
 
@@ -87,9 +87,9 @@ public sealed class NetworkJobSync : NetworkBehaviour
     [Rpc(SendTo.NotServer)]
     private void ReceiveDroppedToolRpc(string toolId, Vector3 position, string key)
     {
-        PlayerLoadout loadout = FindFirstObjectByType<PlayerLoadout>();
+        PlayerLoadout loadout = FindAnyObjectByType<PlayerLoadout>();
         ShopItem tool = loadout != null ? loadout.FindTool(toolId) : null;
-        FindFirstObjectByType<MazeGenerator>()?.SpawnSharedTool(tool, position, key);
+        FindAnyObjectByType<MazeGenerator>()?.SpawnSharedTool(tool, position, key);
     }
 
     public void DropJobItem(string itemId, Vector3 position)
@@ -109,7 +109,7 @@ public sealed class NetworkJobSync : NetworkBehaviour
     private void SpawnDroppedItem(string itemId, Vector3 position)
     {
         string key = Guid.NewGuid().ToString("N");
-        MazeGenerator generator = FindFirstObjectByType<MazeGenerator>();
+        MazeGenerator generator = FindAnyObjectByType<MazeGenerator>();
         generator?.SpawnSharedJobItem(itemId, position, key);
         ReceiveDroppedItemRpc(itemId, position, key);
     }
@@ -117,7 +117,7 @@ public sealed class NetworkJobSync : NetworkBehaviour
     [Rpc(SendTo.NotServer)]
     private void ReceiveDroppedItemRpc(string itemId, Vector3 position, string key)
     {
-        FindFirstObjectByType<MazeGenerator>()?.SpawnSharedJobItem(itemId, position, key);
+        FindAnyObjectByType<MazeGenerator>()?.SpawnSharedJobItem(itemId, position, key);
     }
 
     private void Update()
@@ -134,14 +134,31 @@ public sealed class NetworkJobSync : NetworkBehaviour
     private void ReceiveEnemyStateRpc(Vector2 position, bool chasing)
     {
         if (enemy == null)
-            enemy = FindFirstObjectByType<EnemyMovement>();
+            enemy = FindAnyObjectByType<EnemyMovement>();
         enemy?.ApplyRemoteState(position, chasing);
     }
 
     public void DamageRemotePlayer(ulong clientId)
     {
         if (IsServer)
+        {
+            enemy?.PlayEnemySound(1);
             ReceiveRemoteDamageRpc(clientId);
+        }
+    }
+
+    public void BroadcastEnemySound(int sound)
+    {
+        if (IsServer)
+            ReceiveEnemySoundRpc(sound);
+    }
+
+    [Rpc(SendTo.NotServer)]
+    private void ReceiveEnemySoundRpc(int sound)
+    {
+        if (enemy == null)
+            enemy = FindAnyObjectByType<EnemyMovement>();
+        enemy?.PlayEnemySound(sound, false);
     }
 
     public void AlertRemotePlayer(ulong clientId)
@@ -156,7 +173,7 @@ public sealed class NetworkJobSync : NetworkBehaviour
         if (NetworkManager.LocalClientId != clientId)
             return;
         GameObject player = GameObject.Find("Player");
-        EnemyMovement localEnemy = FindFirstObjectByType<EnemyMovement>();
+        EnemyMovement localEnemy = FindAnyObjectByType<EnemyMovement>();
         if (player != null && localEnemy != null)
             player.GetComponentInChildren<MonsterIndicator>(true)?.Show(localEnemy.transform);
     }
@@ -234,7 +251,7 @@ public sealed class NetworkJobSync : NetworkBehaviour
 
     private static MazeItemPickup FindItem(string key)
     {
-        foreach (MazeItemPickup item in FindObjectsByType<MazeItemPickup>(FindObjectsSortMode.None))
+        foreach (MazeItemPickup item in FindObjectsByType<MazeItemPickup>())
             if (item.NetworkKey == key)
                 return item;
         return null;
@@ -292,7 +309,7 @@ public sealed class NetworkJobSync : NetworkBehaviour
 
     private void ShareResult(JobResult result)
     {
-        GameplayEndScreen screen = FindFirstObjectByType<GameplayEndScreen>();
+        GameplayEndScreen screen = FindAnyObjectByType<GameplayEndScreen>();
         if (resultSent || screen == null || screen.IsFinished)
             return;
         resultSent = true;
@@ -303,7 +320,7 @@ public sealed class NetworkJobSync : NetworkBehaviour
     [Rpc(SendTo.NotServer)]
     private void ReceiveResultRpc(int result)
     {
-        FindFirstObjectByType<GameplayEndScreen>()?.ApplySharedResult((JobResult)result);
+        FindAnyObjectByType<GameplayEndScreen>()?.ApplySharedResult((JobResult)result);
     }
 
     public void ReturnTogether()
@@ -338,8 +355,8 @@ public sealed class NetworkJobSync : NetworkBehaviour
     {
         // MazeShiftController creates its starting passages in Start.
         yield return null;
-        maze = FindFirstObjectByType<MazeShiftController>();
-        enemy = FindFirstObjectByType<EnemyMovement>();
+        maze = FindAnyObjectByType<MazeShiftController>();
+        enemy = FindAnyObjectByType<EnemyMovement>();
         if (maze == null)
             yield break;
 
@@ -362,7 +379,7 @@ public sealed class NetworkJobSync : NetworkBehaviour
     [Rpc(SendTo.Server, InvokePermission = RpcInvokePermission.Everyone)]
     private void RequestMazeSnapshotRpc()
     {
-        MazeShiftController currentMaze = FindFirstObjectByType<MazeShiftController>();
+        MazeShiftController currentMaze = FindAnyObjectByType<MazeShiftController>();
         string snapshot = currentMaze != null ? currentMaze.GetWallSnapshot() : null;
         if (!string.IsNullOrEmpty(snapshot))
             ReceiveMazeSnapshotRpc(snapshot);
@@ -371,7 +388,7 @@ public sealed class NetworkJobSync : NetworkBehaviour
     [Rpc(SendTo.NotServer)]
     private void ReceiveMazeSnapshotRpc(string snapshot)
     {
-        MazeShiftController currentMaze = FindFirstObjectByType<MazeShiftController>();
+        MazeShiftController currentMaze = FindAnyObjectByType<MazeShiftController>();
         currentMaze?.ApplyWallSnapshot(snapshot);
     }
 
@@ -400,7 +417,7 @@ public sealed class NetworkJobSync : NetworkBehaviour
     [Rpc(SendTo.NotServer)]
     private void ReceiveJobRpc(string json)
     {
-        JobBoardController board = FindFirstObjectByType<JobBoardController>();
+        JobBoardController board = FindAnyObjectByType<JobBoardController>();
         if (board == null || !board.UseHostJob(JsonUtility.FromJson<SharedJobData>(json)))
         {
             GameServerLogs.AddError("Could not load the host's job");

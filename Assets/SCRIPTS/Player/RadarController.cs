@@ -34,14 +34,14 @@ public sealed class RadarController : MonoBehaviour
         GameObject baseObject = GameObject.Find("Safe Base");
         safeBase = baseObject != null ? baseObject.transform : null;
 
-        Grid grid = FindFirstObjectByType<Grid>();
+        Grid grid = FindAnyObjectByType<Grid>();
         if (grid != null)
             tileSize = Mathf.Max(0.01f, grid.cellSize.x);
 
         Jobs job = JobSession.SelectedJob;
         tier = job != null ? job.Tier : JobTier.Low;
 
-        EnemyMovement enemyMovement = FindFirstObjectByType<EnemyMovement>();
+        EnemyMovement enemyMovement = FindAnyObjectByType<EnemyMovement>();
         if (enemyMovement != null)
         {
             enemy = enemyMovement.transform;
@@ -53,7 +53,7 @@ public sealed class RadarController : MonoBehaviour
             }
         }
 
-        foreach (MazeItemPickup pickup in FindObjectsByType<MazeItemPickup>(FindObjectsSortMode.None))
+        foreach (MazeItemPickup pickup in FindObjectsByType<MazeItemPickup>())
             pickup.SetRadarVisible(false);
 
         if (radarCamera == null || baseIndicator == null || safeBase == null)
@@ -92,7 +92,7 @@ public sealed class RadarController : MonoBehaviour
         {
             MazeItemPickup nearest = null;
             float nearestDistance = float.PositiveInfinity;
-            foreach (MazeItemPickup pickup in FindObjectsByType<MazeItemPickup>(FindObjectsSortMode.None))
+            foreach (MazeItemPickup pickup in FindObjectsByType<MazeItemPickup>())
             {
                 if (!pickup.IsJobItem)
                     continue;

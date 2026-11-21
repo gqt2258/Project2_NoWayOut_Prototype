@@ -5,6 +5,7 @@ public class PlayerMovement : MonoBehaviour
 {
     [SerializeField] private PlayerStat stats;
     [SerializeField] private Rigidbody2D rb;
+    private AudioSource movementAudio;
 
     [Header("Animation")]
     [SerializeField] private Animator animator;
@@ -52,9 +53,17 @@ public class PlayerMovement : MonoBehaviour
         if (rb == null)
             rb = GetComponent<Rigidbody2D>();
 
+        Transform audioObject = transform.Find("PlayerMovement");
+        movementAudio = audioObject != null ? audioObject.GetComponent<AudioSource>() : null;
+
         currentStamina = MaxStamina;
         if (staminaBar != null)
             staminaBar.SetMaxStamina(MaxStamina);
+    }
+
+    private void Start()
+    {
+        AudioManager.Instance?.ConfigureSpatialSource(movementAudio, 12f);
     }
 
     private void Update()
@@ -117,13 +126,13 @@ public class PlayerMovement : MonoBehaviour
         if (AudioManager.Instance == null) return;
 
         bool isMoving = moveInput.sqrMagnitude > 0.01f && Time.timeScale > 0f;
-        AudioManager.Instance.PlayerMoves(isMoving, isSprinting);
+        AudioManager.Instance.PlayerMoves(movementAudio, isMoving, isSprinting);
     }
 
     private void OnDisable()
     {
         if (AudioManager.Instance != null)
-            AudioManager.Instance.PlayerMoves(false, false);
+            AudioManager.Instance.PlayerMoves(movementAudio, false, false);
     }
 
     public void Move(InputAction.CallbackContext context)

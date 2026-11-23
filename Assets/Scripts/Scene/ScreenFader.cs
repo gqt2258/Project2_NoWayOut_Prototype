@@ -23,6 +23,9 @@ public class ScreenFader : MonoBehaviour
 {
     public static ScreenFader Instance { get; private set; }
 
+    // True while the loading screen is on screen (even partly), e.g. so the results wait for it to go.
+    public static bool IsCovering => Instance != null && (Instance.group.alpha > 0.01f || Instance.routine != null);
+
     [SerializeField, Min(0f)] float fadeOutSeconds = 0.3f;
     [SerializeField, Min(0f)] float fadeInSeconds = 0.4f;
     [Tooltip("The loading screen stays at least this long, so it never just flickers.")]

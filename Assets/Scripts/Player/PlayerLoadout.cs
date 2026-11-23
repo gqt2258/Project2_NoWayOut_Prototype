@@ -116,12 +116,16 @@ public class PlayerLoadout : MonoBehaviour
         ApplyUpgrades();
 
         int slotCount = wallet.EquipmentSlots;
+        int paid = 0;
         foreach (string itemId in wallet.TakeEquipmentForMatch())
         {
             ShopItem tool = database.items.FirstOrDefault(entry => entry != null && entry.itemId == itemId);
+            if (tool != null)
+                paid += tool.price;   // refunded in coins if the match ends by a disconnect
             if (tool != null && contents.Count < slotCount)
                 contents.Add(new SlotContent { tool = tool });
         }
+        wallet.SetMatchEquipmentValue(paid);
 
         while (contents.Count < slotCount)
             contents.Add(null);
@@ -269,8 +273,30 @@ public class PlayerLoadout : MonoBehaviour
 
             var background = slot.GetComponent<Image>();
             slotColors.Add(background != null ? background.color : Color.white);
+            AddTapArea(slot);
             RefreshSlot(i);
         }
+    }
+
+    // An invisible box over the whole slot that always catches taps, whatever the prefab's
+    // images are set to (Raycast Target off, or an image the slot hides when it's empty).
+    static void AddTapArea(ShopItemSlot slot)
+    {
+        var area = new GameObject("Tap Area", typeof(RectTransform), typeof(CanvasRenderer), typeof(Image));
+        area.transform.SetParent(slot.transform, false);
+        area.transform.SetAsLastSibling();   // on top of the icon and text
+
+        RectTransform rect = (RectTransform)area.transform;
+        rect.anchorMin = Vector2.zero;
+        rect.anchorMax = Vector2.one;
+        rect.offsetMin = rect.offsetMax = Vector2.zero;
+
+        var layout = area.AddComponent<LayoutElement>();
+        layout.ignoreLayout = true;   // don't push the slot's own layout around
+
+        Image image = area.GetComponent<Image>();
+        image.color = new Color(1f, 1f, 1f, 0f);   // invisible
+        image.raycastTarget = true;
     }
 
     void RefreshSlot(int index)

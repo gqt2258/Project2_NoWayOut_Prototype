@@ -463,8 +463,8 @@ public class DisconnectScreen : MonoBehaviour
         Show(State.Disconnected);
     }
 
-    // Host only: ends the job for everyone and goes back to the co-op lobby, still hosting,
-    // so the guest can rejoin. Ending on purpose uses up the equipment.
+    // Host only, while the guest is disconnected: ends the job and goes back to the co-op lobby,
+    // still hosting, so the guest can rejoin. A disconnect: no results, the equipment is refunded.
     void EndJobAndReturnToLobby()
     {
         if (!IsHostSide || Network == null || Network.SceneManager == null)
@@ -472,6 +472,8 @@ public class DisconnectScreen : MonoBehaviour
 
         Hide();
         Time.timeScale = 1f;
+        if (PlayerWallet.Instance != null)
+            PlayerWallet.Instance.RefundMatchEquipment();
         JobSession.ClearResult();
         CoopSession.ReturnToLobby = true;
         Network.SceneManager.LoadScene(mainMenuScene, LoadSceneMode.Single);   // instant, no loading screen
@@ -501,7 +503,8 @@ public class DisconnectScreen : MonoBehaviour
         CoopSession.LeavingOnPurpose = false;
         CoopSession.ReturnToLobby = false;
         Time.timeScale = 1f;
-        JobSession.ClearResult();
+        if (refundEquipment)
+            JobSession.ClearResult();   // a disconnect: no results. Leaving on purpose keeps them.
 
         if (InGameplay)
             SceneManager.LoadScene(mainMenuScene);   // instant, no loading screen

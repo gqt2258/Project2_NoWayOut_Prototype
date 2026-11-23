@@ -31,6 +31,8 @@ public class PlayerHealth : MonoBehaviour
     private AudioSource hurtAudio;
 
     public int RevivesLeft => revivesLeft;
+    public int RevivesPerMatch => revivesPerMatch;
+    public bool IsOut => jobFailed;   // went down with no revives left
 
     private void Awake()
     {
@@ -163,7 +165,7 @@ public class PlayerHealth : MonoBehaviour
 
         GameplayEndScreen endScreen = FindAnyObjectByType<GameplayEndScreen>();
         if (endScreen != null)
-            endScreen.ShowLose();
+            endScreen.ShowLose(RoundEndReason.OutOfRevives);
     }
 
     private void RefreshReviveBar()

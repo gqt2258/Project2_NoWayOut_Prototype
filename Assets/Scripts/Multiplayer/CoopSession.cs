@@ -4,6 +4,9 @@ public static class CoopSession
     // The host's address from the last Join, used by Reconnect.
     public static string LastHostAddress;
 
+    // Guest side: the room name shown in the lobby (sent by the host).
+    public static string HostRoomName;
+
     // Open the co-op lobby when the Main Menu scene loads (host ended the job, or guest reconnected).
     public static bool ReturnToLobby;
 

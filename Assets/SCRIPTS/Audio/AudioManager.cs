@@ -108,6 +108,8 @@ public class AudioManager : MonoBehaviour
         public AudioClip WrongItem;
         public AudioClip Pass;
         public AudioClip Fail;
+        public AudioClip[] TypeTicks;       // Results_TypeTick1-3: one per letter typed (random pick + pitch)
+        public AudioClip TypeReturn;        // optional: end of each typed line (carriage return / ding)
     }
 
     [System.Serializable]

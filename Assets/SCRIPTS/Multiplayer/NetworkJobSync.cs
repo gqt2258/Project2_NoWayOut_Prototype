@@ -296,6 +296,22 @@ public sealed class NetworkJobSync : NetworkBehaviour
         }
     }
 
+    // ---------- ROOM NAME ----------
+
+    // Host: sends the lobby name to the guest (when it changes, and when the guest joins).
+    public void ShareRoomName(string roomName)
+    {
+        if (IsSpawned && IsServer)
+            RoomNameRpc(roomName);
+    }
+
+    [Rpc(SendTo.NotServer)]
+    private void RoomNameRpc(string roomName)
+    {
+        CoopSession.HostRoomName = roomName;
+        FindAnyObjectByType<SceneLoader>()?.RefreshRoomName();
+    }
+
     // ---------- DISCONNECT SCREEN ----------
 
     // This player is leaving on purpose (Back to Main Menu), so the other player skips the 60s wait.
@@ -324,35 +340,67 @@ public sealed class NetworkJobSync : NetworkBehaviour
         DisconnectScreen.Instance?.OnPartnerPaused(paused);
     }
 
-    public void RequestResult(JobResult result)
+    public void RequestResult(JobResult result, RoundEndReason reason, string itemId, string itemName)
     {
         if (IsServer)
-            ShareResult(result);
+            ShareResult(result, reason, itemId, itemName);
         else if (IsOwner)
-            RequestResultRpc((int)result);
+            RequestResultRpc((int)result, (int)reason, itemId ?? "", itemName ?? "");
     }
 
     [Rpc(SendTo.Server, InvokePermission = RpcInvokePermission.Everyone)]
-    private void RequestResultRpc(int result)
+    private void RequestResultRpc(int result, int reason, string itemId, string itemName)
     {
         if (result == (int)JobResult.Success || result == (int)JobResult.Failed)
-            ShareResult((JobResult)result);
+            ShareResult((JobResult)result, (RoundEndReason)reason, itemId, itemName);
     }
 
-    private void ShareResult(JobResult result)
+    private void ShareResult(JobResult result, RoundEndReason reason, string itemId, string itemName)
     {
         GameplayEndScreen screen = FindAnyObjectByType<GameplayEndScreen>();
         if (resultSent || screen == null || screen.IsFinished)
             return;
         resultSent = true;
-        ReceiveResultRpc((int)result);
-        screen.ApplySharedResult(result);
+        ReceiveResultRpc((int)result, (int)reason, itemId ?? "", itemName ?? "");
+        screen.ApplySharedResult(result, reason, itemId, itemName);
     }
 
     [Rpc(SendTo.NotServer)]
-    private void ReceiveResultRpc(int result)
+    private void ReceiveResultRpc(int result, int reason, string itemId, string itemName)
     {
-        FindAnyObjectByType<GameplayEndScreen>()?.ApplySharedResult((JobResult)result);
+        FindAnyObjectByType<GameplayEndScreen>()?.ApplySharedResult((JobResult)result, (RoundEndReason)reason, itemId, itemName);
+    }
+
+    // Each player sends their revives / status to the other, for the results screen's Player Status.
+    public void SharePlayerStats(int revivesLeft, int revivesTotal, bool isOut)
+    {
+        if (IsSpawned && IsOwner)
+            PlayerStatsRpc(revivesLeft, revivesTotal, isOut);
+    }
+
+    [Rpc(SendTo.NotMe, InvokePermission = RpcInvokePermission.Everyone)]
+    private void PlayerStatsRpc(int revivesLeft, int revivesTotal, bool isOut)
+    {
+        RoundResult.SetPartner(revivesLeft, revivesTotal, isOut);
+    }
+
+    // ---------- RESULTS SCREEN (Main Menu) ----------
+
+    // Host pressed Back to Lobby on the results: closes the guest's results too.
+    public void CloseResultsForEveryone()
+    {
+        if (IsSpawned && IsServer)
+            CloseResultsRpc();
+    }
+
+    [Rpc(SendTo.NotServer)]
+    private void CloseResultsRpc()
+    {
+        SceneLoader loader = FindAnyObjectByType<SceneLoader>();
+        if (loader != null)
+            loader.CloseResultsFromHost();
+        else
+            RoundResult.Clear();   // still loading: don't open them at all
     }
 
     public void ReturnTogether()
@@ -396,8 +444,7 @@ public sealed class NetworkJobSync : NetworkBehaviour
     private void PrepareReturnRpc()
     {
         Time.timeScale = 1f;
-        CoopSession.ReturnToLobby = true;   // the guest lands back in the co-op lobby
-        JobSession.ClearResult();
+        CoopSession.ReturnToLobby = true;   // the guest lands back in the co-op lobby (results show there)
         ScreenFader.ShowLoading("Returning to the office");
     }
 

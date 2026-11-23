@@ -38,7 +38,7 @@ public class SceneLoader : MonoBehaviour
     }
 
     [Header("Results")]
-    [Tooltip("Your results screen. Opened when the scene loads after a job ends.")]
+    [Tooltip("The Results Panel (with ResultsScreen on it). Opens over the lobby after a job ends.")]
     [SerializeField] private GameObject resultsPanel;
 
     // Lobby settings: opens on top of the lobby (solo and co-op). Audio toggles (SettingsAudio)
@@ -47,6 +47,14 @@ public class SceneLoader : MonoBehaviour
     // On Click in the Inspector:
     //   Lobby gear button -> OpenLobbySettings     Back / close   -> CloseLobbySettings
     //   Leave Room button -> AskLeaveRoom          Confirm Yes/No -> ConfirmLeaveRoom / CancelLeaveRoom
+    // Lobby name (top left of the lobby). Solo and the co-op host can edit it; the guest sees the
+    // host's name, locked. Editing happens in the input field itself (no On Click needed).
+    [Header("Lobby name")]
+    [Tooltip("An input field showing the room name, e.g. \"Bob's Room\".")]
+    [SerializeField] private TMP_InputField roomNameInput;
+    [Tooltip("Optional. The pencil icon button. Tapping it starts editing the name.")]
+    [SerializeField] private Button roomNameEditButton;
+
     [Header("Lobby settings")]
     [SerializeField] private GameObject lobbySettingsPanel;
     [Tooltip("Its label is set to Leave Room or Close Room.")]
@@ -63,6 +71,15 @@ public class SceneLoader : MonoBehaviour
                       lobbySettingsPanel, leaveConfirmPanel);
         if (lobbySettingsPanel != null) lobbySettingsPanel.SetActive(false);
         if (leaveConfirmPanel != null) leaveConfirmPanel.SetActive(false);
+
+        if (roomNameInput != null)
+        {
+            roomNameInput.characterLimit = NearbyGames.MaxRoomNameLength;
+            roomNameInput.onEndEdit.AddListener(OnRoomNameEdited);
+            MakeNameLookLikeText();
+        }
+        if (roomNameEditButton != null)
+            roomNameEditButton.onClick.AddListener(EditRoomName);
 
         JobSession.Select(null);   // a finished job doesn't carry over from the last game
         GameServerLogs.Clear();         // this scene opens on the main menu, so the room has ended
@@ -84,12 +101,31 @@ public class SceneLoader : MonoBehaviour
         isCoopLobby = JobSession.IsCoop;
 
         // Solo job ended from Settings > End Job: back to the solo lobby.
-        if (CoopSession.ReturnToLobby && !JobSession.IsCoop)
+        if (resultsPanel != null)
+            resultsPanel.SetActive(false);
+
+        bool inNetworkRoom = NetworkManager.Singleton != null && NetworkManager.Singleton.IsListening;
+        if (RoundResult.Pending || CoopSession.ReturnToLobby)
+            Debug.Log($"[Results] Main Menu opened. Result waiting: {RoundResult.Pending}, " +
+                      $"back to: {(RoundResult.BackToMainMenu ? "Main Menu" : "lobby")}, in a co-op room: {inNetworkRoom}, " +
+                      $"Results Panel set: {resultsPanel != null}", this);
+
+        // Left the job (Settings > Back to Main Menu): the results show over the Main Menu.
+        if (RoundResult.Pending && RoundResult.BackToMainMenu && !inNetworkRoom)
         {
             CoopSession.ReturnToLobby = false;
-            if (resultsPanel != null)
-                resultsPanel.SetActive(false);
+            ShowResultsIfPending();
+            return;
+        }
+
+        if ((CoopSession.ReturnToLobby || RoundResult.Pending) && !inNetworkRoom)
+        {
+            if (RoundResult.Pending && resultsPanel == null)
+                Debug.LogWarning("A job just ended but Results Panel is empty on SceneLoader, so no results can show.", this);
+            CoopSession.ReturnToLobby = false;
+            quietLobbyEnter = RoundResult.Pending;   // the results machine makes the sound instead
             LoadSoloLobbyBoard();
+            ShowResultsIfPending();
             return;
         }
 
@@ -113,20 +149,68 @@ public class SceneLoader : MonoBehaviour
                 NetworkManager.Singleton.OnClientDisconnectCallback -= OnHostLost;
                 NetworkManager.Singleton.OnClientDisconnectCallback += OnHostLost;
             }
-            if (resultsPanel != null)
-                resultsPanel.SetActive(false);
+            quietLobbyEnter = RoundResult.Pending;
             LoadCoopLobbyBoard();
+            ShowResultsIfPending();
             return;
         }
-        if (JobSession.LastResult != JobResult.None && resultsPanel != null)
-        {
-            mainMenuCanvas.SetActive(false);
-            resultsPanel.SetActive(true);
-        }
-        else if (resultsPanel != null)
-        {
+
+        // A result with no lobby to go back to (e.g. the co-op room closed while loading): drop it.
+        RoundResult.Clear();
+        JobSession.ClearResult();
+    }
+
+    // ---------- RESULTS ----------
+
+    // Opens the results machine on top of the lobby.
+    private void ShowResultsIfPending()
+    {
+        if (!RoundResult.Pending || resultsPanel == null)
+            return;
+        resultsPanel.transform.SetAsLastSibling();   // drawn above the lobby
+        resultsPanel.SetActive(true);
+    }
+
+    // Leaving the lobby (Main Menu, Host / Join, kicked): the results go away too.
+    private void HideResults()
+    {
+        RoundResult.Clear();
+        JobSession.ClearResult();
+        if (resultsPanel != null)
             resultsPanel.SetActive(false);
+    }
+
+    private void CloseResultsHere()
+    {
+        HideResultsQuietly();
+        PlayUI(a => a.UI.BackClick);
+        if (lobbyBoard.activeSelf)
+        {
+            if (Sound != null) Sound.PlayLobbyAmbience();   // the machine hum stops
         }
+        else if (Sound != null)
+        {
+            Sound.StopAmbience();   // results over the Main Menu: just the machine hum stops
+        }
+    }
+
+    private void HideResultsQuietly()
+    {
+        RoundResult.Clear();
+        JobSession.ClearResult();
+        PanelFade.Hide(resultsPanel);
+    }
+
+    // The host closed the results (co-op): the guest's close too.
+    public void CloseResultsFromHost()
+    {
+        if (resultsPanel == null || !resultsPanel.activeSelf)
+        {
+            RoundResult.Clear();
+            JobSession.ClearResult();
+            return;
+        }
+        CloseResultsHere();
     }
 
     private static bool InRoom => JobSession.IsCoop && NetworkManager.Singleton != null && NetworkManager.Singleton.IsListening;
@@ -140,6 +224,7 @@ public class SceneLoader : MonoBehaviour
 
     private void ShowMainMenu()
     {
+        HideResults();
         AudioManager.Instance?.StopAmbience();   // leaving the office
         GetComponent<NearbyGames>()?.StopDiscovery();
         StopWatchingForGuests();
@@ -170,6 +255,8 @@ public class SceneLoader : MonoBehaviour
 
     private void ShowLobbyCreate()
     {
+        HideResults();
+        NearbyGames.ResetRoomName();   // the next room starts with the default name
         AudioManager.Instance?.StopAmbience();   // leaving the office
         GameServerLogs.Clear();   // leaving the room
         PlayerWallet.Instance.ResetRun();   // clears equipment only
@@ -185,7 +272,13 @@ public class SceneLoader : MonoBehaviour
         CosmeticsShop.SetActive(false);
         Loadout.SetActive(false);
         Player2Loadout.SetActive(false);
-        GetComponent<NearbyGames>()?.Refresh();
+        // Opening the Host / Join screen searches once. After that, only the Refresh button does.
+        NearbyGames nearby = GetComponent<NearbyGames>();
+        if (nearby != null)
+        {
+            nearby.ClearRooms();
+            nearby.Refresh();
+        }
     }
 
     public void LoadSettings()
@@ -253,6 +346,105 @@ public class SceneLoader : MonoBehaviour
         CosmeticsShop.SetActive(false);
         Loadout.SetActive(false);
         Player2Loadout.SetActive(false);
+    }
+
+    // ---------- LOBBY NAME ----------
+
+    private static bool IsCoopGuest => JobSession.IsCoop && NetworkManager.Singleton != null &&
+                                       NetworkManager.Singleton.IsClient && !NetworkManager.Singleton.IsServer;
+
+    // Shows the room name, and locks it for the guest.
+    public void RefreshRoomName()
+    {
+        if (roomNameInput == null)
+            return;
+
+        bool guest = IsCoopGuest;
+        string roomName = guest && !string.IsNullOrEmpty(CoopSession.HostRoomName)
+            ? CoopSession.HostRoomName : NearbyGames.RoomName;
+
+        roomNameInput.SetTextWithoutNotify(roomName);
+        roomNameInput.interactable = false;   // only the pencil unlocks it
+        editingName = false;
+        if (roomNameEditButton != null)
+            roomNameEditButton.interactable = !guest;
+    }
+
+    private bool editingName;
+
+    // The name looks like plain text: no box and no tint. It stays locked (taps do nothing)
+    // and only the pencil button unlocks it for typing (a blinking cursor shows while typing).
+    private void MakeNameLookLikeText()
+    {
+        roomNameInput.transition = Selectable.Transition.None;   // locked doesn't look greyed out
+        roomNameInput.onDeselect.AddListener(_ => LockRoomName());
+
+        Image box = roomNameInput.GetComponent<Image>();
+        if (box != null)
+            box.enabled = false;
+
+        foreach (Graphic graphic in roomNameInput.GetComponentsInChildren<Graphic>(true))
+            graphic.raycastTarget = false;
+
+        if (roomNameInput.placeholder != null)
+            roomNameInput.placeholder.gameObject.SetActive(false);
+    }
+
+    // Pencil button: start typing in the name box.
+    public void EditRoomName()
+    {
+        if (roomNameInput == null || IsCoopGuest)
+            return;
+
+        editingName = true;
+        roomNameInput.interactable = true;
+        roomNameInput.Select();
+        roomNameInput.ActivateInputField();
+    }
+
+    // Done typing (or tapped elsewhere): lock it again. Waits one frame, because locking it
+    // while Unity is still deselecting it causes "Attempting to select while already selecting".
+    private void LockRoomName()
+    {
+        if (roomNameInput == null || !editingName)
+            return;
+
+        editingName = false;
+        StartCoroutine(LockRoomNameNextFrame());
+    }
+
+    private IEnumerator LockRoomNameNextFrame()
+    {
+        yield return null;
+        if (roomNameInput != null && !editingName)
+            roomNameInput.interactable = false;
+    }
+
+    // Finished typing: save it, and send it to the guest.
+    private void OnRoomNameEdited(string typed)
+    {
+        if (IsCoopGuest)
+            return;
+
+        NearbyGames.RoomName = typed;
+        roomNameInput.SetTextWithoutNotify(NearbyGames.RoomName);
+        LockRoomName();
+        SendRoomNameToGuest();
+    }
+
+    private static void SendRoomNameToGuest()
+    {
+        NetworkManager network = NetworkManager.Singleton;
+        if (network == null || !network.IsServer || network.LocalClient == null || network.LocalClient.PlayerObject == null)
+            return;
+
+        network.LocalClient.PlayerObject.GetComponent<NetworkJobSync>()?.ShareRoomName(NearbyGames.RoomName);
+    }
+
+    private IEnumerator SendRoomNameSoon()
+    {
+        yield return new WaitForSecondsRealtime(1f);   // let the guest finish joining first
+        SendRoomNameToGuest();
     }
 
     // ---------- LOBBY SETTINGS ----------
@@ -332,6 +524,7 @@ public class SceneLoader : MonoBehaviour
     // Office ambience, plus the "entering the office" sound when coming in from outside the lobby.
     private void EnterLobbyAudio()
     {
+        RefreshRoomName();
         if (Sound == null)
             return;
 
@@ -400,6 +593,7 @@ public class SceneLoader : MonoBehaviour
         {
             GameServerLogs.Add("A player has joined");
             PlayUI(a => a.UI.ShopOn);   // Player 2 walks into the office
+            StartCoroutine(SendRoomNameSoon());
         }
     }
 
@@ -537,14 +731,20 @@ public class SceneLoader : MonoBehaviour
         Loadout.SetActive(true);
     }
 
-    // Results screen button: closes it and goes back to the Solo or Co-op lobby.
+    // Results screen Back to Lobby button. Co-op: only the host, and it closes both players' results.
     public void CloseResults()
     {
-        JobSession.ClearResult();
-        if (resultsPanel != null)
-            resultsPanel.SetActive(false);
+        if (IsCoopGuest)
+        {
+            GameServerLogs.AddError("Only the host can close the results");
+            return;
+        }
 
-        LoadLastLobby();
+        NetworkManager network = NetworkManager.Singleton;
+        if (InRoom && network.LocalClient != null && network.LocalClient.PlayerObject != null)
+            network.LocalClient.PlayerObject.GetComponent<NetworkJobSync>()?.CloseResultsForEveryone();
+
+        CloseResultsHere();
     }
 
     // Returns to whichever lobby the player was last in.

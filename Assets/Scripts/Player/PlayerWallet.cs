@@ -37,27 +37,34 @@ public class PlayerWallet : MonoBehaviour
     readonly HashSet<string> ownedItems = new HashSet<string>();
     readonly List<string> equipment = new List<string>();   // item ids, one per filled slot
     readonly List<string> lastMatchEquipment = new List<string>();   // what was taken into the current match
+    int lastMatchEquipmentValue;   // what that equipment cost, set by PlayerLoadout
 
-    // Co-op disconnect or timeout: gives back the equipment taken into the match.
-    // Ending a job on purpose does not call this, so the equipment is used up.
+    // PlayerLoadout tells the wallet what the equipment taken into the match cost.
+    public void SetMatchEquipmentValue(int coinsPaid)
+    {
+        lastMatchEquipmentValue = Mathf.Max(0, coinsPaid);
+    }
+
+    // Co-op disconnect or timeout: gives back the COINS paid for the equipment taken into the match.
+    // The equipment itself is gone, like any finished round. Cosmetics and upgrades are never touched.
+    // Ending a job on purpose does not call this, so nothing is given back.
     public void RefundMatchEquipment()
     {
-        if (lastMatchEquipment.Count == 0)
+        int refund = lastMatchEquipmentValue;
+        int count = lastMatchEquipment.Count;
+        ForgetMatchEquipment();
+        if (refund <= 0)
             return;
 
-        foreach (string itemId in lastMatchEquipment)
-            if (!IsEquipmentFull)
-                equipment.Add(itemId);
-
-        Debug.Log($"Refunded {lastMatchEquipment.Count} equipment after a disconnect.");
-        lastMatchEquipment.Clear();
-        SaveAndNotify();
+        Debug.Log($"Refunded {refund} coins for {count} equipment after a disconnect.");
+        AddCoins(refund);   // "+amount" pops on the next coin display shown
     }
 
     // The job finished normally, so there is nothing to refund any more.
     public void ForgetMatchEquipment()
     {
         lastMatchEquipment.Clear();
+        lastMatchEquipmentValue = 0;
     }
     readonly Dictionary<TMP_Text, string> coinTexts = new Dictionary<TMP_Text, string>();
     readonly List<TMP_Text> coinChangeTexts = new List<TMP_Text>();
@@ -165,11 +172,73 @@ public class PlayerWallet : MonoBehaviour
 
     void RefreshCoinTexts()
     {
+        int shown = heldCoins ?? coins;
         foreach (var pair in coinTexts)
         {
             if (pair.Key != null)
-                pair.Key.text = string.Format(pair.Value, coins);
+                pair.Key.text = string.Format(pair.Value, shown);
         }
+    }
+
+    // ---------- RESULTS SCREEN ----------
+
+    int? heldCoins;          // while set, every CoinDisplay shows this instead of the real total
+    Coroutine countRoutine;
+
+    // The results screen opened: keep showing the total from before the reward.
+    public void HoldCoinDisplay(int amount)
+    {
+        if (countRoutine != null) StopCoroutine(countRoutine);
+        countRoutine = null;
+        heldCoins = Mathf.Max(0, amount);
+        RefreshCoinTexts();
+    }
+
+    // The reward printed: the total counts up to the real amount and CoinLogs pops "+amount".
+    // seconds 0 = jump straight there. showChange false = no pop-up (e.g. the results were closed).
+    public void ReleaseCoinDisplay(float seconds, bool showChange = true)
+    {
+        if (heldCoins == null)
+            return;
+        if (countRoutine != null) StopCoroutine(countRoutine);
+        countRoutine = null;
+
+        int from = heldCoins.Value;
+        int change = coins - from;
+        if (showChange && change != 0)
+        {
+            var visibleTexts = new List<TMP_Text>();
+            foreach (TMP_Text text in coinChangeTexts)
+                if (text != null && text.gameObject.activeInHierarchy)
+                    visibleTexts.Add(text);
+
+            if (visibleTexts.Count > 0)
+            {
+                if (changeRoutine != null) StopCoroutine(changeRoutine);
+                changeRoutine = StartCoroutine(ShowCoinChange(visibleTexts, change));
+            }
+        }
+
+        if (seconds <= 0f || change == 0)
+        {
+            heldCoins = null;
+            RefreshCoinTexts();
+            return;
+        }
+        countRoutine = StartCoroutine(CountUp(from, seconds));
+    }
+
+    IEnumerator CountUp(int from, float seconds)
+    {
+        for (float t = 0f; t < seconds; t += Time.unscaledDeltaTime)
+        {
+            heldCoins = Mathf.RoundToInt(Mathf.Lerp(from, coins, t / seconds));
+            RefreshCoinTexts();
+            yield return null;
+        }
+        heldCoins = null;
+        countRoutine = null;
+        RefreshCoinTexts();
     }
 
     // Shows the waiting change once a CoinLogs text is on screen, such as when the result panel opens.
@@ -302,11 +371,19 @@ public class PlayerWallet : MonoBehaviour
 
     public void AddCoins(int amount)
     {
+        AddCoins(amount, true);
+    }
+
+    // showIt false: no sound and no "+amount" pop-up. The results screen shows them itself
+    // when the reward line prints (see HoldCoinDisplay / ReleaseCoinDisplay).
+    public void AddCoins(int amount, bool showIt)
+    {
         if (amount <= 0) return;
 
         coins += amount;
-        pendingChange += amount;
-        if (AudioManager.Instance != null)
+        if (showIt)
+            pendingChange += amount;
+        if (showIt && AudioManager.Instance != null)
             AudioManager.Instance.PlaySFX(AudioManager.Instance.UI.CoinGain);
         SaveAndNotify();
     }
@@ -348,6 +425,7 @@ public class PlayerWallet : MonoBehaviour
         var taken = new List<string>(equipment);
         lastMatchEquipment.Clear();
         lastMatchEquipment.AddRange(taken);
+        lastMatchEquipmentValue = 0;   // PlayerLoadout sets it with SetMatchEquipmentValue
         if (taken.Count > 0)
         {
             equipment.Clear();

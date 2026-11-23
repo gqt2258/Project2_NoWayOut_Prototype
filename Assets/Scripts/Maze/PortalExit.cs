@@ -27,10 +27,29 @@ public class PortalExit : MonoBehaviour
         interactable = GetComponent<Interactable>();
         interactable.InteractedBy += OpenConfirm;
 
+        TurnOffInspectorCalls(yesButton);
+        TurnOffInspectorCalls(noButton);
         if (yesButton != null) yesButton.onClick.AddListener(LeaveJob);
         if (noButton != null) noButton.onClick.AddListener(OnNoPressed);
         PanelFade.Add(confirmPanel);
         if (confirmPanel != null) confirmPanel.SetActive(false);
+    }
+
+    // A panel copied from the Settings confirm keeps its On Click (e.g. GameplaySettings.ConfirmYes),
+    // which would leave the job as "left the job". The portal wires Yes / No itself, so those are switched off.
+    void TurnOffInspectorCalls(Button button)
+    {
+        if (button == null)
+            return;
+
+        int count = button.onClick.GetPersistentEventCount();
+        for (int i = 0; i < count; i++)
+        {
+            Debug.LogWarning($"Portal confirm: '{button.name}' had an On Click ({button.onClick.GetPersistentMethodName(i)}) " +
+                             "set in the Inspector. It was switched off, because the portal sets this button itself. " +
+                             "Remove it from the button's On Click list.", button);
+            button.onClick.SetPersistentListenerState(i, UnityEngine.Events.UnityEventCallState.Off);
+        }
     }
 
     void OnDestroy()
@@ -85,6 +104,8 @@ public class PortalExit : MonoBehaviour
         Jobs job = JobSession.SelectedJob;
         DepositBox box = DepositBox.Instance;
         bool correct = job != null && box != null && box.DepositedItemId == job.CorrectItemId;
+        Debug.Log($"[Portal] Deposited: '{(box != null ? box.DepositedItemId : "no deposit box")}', " +
+                  $"correct item: '{(job != null ? job.CorrectItemId : "no job selected")}'.", this);
 
         if (AudioManager.Instance != null)
         {
@@ -99,30 +120,12 @@ public class PortalExit : MonoBehaviour
         if (correct)
         {
             Debug.Log("Job passed.", this);
-            GameplayEndScreen endScreen = FindAnyObjectByType<GameplayEndScreen>();
-            if (endScreen != null)
-            {
-                endScreen.ShowWin();
-                return;
-            }
-
-            // No end screen in the scene: pay out and go back to the Main Menu.
-            if (PlayerWallet.Instance != null)
-                PlayerWallet.Instance.AddCoins(job.RewardCoins);
-            JobSession.ReportResult(JobResult.Success);
+            GameplayEndScreen.Get().ShowWin();   // shared with the other player in co-op
         }
         else
         {
             Debug.Log("Job failed: wrong or no item deposited.", this);
-            GameplayEndScreen endScreen = FindAnyObjectByType<GameplayEndScreen>();
-            if (endScreen != null)
-            {
-                endScreen.ShowLose();   // shared with the other player in co-op
-                return;
-            }
-            JobSession.ReportResult(JobResult.Failed);
+            GameplayEndScreen.Get().ShowLose();
         }
-
-        ScreenFader.LoadScene(mainMenuSceneName, "Returning to the office");
     }
 }

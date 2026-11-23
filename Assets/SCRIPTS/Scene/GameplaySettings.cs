@@ -181,27 +181,12 @@ public class GameplaySettings : MonoBehaviour
             LeaveToMainMenu();
     }
 
-    // Back to the lobby (solo lobby, or the co-op lobby for both players).
+    // Ends the job as a fail ("Job ended"): back to the lobby with the results on top.
+    // Co-op: the host ends it for both players, and both see the results in the co-op lobby.
     void EndJob()
     {
         Unpause();
-        Time.timeScale = 1f;
-        JobSession.ClearResult();
-
-        if (IsCoopHost)
-        {
-            NetworkManager network = NetworkManager.Singleton;
-            NetworkJobSync sync = network.LocalClient.PlayerObject != null
-                ? network.LocalClient.PlayerObject.GetComponent<NetworkJobSync>() : null;
-            if (sync != null)
-            {
-                sync.ReturnTogether();   // both players go back to the co-op lobby
-                return;
-            }
-        }
-
-        CoopSession.ReturnToLobby = true;
-        ScreenFader.LoadScene(mainMenuScene, "Returning to the office");
+        GameplayEndScreen.Get().ShowLose(RoundEndReason.JobEnded);
     }
 
     // Leaves the job. In co-op the other player is told, so they see "Returning to Main Menu".
@@ -209,6 +194,7 @@ public class GameplaySettings : MonoBehaviour
     {
         Unpause();
         Time.timeScale = 1f;
+        GameplayEndScreen.Get().RecordLeaving();   // results show over the Main Menu
 
         if (JobSession.IsCoop && DisconnectScreen.Instance != null)
         {
@@ -218,7 +204,6 @@ public class GameplaySettings : MonoBehaviour
 
         if (NetworkManager.Singleton != null && NetworkManager.Singleton.IsListening)
             NetworkManager.Singleton.Shutdown();
-        JobSession.ClearResult();
         CoopSession.ReturnToLobby = false;
         ScreenFader.LoadScene(mainMenuScene, "Returning to the office");
     }

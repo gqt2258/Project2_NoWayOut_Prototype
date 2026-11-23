@@ -86,6 +86,9 @@ public class PlayerHealth : MonoBehaviour
 
         DropEverything();
         Respawn();
+
+        if (AudioManager.Instance != null)
+            AudioManager.Instance.PlaySFX(AudioManager.Instance.Player.Revive);
         Debug.Log($"Player revived at the safe base. Revives left: {revivesLeft}.", this);
     }
 

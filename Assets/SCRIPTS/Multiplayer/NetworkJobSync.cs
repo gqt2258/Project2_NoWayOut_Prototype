@@ -272,8 +272,12 @@ public sealed class NetworkJobSync : NetworkBehaviour
             SceneManager.GetActiveScene().name != "Gameplay")
             return;
 
+        // The disconnect screen shows Disconnected / Reconnect instead.
+        if (DisconnectScreen.Instance != null)
+            return;
+
         Time.timeScale = 1f;
-        SceneManager.LoadScene("Main Menu");
+        SceneManager.LoadScene("Main Menu");   // disconnect: instant, no loading screen
     }
 
     private void OnSceneLoaded(Scene scene, LoadSceneMode mode)
@@ -290,6 +294,34 @@ public sealed class NetworkJobSync : NetworkBehaviour
             maze = null;
             enemy = null;
         }
+    }
+
+    // ---------- DISCONNECT SCREEN ----------
+
+    // This player is leaving on purpose (Back to Main Menu), so the other player skips the 60s wait.
+    public void NotifyLeaving()
+    {
+        if (IsSpawned && IsOwner)
+            PartnerLeavingRpc();
+    }
+
+    [Rpc(SendTo.NotMe, InvokePermission = RpcInvokePermission.Everyone)]
+    private void PartnerLeavingRpc()
+    {
+        DisconnectScreen.Instance?.OnPartnerLeftOnPurpose();
+    }
+
+    // Phone call or switching apps: the other player sees Waiting for Host / Guest until this app is back.
+    private void OnApplicationPause(bool paused)
+    {
+        if (IsSpawned && IsOwner && JobSession.IsCoop)
+            PartnerPausedRpc(paused);
+    }
+
+    [Rpc(SendTo.NotMe, InvokePermission = RpcInvokePermission.Everyone)]
+    private void PartnerPausedRpc(bool paused)
+    {
+        DisconnectScreen.Instance?.OnPartnerPaused(paused);
     }
 
     public void RequestResult(JobResult result)
@@ -337,18 +369,36 @@ public sealed class NetworkJobSync : NetworkBehaviour
         LoadMainMenuForEveryone();
     }
 
+    private bool returning;
+
     private void LoadMainMenuForEveryone()
     {
+        if (returning)
+            return;
+        returning = true;
         Time.timeScale = 1f;
+        CoopSession.ReturnToLobby = true;   // the host lands back in the co-op lobby, still hosting
         PrepareReturnRpc();
-        NetworkManager.SceneManager.LoadScene("Main Menu", LoadSceneMode.Single);
+        ScreenFader.ShowLoading("Returning to the office");
+        StartCoroutine(LoadAfterFade("Main Menu"));
+    }
+
+    // Lets both screens fade to the loading screen before the host switches the scene.
+    private IEnumerator LoadAfterFade(string sceneName)
+    {
+        yield return new WaitForSecondsRealtime(0.35f);
+        returning = false;
+        if (NetworkManager != null && NetworkManager.SceneManager != null)
+            NetworkManager.SceneManager.LoadScene(sceneName, LoadSceneMode.Single);
     }
 
     [Rpc(SendTo.NotServer)]
     private void PrepareReturnRpc()
     {
         Time.timeScale = 1f;
+        CoopSession.ReturnToLobby = true;   // the guest lands back in the co-op lobby
         JobSession.ClearResult();
+        ScreenFader.ShowLoading("Returning to the office");
     }
 
     private IEnumerator ConnectMaze()
@@ -425,6 +475,7 @@ public sealed class NetworkJobSync : NetworkBehaviour
         }
 
         JobSession.IsCoop = true;
+        ScreenFader.ShowLoading("Entering the portal");   // the host loads Gameplay next
         ConfirmJobRpc();
     }
 

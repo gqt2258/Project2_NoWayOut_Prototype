@@ -43,6 +43,31 @@ namespace NoWayOut.Maze
         [Tooltip("Optional. Left empty, Floor Tiles are used inside the safe base.")]
         [SerializeField] private TileBase[] safeBaseFloorTiles;
 
+        [System.Serializable]
+        public class LocationArt
+        {
+            public JobLocation location;
+            [Tooltip("Each list left empty uses the matching list above.")]
+            public TileBase[] floorTiles;
+            public TileBase[] borderTiles;
+            public TileBase[] bottomBorderTiles;
+            public TileBase[] fixedWallTiles;
+            public Sprite[] shiftingWallSprites;
+            public TileBase[] safeBaseFloorTiles;
+        }
+
+        [Header("Art per location (optional)")]
+        [Tooltip("The art lists above are the default. Fill a location's lists to give that map its own look. Empty lists use the default.")]
+        [SerializeField]
+        private LocationArt[] locationArt =
+        {
+            new LocationArt { location = JobLocation.Hospital },
+            new LocationArt { location = JobLocation.Prison },
+            new LocationArt { location = JobLocation.Mansion },
+        };
+        [Tooltip("Location used when Gameplay is played without picking a job.")]
+        [SerializeField] private JobLocation testLocation = JobLocation.Hospital;
+
         [Header("Layout")]
         [Tooltip("Floor tiles across each maze cell. This is also the length of each shifting wall.")]
         [SerializeField, Min(1)] private int roomTiles = 2;
@@ -50,6 +75,10 @@ namespace NoWayOut.Maze
         [Header("Safe base")]
         [Tooltip("An empty object, outside Walls, at the centre of the safe base. The maze is built above it. Put the deposit zone and player spawn under it.")]
         [SerializeField] private Transform safeBase;
+        [Tooltip("Extra floor tiles added on EACH side of the safe base, so it is wider than the entrance. 0 = same width as the entrance.")]
+        [SerializeField, Min(0)] private int safeBaseExtraWidth = 2;
+        [Tooltip("How many tiles deep (top to bottom) the safe base floor is.")]
+        [SerializeField, Min(1)] private int safeBaseDepth = 2;
 
         [Header("Grid")]
         [Tooltip("Tiles inside the border when no job is selected, such as when you press Play in the Gameplay scene.")]
@@ -87,6 +116,7 @@ namespace NoWayOut.Maze
 
         private void Awake()
         {
+            ApplyLocationArt();
             if (!CanGenerate())
                 return;
 
@@ -370,6 +400,28 @@ namespace NoWayOut.Maze
             }
         }
 
+        // Swaps in the current location's art lists. Empty lists keep the default art.
+        private void ApplyLocationArt()
+        {
+            JobLocation location = JobSession.SelectedJob != null ? JobSession.SelectedJob.Location : testLocation;
+            if (locationArt == null)
+                return;
+
+            foreach (LocationArt art in locationArt)
+            {
+                if (art == null || art.location != location)
+                    continue;
+
+                if (!IsEmpty(art.floorTiles)) floorTiles = art.floorTiles;
+                if (!IsEmpty(art.borderTiles)) borderTiles = art.borderTiles;
+                if (!IsEmpty(art.bottomBorderTiles)) bottomBorderTiles = art.bottomBorderTiles;
+                if (!IsEmpty(art.fixedWallTiles)) fixedWallTiles = art.fixedWallTiles;
+                if (!IsEmpty(art.shiftingWallSprites)) shiftingWallSprites = art.shiftingWallSprites;
+                if (!IsEmpty(art.safeBaseFloorTiles)) safeBaseFloorTiles = art.safeBaseFloorTiles;
+                return;
+            }
+        }
+
         private bool CanGenerate()
         {
             string problem = null;
@@ -425,7 +477,7 @@ namespace NoWayOut.Maze
                 Vector3 baseLocal = wallTilemap.WorldToLocal(safeBase.position);
                 float gapCentre = (size / 2) * pitch + 1 + roomTiles / 2f;
                 return new Vector3Int(Mathf.RoundToInt(baseLocal.x / tileSize.x - gapCentre),
-                                      Mathf.RoundToInt(baseLocal.y / tileSize.y + roomTiles / 2f), 0);
+                                      Mathf.RoundToInt(baseLocal.y / tileSize.y + safeBaseDepth / 2f), 0);
             }
 
             Vector3Int centreTile = wallTilemap.WorldToCell(transform.position);
@@ -522,13 +574,15 @@ namespace NoWayOut.Maze
 
             TileBase[] baseFloor = IsEmpty(safeBaseFloorTiles) ? floorTiles : safeBaseFloorTiles;
             int gapStart = doorColumn * pitch + 1;
-            int left = gapStart - 1;
-            int right = gapStart + roomTiles;
-            int bottom = -roomTiles - 1;
+            int floorLeft = gapStart - safeBaseExtraWidth;
+            int floorRight = gapStart + roomTiles + safeBaseExtraWidth;   // first tile after the floor
+            int left = floorLeft - 1;
+            int right = floorRight;
+            int bottom = -safeBaseDepth - 1;
 
-            for (int x = gapStart; x < right; x++)
+            for (int x = floorLeft; x < floorRight; x++)
             {
-                for (int y = -roomTiles; y < 0; y++)
+                for (int y = -safeBaseDepth; y < 0; y++)
                 {
                     Vector3Int tile = origin + new Vector3Int(x, y, 0);
                     floorTilemap.SetTile(tile, null);
@@ -569,9 +623,10 @@ namespace NoWayOut.Maze
                 return;
 
             int gapStart = (cells / 2) * pitch + 1;
+            int baseWidth = roomTiles + safeBaseExtraWidth * 2;
             Gizmos.color = Color.green;
-            Gizmos.DrawWireCube(TileToWorld(gapStart + roomTiles / 2f, -roomTiles / 2f),
-                                new Vector3(roomTiles * tileSize.x, roomTiles * tileSize.y, 0f));
+            Gizmos.DrawWireCube(TileToWorld(gapStart + roomTiles / 2f, -safeBaseDepth / 2f),
+                                new Vector3(baseWidth * tileSize.x, safeBaseDepth * tileSize.y, 0f));
         }
 
         private TileBase[] BottomTiles => IsEmpty(bottomBorderTiles) ? borderTiles : bottomBorderTiles;

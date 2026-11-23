@@ -56,6 +56,10 @@ public class GameServerLogs : MonoBehaviour
         string icon = instance != null ? instance.errorIcon : "[!]";
         string color = instance != null ? instance.errorColor : "#FF4040";
         Add($"<color={color}>{icon} {message}</color>");
+
+        // Every red error message plays the error sound.
+        if (AudioManager.Instance != null)
+            AudioManager.Instance.PlaySFX(AudioManager.Instance.UI.ErrorClick);
     }
 
     // Empties the log, including messages saved while no panel was showing.

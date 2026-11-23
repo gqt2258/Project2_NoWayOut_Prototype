@@ -31,9 +31,27 @@ public class EnemyMovement : MonoBehaviour
     [SerializeField, Min(1f)] private float giveUpCooldownSeconds = 10f;
     [SerializeField, Min(1f)] private float retreatDistance = 8f;
 
+    [Header("Audio")]
+    [Tooltip("The heartbeat plays while the monster is this close to your player.")]
+    [SerializeField, Min(1f)] private float heartbeatDistance = 6f;
+    [Tooltip("The chase music plays while the monster is chasing and this close to your player.")]
+    [SerializeField, Min(1f)] private float chaseMusicDistance = 12f;
+
     [Header("Animation")]
     [SerializeField] private Animator animator;
     [SerializeField] private SpriteRenderer spriteRenderer;
+
+    [Header("Look per location (optional)")]
+    [Tooltip("Animator Controller (or Animator Override Controller) for each map. Empty keeps the current one.")]
+    [SerializeField] private RuntimeAnimatorController hospitalAnimator;
+    [SerializeField] private RuntimeAnimatorController prisonAnimator;
+    [SerializeField] private RuntimeAnimatorController mansionAnimator;
+    [Tooltip("Optional starting sprite for each map, shown before the animation plays.")]
+    [SerializeField] private Sprite hospitalSprite;
+    [SerializeField] private Sprite prisonSprite;
+    [SerializeField] private Sprite mansionSprite;
+    [Tooltip("Location used when Gameplay is played without picking a job.")]
+    [SerializeField] private JobLocation testLocation = JobLocation.Hospital;
 
     private readonly RaycastHit2D[] sightHits = new RaycastHit2D[16];
     private Collider2D playerCollider;
@@ -51,6 +69,7 @@ public class EnemyMovement : MonoBehaviour
     private Transform localPlayer;
     private float nextRemoteHitTime;
     private AudioSource enemyAudio;
+    private Transform audioPlayer;   // this device's player, for heartbeat and chase music
 
     public bool IsChasing => isChasing;
 
@@ -59,12 +78,32 @@ public class EnemyMovement : MonoBehaviour
         SubscribeToMaze();
     }
 
+    // Gives the monster the current map's animations and sprite. Runs for both players.
+    private void ApplyLocationLook()
+    {
+        if (animator == null) animator = GetComponentInChildren<Animator>();
+        if (spriteRenderer == null) spriteRenderer = GetComponentInChildren<SpriteRenderer>();
+
+        JobLocation location = JobSession.SelectedJob != null ? JobSession.SelectedJob.Location : testLocation;
+        RuntimeAnimatorController controller = location == JobLocation.Prison ? prisonAnimator
+                                             : location == JobLocation.Mansion ? mansionAnimator : hospitalAnimator;
+        Sprite sprite = location == JobLocation.Prison ? prisonSprite
+                      : location == JobLocation.Mansion ? mansionSprite : hospitalSprite;
+
+        if (animator != null && controller != null)
+            animator.runtimeAnimatorController = controller;
+        if (spriteRenderer != null && sprite != null)
+            spriteRenderer.sprite = sprite;
+    }
+
     private void Start()
     {
+        ApplyLocationLook();
         body = GetComponent<Rigidbody2D>();
         Transform audioObject = transform.Find("Enemy Audio");
         enemyAudio = audioObject != null ? audioObject.GetComponent<AudioSource>() : null;
         AudioManager.Instance?.ConfigureSpatialSource(enemyAudio, 18f);
+        AudioManager.Instance?.PlayMonsterWalk(enemyAudio, 18f);   // the monster is always walking
         if (JobSession.IsCoop && NetworkManager.Singleton != null && !NetworkManager.Singleton.IsServer)
         {
             if (agent == null)
@@ -124,6 +163,8 @@ public class EnemyMovement : MonoBehaviour
 
     private void Update()
     {
+        UpdateLocalAudio();
+
         // MazeGenerator turns the agent on once the navmesh is built.
         if (agent == null || !agent.enabled)
             return;
@@ -214,6 +255,37 @@ public class EnemyMovement : MonoBehaviour
         if (animator == null)
             animator = GetComponentInChildren<Animator>();
         HandleAnimation();
+        UpdateLocalAudio();
+    }
+
+    // Heartbeat when the monster is near this device's player, chase music while it chases nearby.
+    // Runs on the host and solo from Update, and on the guest from ApplyRemoteState.
+    private void UpdateLocalAudio()
+    {
+        AudioManager audio = AudioManager.Instance;
+        if (audio == null)
+            return;
+
+        if (audioPlayer == null)
+        {
+            GameObject playerObject = GameObject.Find("Player");
+            if (playerObject == null)
+                return;
+            audioPlayer = playerObject.transform;
+        }
+
+        float distance = Vector2.Distance(transform.position, audioPlayer.position);
+        audio.SetChase(isChasing && distance <= chaseMusicDistance);
+        audio.SetHeartbeat(distance <= heartbeatDistance);
+    }
+
+    private void OnDestroy()
+    {
+        if (AudioManager.Instance != null)
+        {
+            AudioManager.Instance.SetChase(false);
+            AudioManager.Instance.SetHeartbeat(false);
+        }
     }
 
     public void PlayEnemySound(int sound, bool broadcast = true)

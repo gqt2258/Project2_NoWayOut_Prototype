@@ -15,6 +15,16 @@ public class Interactable : MonoBehaviour
 
     public string ActionLabel => actionLabel;
 
+    // Optional rules set from code (e.g. by DepositBox), based on which player is in range.
+    public System.Func<GameObject, bool> CanInteractCheck;
+    public System.Func<GameObject, string> LabelFor;
+    public event System.Action<GameObject> InteractedBy;
+
+    public string GetLabel(GameObject user) => LabelFor != null ? LabelFor(user) : actionLabel;
+
+    public bool CanInteractFor(GameObject user) =>
+        CanInteract && (CanInteractCheck == null || CanInteractCheck(user));
+
     public bool CanInteract
     {
         get => canInteract && isActiveAndEnabled;
@@ -25,5 +35,15 @@ public class Interactable : MonoBehaviour
     {
         if (CanInteract)
             onInteract.Invoke();
+    }
+
+    // Called by PlayerInteraction, so the action knows which player pressed the button.
+    public void Interact(GameObject user)
+    {
+        if (!CanInteractFor(user))
+            return;
+
+        onInteract.Invoke();
+        InteractedBy?.Invoke(user);
     }
 }

@@ -61,6 +61,9 @@ public sealed class JobBoardController : MonoBehaviour
         selectedIndex = index;
         UpdateCardColors();
         RefreshConfirmButton();
+
+        if (AudioManager.Instance != null)
+            AudioManager.Instance.PlaySFX(AudioManager.Instance.UI.JobSelectClick);
     }
 
     public void CancelSelection()
@@ -130,17 +133,26 @@ public sealed class JobBoardController : MonoBehaviour
             NetworkJobSync sync = network.LocalClient.PlayerObject != null
                 ? network.LocalClient.PlayerObject.GetComponent<NetworkJobSync>() : null;
             if (sync == null || !sync.ShareJob(JobSession.SelectedJob, () =>
-                {
-                    JobSession.RecordAccepted(JobSession.SelectedJob);
-                    network.SceneManager.LoadScene(gameplaySceneName, LoadSceneMode.Single);
-                }))
+            {
+                JobSession.RecordAccepted(JobSession.SelectedJob);
+                ScreenFader.ShowLoading("Entering the portal");
+                StartCoroutine(LoadGameplayAfterFade(network));
+            }))
                 GameServerLogs.AddError("Could not share the job with the other player");
         }
         else
         {
             JobSession.RecordAccepted(JobSession.SelectedJob);
-            SceneManager.LoadScene(gameplaySceneName);
+            ScreenFader.LoadScene(gameplaySceneName, "Entering the portal");
         }
+    }
+
+    // Co-op: let the loading screen cover the lobby before the host loads Gameplay for everyone.
+    private System.Collections.IEnumerator LoadGameplayAfterFade(NetworkManager network)
+    {
+        yield return new WaitForSecondsRealtime(0.35f);
+        if (network != null && network.SceneManager != null)
+            network.SceneManager.LoadScene(gameplaySceneName, LoadSceneMode.Single);
     }
 
     private bool HasAllOffers()
@@ -201,7 +213,10 @@ public sealed class JobBoardController : MonoBehaviour
     private void RefreshConfirmButton()
     {
         if (acceptButton != null)
+        {
             acceptButton.interactable = selectedIndex >= 0;
+            DisabledButtonFeedback.SetMessage(acceptButton, "Pick a job first");
+        }
     }
 
     private Jobs CreateOffer(JobTierSettings settings, HashSet<string> usedOnBoard)

@@ -77,7 +77,14 @@ public class ShopUI : MonoBehaviour
     void OnUpgradeClicked(ShopItem item)
     {
         if (PlayerWallet.Instance == null) return;
-        PlayerWallet.Instance.TryPurchase(item);   // fires Changed, which refreshes the UI
+        if (!PlayerWallet.Instance.TryPurchase(item))   // fires Changed, which refreshes the UI
+            PlayError();
+    }
+
+    static void PlayError()
+    {
+        if (AudioManager.Instance != null)
+            AudioManager.Instance.PlaySFX(AudioManager.Instance.UI.ErrorClick);
     }
 
     // Runs every time UIManager shows this panel.
@@ -192,6 +199,7 @@ public class ShopUI : MonoBehaviour
         {
             buyButton.interactable = false;
             buyLabel.text = "";
+            DisabledButtonFeedback.SetMessage(buyButton, "Select an item first");
             return;
         }
 
@@ -215,6 +223,9 @@ public class ShopUI : MonoBehaviour
             buyButton.interactable = true;
             buyLabel.text = $"Buy : {selected.price} Coins";
         }
+
+        // Pressing the greyed-out Buy button says why (Owned / Inventory full / Not enough coins).
+        DisabledButtonFeedback.SetMessage(buyButton, buyLabel.text);
     }
 
     void RefreshCoins()
@@ -226,7 +237,8 @@ public class ShopUI : MonoBehaviour
     void OnBuyClicked()
     {
         if (selected == null || PlayerWallet.Instance == null) return;
-        PlayerWallet.Instance.TryPurchase(selected);   // fires Changed, which refreshes the UI
+        if (!PlayerWallet.Instance.TryPurchase(selected))   // fires Changed, which refreshes the UI
+            PlayError();
     }
 
     bool IsOwned(ShopItem item) => PlayerWallet.Instance != null && PlayerWallet.Instance.Owns(item);

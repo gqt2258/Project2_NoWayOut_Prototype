@@ -36,6 +36,29 @@ public class PlayerWallet : MonoBehaviour
 
     readonly HashSet<string> ownedItems = new HashSet<string>();
     readonly List<string> equipment = new List<string>();   // item ids, one per filled slot
+    readonly List<string> lastMatchEquipment = new List<string>();   // what was taken into the current match
+
+    // Co-op disconnect or timeout: gives back the equipment taken into the match.
+    // Ending a job on purpose does not call this, so the equipment is used up.
+    public void RefundMatchEquipment()
+    {
+        if (lastMatchEquipment.Count == 0)
+            return;
+
+        foreach (string itemId in lastMatchEquipment)
+            if (!IsEquipmentFull)
+                equipment.Add(itemId);
+
+        Debug.Log($"Refunded {lastMatchEquipment.Count} equipment after a disconnect.");
+        lastMatchEquipment.Clear();
+        SaveAndNotify();
+    }
+
+    // The job finished normally, so there is nothing to refund any more.
+    public void ForgetMatchEquipment()
+    {
+        lastMatchEquipment.Clear();
+    }
     readonly Dictionary<TMP_Text, string> coinTexts = new Dictionary<TMP_Text, string>();
     readonly List<TMP_Text> coinChangeTexts = new List<TMP_Text>();
     int coins;
@@ -270,7 +293,9 @@ public class PlayerWallet : MonoBehaviour
         else ownedItems.Add(item.itemId);
         Debug.Log($"Purchased {item.displayName} for {item.price}. Coins left: {coins}. Equipment: {equipment.Count}/{EquipmentSlots}.");
         if (AudioManager.Instance != null)
-            AudioManager.Instance.PlaySFX(AudioManager.Instance.ShopBuy);
+            AudioManager.Instance.PlaySFX(item.shop == ShopType.Upgrade
+                ? AudioManager.Instance.UI.ShopUpgrade
+                : AudioManager.Instance.UI.ShopBuy);
         SaveAndNotify();
         return true;
     }
@@ -281,6 +306,8 @@ public class PlayerWallet : MonoBehaviour
 
         coins += amount;
         pendingChange += amount;
+        if (AudioManager.Instance != null)
+            AudioManager.Instance.PlaySFX(AudioManager.Instance.UI.CoinGain);
         SaveAndNotify();
     }
 
@@ -307,6 +334,8 @@ public class PlayerWallet : MonoBehaviour
         coins += refund;
         if (HasVisibleChangeText())
             pendingChange += refund;
+        if (AudioManager.Instance != null)
+            AudioManager.Instance.PlaySFX(AudioManager.Instance.UI.ShopSell);
 
         SaveAndNotify();
         return true;
@@ -317,6 +346,8 @@ public class PlayerWallet : MonoBehaviour
     public List<string> TakeEquipmentForMatch()
     {
         var taken = new List<string>(equipment);
+        lastMatchEquipment.Clear();
+        lastMatchEquipment.AddRange(taken);
         if (taken.Count > 0)
         {
             equipment.Clear();

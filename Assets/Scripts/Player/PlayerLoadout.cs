@@ -67,6 +67,37 @@ public class PlayerLoadout : MonoBehaviour
 
     public bool HasFreeSlot => contents.IndexOf(null) >= 0;
 
+    // The selected job item's ID, or null when nothing or a tool is selected.
+    public string SelectedJobItemId => selectedIndex >= 0 && contents[selectedIndex] != null ? contents[selectedIndex].jobItemId : null;
+
+    // Takes the selected job item out of its slot. If a new item is given, it goes into the
+    // same slot (used for swapping with the Deposit). Returns false if no job item is selected.
+    public bool SwapSelectedJobItem(string newId, string newName, Sprite newIcon,
+                                    out string oldId, out string oldName, out Sprite oldIcon)
+    {
+        oldId = null; oldName = null; oldIcon = null;
+        if (SelectedJobItemId == null)
+            return false;
+
+        SlotContent old = contents[selectedIndex];
+        oldId = old.jobItemId;
+        oldName = old.jobItemName;
+        oldIcon = old.jobItemIcon;
+
+        if (string.IsNullOrEmpty(newId))
+        {
+            ClearSlot(selectedIndex);
+        }
+        else
+        {
+            contents[selectedIndex] = new SlotContent { jobItemId = newId, jobItemName = newName, jobItemIcon = newIcon };
+            RefreshSlot(selectedIndex);
+        }
+
+        AfterSelectionChange();
+        return true;
+    }
+
     void Awake()
     {
         if (GetComponent<RadarController>() == null)
@@ -140,10 +171,13 @@ public class PlayerLoadout : MonoBehaviour
     {
         var droppedTools = contents.Where(content => content != null && content.tool != null)
                                    .Select(content => content.tool).ToList();
+        bool hadItems = contents.Any(content => content != null);
         for (int i = 0; i < contents.Count; i++)
             ClearSlot(i);
 
         AfterSelectionChange();
+        if (hadItems && AudioManager.Instance != null)
+            AudioManager.Instance.PlaySFX(AudioManager.Instance.Player.Drop);
         return droppedTools;
     }
 
@@ -159,6 +193,9 @@ public class PlayerLoadout : MonoBehaviour
         RefreshSlot(previous);
         RefreshSlot(selectedIndex);
         AfterSelectionChange();
+
+        if (AudioManager.Instance != null)
+            AudioManager.Instance.PlayButtonClick();
     }
 
     // Called by the USE button. Only tools can be used.
@@ -179,6 +216,8 @@ public class PlayerLoadout : MonoBehaviour
         AfterSelectionChange();
 
         Debug.Log($"Used {tool.displayName}.", this);
+        if (AudioManager.Instance != null)
+            AudioManager.Instance.PlayToolUse(tool.displayName, transform.position);
         GetComponent<RadarController>()?.RevealTool(tool);
         ItemUsed?.Invoke(tool);
     }
@@ -191,6 +230,10 @@ public class PlayerLoadout : MonoBehaviour
 
         contents[slotIndex] = content;
         RefreshSlot(slotIndex);
+
+        // TryAdd is only used for picking things up in the maze.
+        if (AudioManager.Instance != null)
+            AudioManager.Instance.PlaySFX(AudioManager.Instance.Player.Grab);
         return true;
     }
 

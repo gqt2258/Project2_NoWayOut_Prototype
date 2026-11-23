@@ -108,6 +108,7 @@ public class ShopItemSlot : MonoBehaviour, IPointerClickHandler
             effectText.text = current.description;
             priceText.text = "Max Level";
             upgradeButton.interactable = false;
+            DisabledButtonFeedback.SetMessage(upgradeButton, "Already at max level");
             return;
         }
 
@@ -117,6 +118,7 @@ public class ShopItemSlot : MonoBehaviour, IPointerClickHandler
         effectText.text = $"{currentEffect} -> {next.description}";
         priceText.text = canAfford ? $"Upgrade : {next.price} Coins" : "Not enough coins";
         upgradeButton.interactable = canAfford;
+        DisabledButtonFeedback.SetMessage(upgradeButton, "Not enough coins");
     }
 
     // Used by LoadoutUI. Pass null for an empty box.

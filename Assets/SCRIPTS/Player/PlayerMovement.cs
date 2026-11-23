@@ -78,6 +78,10 @@ public class PlayerMovement : MonoBehaviour
                 isSprinting = false;
                 lastSprintTime = Time.time;
                 runLocked = true;
+
+                // Out of breath.
+                if (AudioManager.Instance != null)
+                    AudioManager.Instance.PlaySFX(AudioManager.Instance.Player.Panting);
             }
         }
         else if (Time.time - lastSprintTime >= stats.staminaRecoveryDelay)

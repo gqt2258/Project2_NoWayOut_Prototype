@@ -4101,12 +4101,6 @@ Transform:
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 1112530575}
-  - {fileID: 741113252}
-  - {fileID: 305382413}
-  - {fileID: 320128153}
-  - {fileID: 1413215582}
-  - {fileID: 1614706252}
-  - {fileID: 1639238530}
   m_Father: {fileID: 1582726834}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!114 &300234201
@@ -4155,11 +4149,11 @@ RectTransform:
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 28075613}
-  m_Father: {fileID: 300234200}
+  m_Father: {fileID: 1322283261}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 558, y: -217}
+  m_AnchoredPosition: {x: 7.4882812, y: -179.41382}
   m_SizeDelta: {x: 436.4501, y: 81.8344}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &305382414
@@ -4552,11 +4546,11 @@ RectTransform:
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
-  m_Father: {fileID: 300234200}
+  m_Father: {fileID: 1322283261}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 563.5118, y: 201.41382}
+  m_AnchoredPosition: {x: 13.000061, y: 239}
   m_SizeDelta: {x: 526.2532, y: 80.5269}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &320128154
@@ -10445,11 +10439,11 @@ RectTransform:
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 430524939}
-  m_Father: {fileID: 300234200}
+  m_Father: {fileID: 1322283261}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 409, y: 5}
+  m_AnchoredPosition: {x: -141.51172, y: 42.58618}
   m_SizeDelta: {x: 165.2565, y: 62.5589}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &741113253
@@ -10606,6 +10600,11 @@ MonoBehaviour:
   Player2Loadout: {fileID: 798037540}
   jobBoardController: {fileID: 3300000001}
   resultsPanel: {fileID: 0}
+  lobbySettingsPanel: {fileID: 0}
+  leaveRoomButton: {fileID: 0}
+  leaveConfirmPanel: {fileID: 0}
+  leaveConfirmTitle: {fileID: 0}
+  leaveConfirmMessage: {fileID: 0}
 --- !u!1 &778304941
 GameObject:
   m_ObjectHideFlags: 0
@@ -19606,7 +19605,13 @@ RectTransform:
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
-  m_Children: []
+  m_Children:
+  - {fileID: 741113252}
+  - {fileID: 305382413}
+  - {fileID: 320128153}
+  - {fileID: 1413215582}
+  - {fileID: 1614706252}
+  - {fileID: 1639238530}
   m_Father: {fileID: 1112530575}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
@@ -21057,11 +21062,11 @@ RectTransform:
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
-  m_Father: {fileID: 300234200}
+  m_Father: {fileID: 1322283261}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 254.51178, y: 0.41381836}
+  m_AnchoredPosition: {x: -295.99994, y: 38}
   m_SizeDelta: {x: 148.2338, y: 60.9345}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1413215583
@@ -22559,11 +22564,11 @@ RectTransform:
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 1778346669}
-  m_Father: {fileID: 300234200}
+  m_Father: {fileID: 1322283261}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 788.7517, y: 6.4138184}
+  m_AnchoredPosition: {x: 238.23999, y: 44}
   m_SizeDelta: {x: 165.2565, y: 62.5589}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1614706253
@@ -23123,11 +23128,11 @@ RectTransform:
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
-  m_Father: {fileID: 300234200}
+  m_Father: {fileID: 1322283261}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 657.5118, y: 0.41381836}
+  m_AnchoredPosition: {x: 107.00006, y: 38}
   m_SizeDelta: {x: 97.2256, y: 60.9345}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1639238531
@@ -24415,27 +24420,111 @@ MonoBehaviour:
   AmbienceSource: {fileID: 1320731203}
   MenuMusic: {fileID: 8300000, guid: da4f1f6f959146a4787d8d246f63476b, type: 3}
   GameMusic: {fileID: 8300000, guid: 31e861c7e9692e04bab037eb0ed23e65, type: 3}
-  GameAmbience: {fileID: 8300000, guid: 7fffa38c5460705458eac5df50101d47, type: 3}
+  ChaseMusic: {fileID: 0}
+  chaseFadeIn: 0.5
+  chaseFadeOut: 2
+  LobbyAmbience: {fileID: 0}
+  PortalHum: {fileID: 0}
+  ResultsMachineHum: {fileID: 0}
   ambienceVolume: 0.1
-  SystemError: {fileID: 8300000, guid: 27d84d8679b9c494ebbf9a02b2865831, type: 3}
-  ButtonClicks:
-  - {fileID: 8300000, guid: cf0293aef5dd78345af17ee47e25db48, type: 3}
-  - {fileID: 8300000, guid: 1397feb28a68b2045b1028af9be68c05, type: 3}
-  - {fileID: 8300000, guid: ca761aad0f648c34896f2c1cf7dfb525, type: 3}
-  PlayerHurt: {fileID: 8300000, guid: 25bb2a5c2fca49341a2218b48a568781, type: 3}
-  PlayerDied: {fileID: 8300000, guid: dadf8cd6642c34b41827c319628ecd44, type: 3}
-  PlayerWalk: {fileID: 8300000, guid: 2d330a26975f3dd45a7da7a800081f38, type: 3}
-  PlayerRun: {fileID: 8300000, guid: 284c44c7d5aa9064b91fe22ac8705a84, type: 3}
+  testLocation: Hospital
+  Locations:
+  - Location: Hospital
+    Ambience: {fileID: 0}
+    WallWarning: {fileID: 0}
+    PlayerWalk: {fileID: 0}
+    MonsterWalk: {fileID: 0}
+    MonsterScream: {fileID: 0}
+    MonsterHurt: {fileID: 0}
+  - Location: Prison
+    Ambience: {fileID: 0}
+    WallWarning: {fileID: 0}
+    PlayerWalk: {fileID: 0}
+    MonsterWalk: {fileID: 0}
+    MonsterScream: {fileID: 0}
+    MonsterHurt: {fileID: 0}
+  - Location: Mansion
+    Ambience: {fileID: 0}
+    WallWarning: {fileID: 0}
+    PlayerWalk: {fileID: 0}
+    MonsterWalk: {fileID: 0}
+    MonsterScream: {fileID: 0}
+    MonsterHurt: {fileID: 0}
+  runSpeed: 1.3
   PlayerBleed: {fileID: 8300000, guid: 69bf95344c3c1ea49bda958618ccd858, type: 3}
-  WallShift: {fileID: 8300000, guid: 5a19cd99602a46045b3994b42eab2019, type: 3}
-  WallWarning: {fileID: 8300000, guid: 850f528b7f58a304681b5032bc77aaca, type: 3}
   MonsterSeenBass: {fileID: 8300000, guid: 461afd0ecec250c43b6612a9b8964920, type: 3}
-  MonsterScream: {fileID: 8300000, guid: 2adcee2fd085ecc49b7429f86a9482cf, type: 3}
-  MonsterSlash: {fileID: 8300000, guid: 062d451527a70524e9b7a6dfc0b89c17, type: 3}
-  ShopBuy: {fileID: 8300000, guid: 50e8900582ee5b44faa80012fdf41668, type: 3}
+  UI:
+    DefaultClicks: []
+    ErrorClick: {fileID: 0}
+    BackClick: {fileID: 0}
+    ToggleOn: {fileID: 0}
+    ToggleOff: {fileID: 0}
+    JobBoardOn: {fileID: 0}
+    JobBoardOff: {fileID: 0}
+    JobSelectClick: {fileID: 0}
+    JobConfirmClick: {fileID: 0}
+    LoadoutOn: {fileID: 0}
+    LoadoutOff: {fileID: 0}
+    StartGameClick: {fileID: 0}
+    ShopOn: {fileID: 0}
+    ShopOff: {fileID: 0}
+    ShopBuy: {fileID: 0}
+    ShopUpgrade: {fileID: 0}
+    ShopSell: {fileID: 0}
+    CosmeticEquipOn: {fileID: 0}
+    CosmeticEquipOff: {fileID: 0}
+    CaseFileOn: {fileID: 0}
+    CaseFileOff: {fileID: 0}
+    CoinGain: {fileID: 0}
+  Player:
+    HurtVariations: []
+    Die: {fileID: 0}
+    Panting: {fileID: 0}
+    HeartBeat: {fileID: 0}
+    Grab: {fileID: 0}
+    Drop: {fileID: 0}
+    Deposit: {fileID: 0}
+    Revive: {fileID: 0}
+    Appear: {fileID: 0}
+    Leave: {fileID: 0}
+  Walls:
+    ShiftVariations: []
+  Tools:
+    NoiseMakerUse: {fileID: 0}
+    NoiseMakerVoices: []
+    SmokeGrenadeUse: {fileID: 0}
+    SmokeGrenadeSmoke: {fileID: 0}
+    BearTrapUse: {fileID: 0}
+    BearTrapSnap: {fileID: 0}
+    FlashbangUse: {fileID: 0}
+    FlashbangFlash: {fileID: 0}
+    FreezeGunShoot: {fileID: 0}
+    FreezeGunFreeze: {fileID: 0}
+    GridScannerUse: {fileID: 0}
+    GridScannerBeep: {fileID: 0}
+    EarthWandUse: {fileID: 0}
+    ItemLocatorUse: {fileID: 0}
+    MonsterLocatorUse: {fileID: 0}
+  Monster:
+    SlashVariations: []
+  Results:
+    MachineOn: {fileID: 0}
+    Print: {fileID: 0}
+    CorrectItem: {fileID: 0}
+    WrongItem: {fileID: 0}
+    Pass: {fileID: 0}
+    Fail: {fileID: 0}
+  Coop:
+    PartnerDisconnect: {fileID: 0}
+    ConnectionLost: {fileID: 0}
+    Reconnecting: {fileID: 0}
+    Reconnected: {fileID: 0}
   musicVolume: 0.5
   sfxVolume: 1
   fadeTime: 1
+  pitchVariation: 0.05
+  defaultAudibleDistance: 8
+  voiceCount: 12
   menuScenes:
   - Main Menu
   - Lobby Board
@@ -25557,7 +25646,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!4 &1809043678
 Transform:
   m_ObjectHideFlags: 0

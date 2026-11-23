@@ -48,7 +48,7 @@ public class PlayerInteraction : MonoBehaviour
     {
         Interactable target = GetClosestInteractable();
         if (target != null)
-            target.Interact();
+            target.Interact(gameObject);
         else if (loadout != null)
             loadout.UseSelectedItem();
     }
@@ -64,8 +64,8 @@ public class PlayerInteraction : MonoBehaviour
 
         if (target != null)
         {
-            label = target.ActionLabel;
-            usable = target.CanInteract;
+            label = target.GetLabel(gameObject);
+            usable = target.CanInteractFor(gameObject);
         }
         else
         {

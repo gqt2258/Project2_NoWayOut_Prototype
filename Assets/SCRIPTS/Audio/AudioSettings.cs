@@ -16,14 +16,20 @@ public class SettingsAudio : MonoBehaviour
     public void OnMusicButton()
     {
         if (AudioManager.Instance == null) return;
-        AudioManager.Instance.SetMusicOn(!AudioManager.Instance.MusicOn);
+        bool on = !AudioManager.Instance.MusicOn;
+        AudioManager.Instance.SetMusicOn(on);
+        AudioManager.Instance.PlaySFX(on ? AudioManager.Instance.UI.ToggleOn : AudioManager.Instance.UI.ToggleOff);
         Refresh();
     }
 
     public void OnSoundButton()
     {
         if (AudioManager.Instance == null) return;
-        AudioManager.Instance.SetSFXOn(!AudioManager.Instance.SFXOn);
+        bool on = !AudioManager.Instance.SFXOn;
+        // Turning sound off: play the click first, while sound is still on.
+        if (!on) AudioManager.Instance.PlaySFX(AudioManager.Instance.UI.ToggleOff);
+        AudioManager.Instance.SetSFXOn(on);
+        if (on) AudioManager.Instance.PlaySFX(AudioManager.Instance.UI.ToggleOn);
         Refresh();
     }
 

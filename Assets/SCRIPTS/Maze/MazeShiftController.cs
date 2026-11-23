@@ -829,7 +829,8 @@ namespace NoWayOut.Maze
                 return;
 
             audio.ConfigureSpatialSource(source, 14f);
-            source.clip = audio.WallShift;
+            source.clip = audio.WallShift;   // a random one of Wall_Shift1-3
+            source.pitch = audio.RandomPitch();
             source.Stop();
             audio.PlaySpatialSFX(source, source.clip, wallShiftVolume);
         }

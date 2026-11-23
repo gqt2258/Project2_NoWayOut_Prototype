@@ -16,6 +16,9 @@ public class ButtonClickSFX : MonoBehaviour
             if (!hooked.Add(b)) continue;   // never hook a button twice
             b.onClick.AddListener(OnClick);
         }
+
+        // Greyed-out buttons play the error sound when pressed.
+        DisabledButtonFeedback.AddToChildren(transform);
     }
 
     private void OnClick()

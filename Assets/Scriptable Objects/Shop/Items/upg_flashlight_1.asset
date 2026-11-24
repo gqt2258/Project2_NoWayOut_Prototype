@@ -13,13 +13,13 @@ MonoBehaviour:
   m_Name: upg_flashlight_1
   m_EditorClassIdentifier: Assembly-CSharp::ShopItem
   itemId: upg_flashlight_1
-  displayName: Flashlight Range
+  displayName: Flashlight Beam
   shop: 1
   category: Player Flashlight Upgrade
   upgradeLine: Flashlight Range
   level: 1
-  description: +10% light radius
+  description: +20% beam width
   price: 300
   icon: {fileID: 0}
-  prefab: {fileID: 0}
-  material: {fileID: 0}
+  look: {fileID: 0}
+  lightColour: {r: 1, g: 1, b: 1, a: 0}

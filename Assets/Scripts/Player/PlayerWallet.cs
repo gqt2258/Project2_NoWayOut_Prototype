@@ -20,7 +20,7 @@ public class PlayerWallet : MonoBehaviour
     const float ChangePopSeconds = 0.2f;
     const float ChangeHoldSeconds = 3f;
     const float ChangeFadeSeconds = 0.5f;
-    const int StartingCoins = 1000;   // test amount for a new save
+    const int StartingCoins = 10000;   // test amount for a new save
     const string CoinsKey = "PlayerWallet.Coins";
     const string OwnedItemsKey = "PlayerWallet.OwnedItems";
     const string CosmeticsKey = "PlayerWallet.Cosmetics";

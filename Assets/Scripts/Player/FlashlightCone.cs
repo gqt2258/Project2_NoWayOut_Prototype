@@ -9,7 +9,7 @@ using UnityEngine.UI;
 //   Darkness     dark everywhere except the cone and the small circle
 //
 // The cone points where the player last moved and stays that way when they stop.
-// The Flashlight Range upgrade still works: it scales the Torchlight Layer, so the cone grows.
+// The Flashlight upgrade makes the cone wider (PlayerLoadout calls SetUpgradeBonus).
 // The light colour comes from the worn flashlight skin (Shop item > Light Colour).
 public class FlashlightCone : MonoBehaviour
 {
@@ -48,6 +48,17 @@ public class FlashlightCone : MonoBehaviour
     Vector3 lastPlayerPosition;
     float angle = -90f;        // facing down (the player starts facing the camera)
     float builtForSize;
+    float upgradeBonus;        // e.g. 0.35 = the cone is 35% wider
+
+    // Flashlight upgrade: widens the cone by this fraction (0.35 = +35%).
+    public void SetUpgradeBonus(float bonus)
+    {
+        upgradeBonus = Mathf.Max(0f, bonus);
+        if (darknessImage != null)
+            BuildTextures();   // already built: redraw with the wider cone
+    }
+
+    float ConeAngle => Mathf.Min(170f, coneAngle * (1f + upgradeBonus));
 
     void Start()
     {
@@ -157,7 +168,7 @@ public class FlashlightCone : MonoBehaviour
         float pixelsPerTexel = size / textureSize;
         float length = coneLength * screenHeight / pixelsPerTexel;
         float radius = circleRadius * screenHeight / pixelsPerTexel;
-        float halfAngle = coneAngle * 0.5f;
+        float halfAngle = ConeAngle * 0.5f;
         float angleSoft = Mathf.Max(1f, halfAngle * edgeSoftness);
 
         var dark = new Texture2D(textureSize, textureSize, TextureFormat.RGBA32, false) { wrapMode = TextureWrapMode.Clamp };

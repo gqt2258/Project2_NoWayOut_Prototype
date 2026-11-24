@@ -5,8 +5,12 @@ using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 
-// Live chat style log. From any script, call:
-// ServerLog.Add("Player joined the lobby");
+// Live chat style log on the lobby board. From any script, call:
+// GameServerLogs.Add("Player joined the lobby");
+//
+// Only messages sent while the lobby board (with this log) is showing are kept. Anything from
+// other screens (shops, loadout, job board, Host / Join, results, gameplay) is not logged.
+// AddError still plays the error sound everywhere.
 public class GameServerLogs : MonoBehaviour
 {
     const int MaxMessages = 50;
@@ -41,6 +45,7 @@ public class GameServerLogs : MonoBehaviour
     public static void Add(string message)
     {
         if (string.IsNullOrWhiteSpace(message)) return;
+        if (instance == null) return;   // the lobby board isn't showing: don't log it
 
         string line = $"[{DateTime.Now:HH:mm}] {message}";
         history.Add(line);

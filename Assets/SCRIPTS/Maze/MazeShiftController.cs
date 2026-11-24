@@ -190,6 +190,7 @@ namespace NoWayOut.Maze
                     maze[(row + 1) * columns + column].down = wall ? EdgeState.Wall : EdgeState.Parent;
                 }
 
+            mazeVersion++;
             ApplyWallStates(true);
             if (updateNavMeshAfterShift)
                 QueueNavMeshUpdate();
@@ -233,6 +234,7 @@ namespace NoWayOut.Maze
                 return false;
 
             maze = trialMaze;
+            mazeVersion++;
             ApplyWallStates(true);
             if (updateNavMeshAfterShift)
                 QueueNavMeshUpdate();
@@ -271,6 +273,7 @@ namespace NoWayOut.Maze
                 if (MazeShiftCore.ShiftMaze(trialMaze, rows, columns, index) && PreservesPlayerEscape(trialMaze))
                 {
                     maze = trialMaze;
+                    mazeVersion++;
                     ApplyWallStates(true);
                     if (updateNavMeshAfterShift)
                         QueueNavMeshUpdate();
@@ -295,14 +298,25 @@ namespace NoWayOut.Maze
 
         public bool TryShiftRandomUnlockedCells(int shiftCount)
         {
+            if (!PlanShiftBatch(shiftCount, out MazeCell[] planned, out _))
+                return false;
+
+            ApplyPlannedMaze(planned);
+            return true;
+        }
+
+        // Works out a batch of rewires without applying it. Frozen walls (Freeze Gun) never change.
+        private bool PlanShiftBatch(int shiftCount, out MazeCell[] planned, out HashSet<int> changedEdges)
+        {
             const int expectedWallChangesPerShift = 2;
+            planned = null;
+            changedEdges = new HashSet<int>();
 
             if (!CanChooseShift() || !initialized || navMeshUpdateRunning || shiftCount < 1)
                 return false;
 
             RefreshLocksFromPlayer();
             MazeCell[] workingMaze = CloneMaze(maze);
-            var changedEdges = new HashSet<int>();
             var usedRoots = new HashSet<int>();
 
             for (int shift = 0; shift < shiftCount; shift++)
@@ -335,17 +349,17 @@ namespace NoWayOut.Maze
                     if (newlyChangedEdges.Count != expectedWallChangesPerShift)
                         continue;
 
-                    bool overlapsEarlierShift = false;
+                    bool rejected = false;
                     foreach (int edge in newlyChangedEdges)
                     {
-                        if (changedEdges.Contains(edge))
+                        if (changedEdges.Contains(edge) || IsFrozen(edge))
                         {
-                            overlapsEarlierShift = true;
+                            rejected = true;
                             break;
                         }
                     }
 
-                    if (overlapsEarlierShift)
+                    if (rejected)
                         continue;
 
                     workingMaze = trialMaze;
@@ -361,14 +375,19 @@ namespace NoWayOut.Maze
                     return false;
             }
 
-            maze = workingMaze;
+            planned = workingMaze;
+            return true;
+        }
+
+        private void ApplyPlannedMaze(MazeCell[] planned)
+        {
+            maze = planned;
+            mazeVersion++;
             ApplyWallStates(true);
             if (updateNavMeshAfterShift)
                 QueueNavMeshUpdate();
             else
                 MazeChanged?.Invoke();
-
-            return true;
         }
 
         /// <summary>UnityEvent entry point; performs the configured batch.</summary>
@@ -419,6 +438,7 @@ namespace NoWayOut.Maze
                 yield return new WaitForSeconds(1f);
             }
 
+            EndScannerShift();
             HideShiftWarning();
             warningRoutineRunning = false;
         }
@@ -426,6 +446,13 @@ namespace NoWayOut.Maze
         private IEnumerator ShowWarningThenShift()
         {
             warningRoutineRunning = true;
+
+            // Decide the shift now, so the Grid Scanner can show it during the countdown.
+            int planVersion = mazeVersion;
+            bool hasPlan = PlanShiftBatch(rewiresPerBatch, out MazeCell[] plannedMaze, out HashSet<int> plannedEdges);
+            currentPlan = hasPlan ? plannedEdges : null;
+            ShareScannerPlan(currentPlan);
+            ShowScannerMarkers();
 
             if (shiftWarningText != null)
                 shiftWarningText.gameObject.SetActive(true);
@@ -446,8 +473,13 @@ namespace NoWayOut.Maze
             }
 
             // Each wall plays its own sound when its state changes.
-            TryShiftRandomUnlockedCells(rewiresPerBatch);
+            // Use the plan if nothing changed since, and it is still safe for the players now.
+            if (hasPlan && planVersion == mazeVersion && PlanStillSafe(plannedMaze, plannedEdges))
+                ApplyPlannedMaze(plannedMaze);
+            else
+                TryShiftRandomUnlockedCells(rewiresPerBatch);
 
+            EndScannerShift();
             HideShiftWarning();
             warningRoutineRunning = false;
         }
@@ -748,7 +780,7 @@ namespace NoWayOut.Maze
                 {
                     GameObject wall = horizontalWalls[row, column];
                     if (wall != null)
-                        SetWall(wall, maze[row * columns + column].right == EdgeState.Wall, animate);
+                        SetWall(wall, WallShown(wall, maze[row * columns + column].right == EdgeState.Wall), animate);
                 }
             }
 
@@ -758,7 +790,7 @@ namespace NoWayOut.Maze
                 {
                     GameObject wall = verticalWalls[row, column];
                     if (wall != null)
-                        SetWall(wall, maze[row * columns + column].up == EdgeState.Wall, animate);
+                        SetWall(wall, WallShown(wall, maze[row * columns + column].up == EdgeState.Wall), animate);
                 }
             }
         }
@@ -1011,6 +1043,275 @@ namespace NoWayOut.Maze
             MazeChanged?.Invoke();
         }
 
+        // ================= TOOLS (Freeze Gun, Earth Wand, Grid Scanner) =================
+
+        private int mazeVersion;                                                  // +1 whenever the walls change
+        private readonly Dictionary<int, float> frozenEdges = new Dictionary<int, float>();     // edge -> until
+        private readonly Dictionary<GameObject, bool> wallOverrides = new Dictionary<GameObject, bool>();
+        private readonly Dictionary<GameObject, Coroutine> overrideTimers = new Dictionary<GameObject, Coroutine>();
+        private HashSet<int> currentPlan;          // the walls the next shift changes (known during the warning)
+        private bool scannerArmed;
+        private int scannerRadiusCells = 4;
+        private readonly List<GameObject> scannerMarkers = new List<GameObject>();
+        private static Sprite whiteSprite;
+
+        private int HorizontalEdgeCount => rows * (columns - 1);
+
+        // The wall object for an edge number (the same numbering as CaptureWallStates).
+        private GameObject EdgeToWall(int edge)
+        {
+            if (edge < 0) return null;
+            if (edge < HorizontalEdgeCount)
+                return horizontalWalls[edge / (columns - 1), edge % (columns - 1)];
+            edge -= HorizontalEdgeCount;
+            return edge < (rows - 1) * columns ? verticalWalls[edge / columns, edge % columns] : null;
+        }
+
+        private bool WallShown(GameObject wall, bool fromMaze)
+        {
+            return wallOverrides.TryGetValue(wall, out bool forced) ? forced : fromMaze;
+        }
+
+        private bool IsFrozen(int edge)
+        {
+            return frozenEdges.TryGetValue(edge, out float until) && Time.time < until;
+        }
+
+        private int CellAt(Vector3 worldPosition)
+        {
+            if (!initialized) return -1;
+            Vector3 local = wallRoot.InverseTransformPoint(worldPosition);
+            return MazeShiftCore.WorldToIndex(local.x, local.y, firstCellCenter.x, firstCellCenter.y,
+                                              cellSpacing.x, cellSpacing.y, rows, columns);
+        }
+
+        // The edge on one side of a cell, or -1 at the maze's edge.
+        private int EdgeOf(int cell, MazeDirection side)
+        {
+            int row = cell / columns, column = cell % columns;
+            switch (side)
+            {
+                case MazeDirection.Right: return column < columns - 1 ? row * (columns - 1) + column : -1;
+                case MazeDirection.Left: return column > 0 ? row * (columns - 1) + column - 1 : -1;
+                case MazeDirection.Up: return row < rows - 1 ? HorizontalEdgeCount + row * columns + column : -1;
+                default: return row > 0 ? HorizontalEdgeCount + (row - 1) * columns + column : -1;
+            }
+        }
+
+        private static MazeDirection Facing(Vector2 facing)
+        {
+            if (Mathf.Abs(facing.x) > Mathf.Abs(facing.y))
+                return facing.x >= 0f ? MazeDirection.Right : MazeDirection.Left;
+            return facing.y >= 0f ? MazeDirection.Up : MazeDirection.Down;
+        }
+
+        // Earth Wand: the shifting wall on the side the player faces, or -1 if there is none there.
+        public int EdgeInFront(Vector3 position, Vector2 facing)
+        {
+            int cell = CellAt(position);
+            if (cell < 0) return -1;
+            int edge = EdgeOf(cell, Facing(facing));
+            return EdgeToWall(edge) != null ? edge : -1;
+        }
+
+        // Earth Wand: opens the wall in front (or closes the gap) for a while, then it goes back.
+        public void ForceWallInFront(Vector3 position, Vector2 facing, float seconds)
+        {
+            GameObject wall = EdgeToWall(EdgeInFront(position, facing));
+            if (wall == null) return;
+
+            bool shownNow = wallTargets.TryGetValue(wall, out bool target) ? target : wall.activeSelf;
+            wallOverrides[wall] = !shownNow;
+            SetWall(wall, !shownNow, true);
+            if (updateNavMeshAfterShift) QueueNavMeshUpdate();
+
+            if (overrideTimers.TryGetValue(wall, out Coroutine running) && running != null)
+                StopCoroutine(running);
+            overrideTimers[wall] = StartCoroutine(EndOverride(wall, seconds));
+        }
+
+        private IEnumerator EndOverride(GameObject wall, float seconds)
+        {
+            yield return new WaitForSeconds(seconds);
+            wallOverrides.Remove(wall);
+            overrideTimers.Remove(wall);
+            ApplyWallStates(true);   // back to what the maze says now
+            if (updateNavMeshAfterShift) QueueNavMeshUpdate();
+        }
+
+        // Freeze Gun: the walls around the cell in front can't shift for a while. They turn icy blue.
+        public void FreezeInFront(Vector3 position, Vector2 facing, float seconds)
+        {
+            int cell = CellAt(position);
+            if (cell < 0) return;
+
+            // The cell in front (or this one, at the maze's edge).
+            int row = cell / columns, column = cell % columns;
+            switch (Facing(facing))
+            {
+                case MazeDirection.Right: column = Mathf.Min(columns - 1, column + 1); break;
+                case MazeDirection.Left: column = Mathf.Max(0, column - 1); break;
+                case MazeDirection.Up: row = Mathf.Min(rows - 1, row + 1); break;
+                default: row = Mathf.Max(0, row - 1); break;
+            }
+
+            float until = Time.time + seconds;
+            var frozenWalls = new List<GameObject>();
+            for (int r = row - 1; r <= row + 1; r++)
+                for (int c = column - 1; c <= column + 1; c++)
+                {
+                    if (r < 0 || r >= rows || c < 0 || c >= columns) continue;
+                    foreach (MazeDirection side in new[] { MazeDirection.Up, MazeDirection.Down, MazeDirection.Left, MazeDirection.Right })
+                    {
+                        int edge = EdgeOf(r * columns + c, side);
+                        if (edge < 0) continue;
+                        frozenEdges[edge] = Mathf.Max(until, frozenEdges.TryGetValue(edge, out float old) ? old : 0f);
+                        GameObject wall = EdgeToWall(edge);
+                        if (wall != null && !frozenWalls.Contains(wall)) frozenWalls.Add(wall);
+                    }
+                }
+
+            StartCoroutine(TintWhileFrozen(frozenWalls, seconds));
+        }
+
+        private IEnumerator TintWhileFrozen(List<GameObject> walls, float seconds)
+        {
+            Color ice = new Color(0.6f, 0.85f, 1f, 1f);
+            var tinted = new List<SpriteRenderer>();
+            foreach (GameObject wall in walls)
+                foreach (SpriteRenderer art in wall.GetComponentsInChildren<SpriteRenderer>(true))
+                {
+                    art.color = ice;
+                    tinted.Add(art);
+                }
+
+            yield return new WaitForSeconds(seconds);
+
+            foreach (SpriteRenderer art in tinted)
+                if (art != null) art.color = Color.white;
+        }
+
+        // Grid Scanner: shows the next shift on walls near this player (until that shift happens).
+        public void ArmScanner(int radiusCells)
+        {
+            scannerArmed = true;
+            scannerRadiusCells = Mathf.Max(1, radiusCells);
+            ShowScannerMarkers();   // a warning is already counting down: show it now
+        }
+
+        // Co-op guest: the host sends what the coming shift will change.
+        public void ReceiveScannerPlan(string edges)
+        {
+            currentPlan = new HashSet<int>();
+            foreach (string part in (edges ?? "").Split(','))
+                if (int.TryParse(part, out int edge)) currentPlan.Add(edge);
+            ShowScannerMarkers();
+        }
+
+        private void ShareScannerPlan(HashSet<int> plan)
+        {
+            if (!JobSession.IsCoop || NetworkManager.Singleton == null || !NetworkManager.Singleton.IsServer ||
+                NetworkManager.Singleton.LocalClient?.PlayerObject == null)
+                return;
+            string edges = plan != null ? string.Join(",", plan) : "";
+            NetworkManager.Singleton.LocalClient.PlayerObject.GetComponent<NetworkJobSync>()?.ShareScannerPlan(edges);
+        }
+
+        // Red = a wall will appear here. Green = this wall will disappear.
+        private void ShowScannerMarkers()
+        {
+            ClearScannerMarkers();
+            if (!scannerArmed || currentPlan == null || player == null)
+                return;
+
+            int playerCell = CellAt(player.position);
+            int playerRow = playerCell >= 0 ? playerCell / columns : 0, playerColumn = playerCell >= 0 ? playerCell % columns : 0;
+
+            foreach (int edge in currentPlan)
+            {
+                GameObject wall = EdgeToWall(edge);
+                if (wall == null) continue;
+
+                bool horizontal = edge < HorizontalEdgeCount;
+                int index = horizontal ? edge : edge - HorizontalEdgeCount;
+                int row = horizontal ? index / (columns - 1) : index / columns;
+                int column = horizontal ? index % (columns - 1) : index % columns;
+                if (playerCell >= 0 && (Mathf.Abs(row - playerRow) > scannerRadiusCells || Mathf.Abs(column - playerColumn) > scannerRadiusCells))
+                    continue;   // too far for the scanner
+
+                bool appears = !(wallTargets.TryGetValue(wall, out bool shown) ? shown : wall.activeSelf);
+                scannerMarkers.Add(MakeMarker(wall.transform.position, horizontal, appears));
+            }
+
+            if (scannerMarkers.Count > 0)
+                StartCoroutine(PulseMarkers());
+        }
+
+        private GameObject MakeMarker(Vector3 position, bool horizontalEdge, bool appears)
+        {
+            if (whiteSprite == null)
+            {
+                Texture2D texture = Texture2D.whiteTexture;
+                whiteSprite = Sprite.Create(texture, new Rect(0, 0, texture.width, texture.height), new Vector2(0.5f, 0.5f), texture.width);
+            }
+
+            // A wall between two columns stands upright; one between two rows lies flat.
+            Vector3 scale = horizontalEdge
+                ? new Vector3(0.35f, Mathf.Abs(cellSpacing.y * wallRoot.lossyScale.y), 1f)
+                : new Vector3(Mathf.Abs(cellSpacing.x * wallRoot.lossyScale.x), 0.35f, 1f);
+
+            var marker = new GameObject(appears ? "Scanner: wall appears" : "Scanner: wall disappears");
+            marker.transform.position = new Vector3(position.x, position.y, 0f);
+            marker.transform.localScale = scale;
+            SpriteRenderer sprite = marker.AddComponent<SpriteRenderer>();
+            sprite.sprite = whiteSprite;
+            sprite.color = appears ? new Color(1f, 0.2f, 0.2f, 0.6f) : new Color(0.2f, 1f, 0.3f, 0.6f);
+            sprite.sortingOrder = 100;
+            return marker;
+        }
+
+        private IEnumerator PulseMarkers()
+        {
+            while (scannerMarkers.Count > 0)
+            {
+                float alpha = 0.35f + 0.3f * Mathf.Sin(Time.time * 6f);
+                foreach (GameObject marker in scannerMarkers)
+                {
+                    if (marker == null) continue;
+                    SpriteRenderer sprite = marker.GetComponent<SpriteRenderer>();
+                    Color c = sprite.color;
+                    sprite.color = new Color(c.r, c.g, c.b, alpha);
+                }
+                yield return null;
+            }
+        }
+
+        private void ClearScannerMarkers()
+        {
+            foreach (GameObject marker in scannerMarkers)
+                if (marker != null) Destroy(marker);
+            scannerMarkers.Clear();
+        }
+
+        // The shift happened: the scanner is used up and its marks go.
+        private void EndScannerShift()
+        {
+            currentPlan = null;
+            scannerArmed = false;
+            ClearScannerMarkers();
+        }
+
+        // The plan was made at the start of the warning. Check it is still safe for where the players are now.
+        private bool PlanStillSafe(MazeCell[] planned, HashSet<int> changedEdges)
+        {
+            foreach (int edge in changedEdges)
+                if (IsFrozen(edge)) return false;
+
+            RefreshLocksFromPlayer();
+            for (int i = 0; i < planned.Length; i++)
+                planned[i].unlocked = maze[i].unlocked;
+            return PreservesPlayerEscape(planned);
+        }
         private static bool HasParentEdge(MazeCell cell)
         {
             return cell.up == EdgeState.Parent || cell.down == EdgeState.Parent ||

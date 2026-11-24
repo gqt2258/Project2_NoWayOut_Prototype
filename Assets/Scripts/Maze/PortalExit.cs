@@ -16,9 +16,6 @@ public class PortalExit : MonoBehaviour
     [SerializeField] Button yesButton;
     [SerializeField] Button noButton;
 
-    [Header("Scene")]
-    [SerializeField] string mainMenuSceneName = "Main Menu";
-
     Interactable interactable;
     bool paused;
 

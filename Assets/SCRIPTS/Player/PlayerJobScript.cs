@@ -51,6 +51,13 @@ public class PlayerJobScript : MonoBehaviour
         return dropped;
     }
 
+    // One carried item put down with the Drop button. It can be picked up again.
+    public void DropCarriedItem(string itemId)
+    {
+        if (carriedItems.Remove(itemId))
+            pickedUpCount = Mathf.Max(0, pickedUpCount - 1);
+    }
+
     public bool TryCollectItem(string itemId)
     {
         if (string.IsNullOrEmpty(itemId) || carriedItems.Contains(itemId) || depositedItems.Contains(itemId))

@@ -429,7 +429,7 @@ SpriteRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: -876546973899608171, guid: 2476a2d151e824143af40dce1fc93a12, type: 3}
+  - {fileID: 2100000, guid: 9dfc825aed78fcd4ba02077103263b40, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -984,13 +984,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 7f0b6189edbbd7d4eb65e611d608d3df, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::PlayerJobScript
-  jobDescriptionPanel: {fileID: 0}
-  jobPanelButton: {fileID: 0}
   pickedUpCount: 0
   carriedItems: []
   depositedItems: []
-  depositRadius: 1.5
-  autoDeposit: 0
 --- !u!114 &2826847298229425209
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1098,6 +1094,8 @@ MonoBehaviour:
   selectedItemText: {fileID: 0}
   selectedItemPopup: {fileID: 0}
   jobItemDescription: Bring this to the Deposit.
+  dropButton: {fileID: 0}
+  dropDistance: 0
   playerMovement: {fileID: 4423507963975890451}
   torchlightLayer: {fileID: 0}
   flashlightLine: Flashlight Range

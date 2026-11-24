@@ -32,7 +32,6 @@ MonoBehaviour:
   - {fileID: 11400000, guid: 3953afa67d531604f8e90d0ccf34001f, type: 2}
   - {fileID: 11400000, guid: 31bf444c0b62ace43934a1139f61eefd, type: 2}
   - {fileID: 11400000, guid: eaf13e0333363634c9e6c27ffade983c, type: 2}
-  - {fileID: 11400000, guid: c6bc0470bb441344ebbbae79d2201895, type: 2}
   - {fileID: 11400000, guid: 15bda9db5ebebd34685861e495c0c6a6, type: 2}
   - {fileID: 11400000, guid: 95ab206b1fbaf6d47bbe0d083e6d512a, type: 2}
   - {fileID: 11400000, guid: c1094069aa1f47e4d8faa74f67117caf, type: 2}
@@ -53,3 +52,5 @@ MonoBehaviour:
   - {fileID: 11400000, guid: df914efd34c24e84f8ed71dc07b917e1, type: 2}
   - {fileID: 11400000, guid: c1d1ca1ff33c74146833b8434d826269, type: 2}
   - {fileID: 11400000, guid: 91c7fff825648824c9067fff9bc73e7a, type: 2}
+  starterShirt: {fileID: 0}
+  starterFlashlight: {fileID: 0}

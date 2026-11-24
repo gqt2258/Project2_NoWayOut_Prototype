@@ -73,6 +73,64 @@ public class EnemyMovement : MonoBehaviour
 
     public bool IsChasing => isChasing;
 
+    // ---------- TOOLS (ToolEffects) ----------
+
+    private float stunnedUntil;
+    public bool IsStunned => Time.time < stunnedUntil;
+
+    // Flashbang / Bear Trap: stops still. forgetPlayer: stops chasing and goes back to loitering.
+    public void Stun(float seconds, bool forgetPlayer)
+    {
+        if (!enabled || agent == null || !agent.enabled)
+            return;   // co-op guest: the host runs the monster
+
+        stunnedUntil = Mathf.Max(stunnedUntil, Time.time + seconds);
+        if (agent.isOnNavMesh) agent.isStopped = true;
+        if (body != null) body.linearVelocity = Vector2.zero;
+
+        if (forgetPlayer)
+        {
+            isChasing = false;
+            unreachableSince = -1f;
+            ignorePlayerUntil = Time.time + seconds + 2f;   // a moment to get away
+            nextLoiterTime = Time.time + seconds;
+            if (agent.isOnNavMesh) agent.ResetPath();
+        }
+    }
+
+    // Noise Maker: walks to the noise and ignores players until it stops.
+    public void Distract(Vector3 target, float seconds)
+    {
+        if (!enabled || agent == null || !agent.enabled || !agent.isOnNavMesh)
+            return;
+
+        isChasing = false;
+        unreachableSince = -1f;
+        ignorePlayerUntil = Mathf.Max(ignorePlayerUntil, Time.time + seconds);
+        nextLoiterTime = Time.time + seconds;   // no wandering off until it's done
+
+        var filter = new NavMeshQueryFilter { agentTypeID = agent.agentTypeID, areaMask = agent.areaMask };
+        if (NavMesh.SamplePosition(target, out NavMeshHit hit, 3f, filter))
+        {
+            agent.speed = chaseSpeed;
+            agent.SetDestination(hit.position);
+        }
+    }
+
+    // Smoke Bomb: if the player it chases is now hidden by smoke, it loses them.
+    public void ForgetIfHiddenBySmoke()
+    {
+        if (!enabled || !isChasing || player == null)
+            return;
+        if (!SmokeZones.Blocks(transform.position, player.position))
+            return;
+
+        isChasing = false;
+        unreachableSince = -1f;
+        nextLoiterTime = Time.time;
+        if (agent != null && agent.isOnNavMesh) agent.ResetPath();
+    }
+
     private void OnEnable()
     {
         SubscribeToMaze();
@@ -102,8 +160,9 @@ public class EnemyMovement : MonoBehaviour
         body = GetComponent<Rigidbody2D>();
         Transform audioObject = transform.Find("Enemy Audio");
         enemyAudio = audioObject != null ? audioObject.GetComponent<AudioSource>() : null;
-        AudioManager.Instance?.ConfigureSpatialSource(enemyAudio, 18f);
-        AudioManager.Instance?.PlayMonsterWalk(enemyAudio, 18f);   // the monster is always walking
+        float hearing = AudioManager.Instance != null ? AudioManager.Instance.monsterHearingDistance : 12f;
+        AudioManager.Instance?.ConfigureSpatialSource(enemyAudio, hearing);
+        AudioManager.Instance?.PlayMonsterWalk(enemyAudio, hearing);   // the monster is always walking
         if (JobSession.IsCoop && NetworkManager.Singleton != null && !NetworkManager.Singleton.IsServer)
         {
             if (agent == null)
@@ -153,6 +212,12 @@ public class EnemyMovement : MonoBehaviour
         if (body == null || agent == null)
             return;
 
+        if (IsStunned)
+        {
+            body.linearVelocity = Vector2.zero;
+            return;
+        }
+
         body.linearVelocity = agent.enabled && agent.isOnNavMesh
             ? new Vector2(agent.desiredVelocity.x, agent.desiredVelocity.y)
             : Vector2.zero;
@@ -168,6 +233,15 @@ public class EnemyMovement : MonoBehaviour
         // MazeGenerator turns the agent on once the navmesh is built.
         if (agent == null || !agent.enabled)
             return;
+
+        // Stunned (flashbang / bear trap): stand still until it wears off.
+        if (IsStunned)
+        {
+            HandleAnimation();
+            return;
+        }
+        if (agent.isOnNavMesh && agent.isStopped)
+            agent.isStopped = false;
 
         if (!agent.isOnNavMesh)
         {
@@ -277,6 +351,13 @@ public class EnemyMovement : MonoBehaviour
         float distance = Vector2.Distance(transform.position, audioPlayer.position);
         audio.SetChase(isChasing && distance <= chaseMusicDistance);
         audio.SetHeartbeat(distance <= heartbeatDistance);
+
+        // Footsteps speed up while it chases (eases in and out, no sudden jump).
+        if (enemyAudio != null)
+        {
+            float target = isChasing && !IsStunned ? audio.monsterChaseSpeed : 1f;
+            enemyAudio.pitch = Mathf.MoveTowards(enemyAudio.pitch, target, 1.5f * Time.deltaTime);
+        }
     }
 
     private void OnDestroy()
@@ -296,11 +377,10 @@ public class EnemyMovement : MonoBehaviour
 
         if (sound == 0)
         {
-            audio.PlaySpatialSFX(enemyAudio, audio.MonsterSeenBass);
-            audio.PlaySpatialSFX(enemyAudio, audio.MonsterScream);
+            audio.PlaySpatialSFX(enemyAudio, audio.MonsterScream, audio.monsterVolume);
         }
         else if (sound == 1)
-            audio.PlaySpatialSFX(enemyAudio, audio.MonsterSlash);
+            audio.PlaySpatialSFX(enemyAudio, audio.MonsterSlash, audio.monsterVolume);
 
         if (broadcast && JobSession.IsCoop && NetworkManager.Singleton != null && NetworkManager.Singleton.IsServer &&
             NetworkManager.Singleton.LocalClient.PlayerObject != null)
@@ -526,6 +606,10 @@ public class EnemyMovement : MonoBehaviour
         float distance = directionToPlayer.magnitude;
         if (distance <= 0.01f)
             return true;
+
+        // Smoke Bomb: can't see into or through the smoke.
+        if (SmokeZones.Blocks(origin, target))
+            return false;
 
         int hitCount = Physics2D.RaycastNonAlloc(origin, directionToPlayer / distance, sightHits,
                                                   distance, lineOfSightLayers);

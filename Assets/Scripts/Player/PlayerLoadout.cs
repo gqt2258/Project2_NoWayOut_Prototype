@@ -1,3 +1,4 @@
+using NoWayOut.Maze;
 using System;
 using System.Collections.Generic;
 using System.Globalization;
@@ -41,6 +42,12 @@ public class PlayerLoadout : MonoBehaviour
     [SerializeField] GameObject selectedItemPopup;
     [Tooltip("Shown under a selected job item's name.")]
     [SerializeField] string jobItemDescription = "Bring this to the Deposit.";
+
+    [Header("Drop")]
+    [Tooltip("The Drop button. Only shown while an item is selected. Leave its On Click empty.")]
+    [SerializeField] Button dropButton;
+    [Tooltip("How far in front of the player the item lands. 0 = at their feet (never inside a wall).")]
+    [SerializeField, Min(0f)] float dropDistance = 0f;
 
     [Header("Upgrades")]
     [SerializeField] PlayerMovement playerMovement;
@@ -102,6 +109,55 @@ public class PlayerLoadout : MonoBehaviour
     {
         if (GetComponent<RadarController>() == null)
             gameObject.AddComponent<RadarController>();
+
+        if (dropButton != null)
+        {
+            if (dropButton.onClick.GetPersistentEventCount() == 0)
+                dropButton.onClick.AddListener(DropSelected);
+            dropButton.gameObject.SetActive(false);   // nothing selected yet
+        }
+    }
+
+    // Drop button: puts the selected tool or job item on the floor in front of the player.
+    // It can be picked up again (in co-op, by either player).
+    public void DropSelected()
+    {
+        if (selectedIndex < 0 || selectedIndex >= contents.Count || contents[selectedIndex] == null)
+            return;
+
+        MazeGenerator maze = FindAnyObjectByType<MazeGenerator>();
+        if (maze == null)
+        {
+            Debug.LogWarning("No MazeGenerator in the scene, so the item can't be dropped.", this);
+            return;
+        }
+
+        PlayerMovement movement = playerMovement != null ? playerMovement : GetComponent<PlayerMovement>();
+        Vector2 facing = movement != null ? movement.Facing : Vector2.down;
+        Vector3 spot = transform.position + (Vector3)(facing.normalized * dropDistance);
+
+        SlotContent content = contents[selectedIndex];
+        if (content.tool != null)
+        {
+            maze.DropTool(content.tool, spot);
+            Debug.Log($"Dropped {content.tool.displayName}.", this);
+        }
+        else if (content.jobItemId != null)
+        {
+            GetComponent<PlayerJobScript>()?.DropCarriedItem(content.jobItemId);
+            maze.DropJobItem(content.jobItemId, spot);
+            Debug.Log($"Dropped {content.jobItemName}.", this);
+        }
+
+        int dropped = selectedIndex;
+        ClearSlot(dropped);
+        selectedIndex = -1;
+        RefreshSlot(dropped);
+        AfterSelectionChange();
+
+        if (AudioManager.Instance != null)
+            AudioManager.Instance.PlaySFX(AudioManager.Instance.Player.Drop);
+        NetworkJobSync.ShareSound(PlayerSound.Drop);
     }
 
     void Start()
@@ -182,6 +238,7 @@ public class PlayerLoadout : MonoBehaviour
         AfterSelectionChange();
         if (hadItems && AudioManager.Instance != null)
             AudioManager.Instance.PlaySFX(AudioManager.Instance.Player.Drop);
+        if (hadItems) NetworkJobSync.ShareSound(PlayerSound.Drop);
         return droppedTools;
     }
 
@@ -216,6 +273,18 @@ public class PlayerLoadout : MonoBehaviour
             return;
 
         ShopItem tool = contents[slotIndex].tool;
+        PlayerMovement movement = playerMovement != null ? playerMovement : GetComponent<PlayerMovement>();
+        Vector2 facing = movement != null ? movement.Facing : Vector2.down;
+
+        // e.g. the Earth Wand with no shifting wall in front: keep the tool, error sound.
+        if (!ToolEffects.Get().CanUse(tool, transform.position, facing))
+        {
+            Debug.Log($"{tool.displayName} can't be used here.", this);
+            if (AudioManager.Instance != null)
+                AudioManager.Instance.PlaySFX(AudioManager.Instance.UI.ErrorClick);
+            return;
+        }
+
         ClearSlot(slotIndex);
         AfterSelectionChange();
 
@@ -223,6 +292,7 @@ public class PlayerLoadout : MonoBehaviour
         if (AudioManager.Instance != null)
             AudioManager.Instance.PlayToolUse(tool.displayName, transform.position);
         GetComponent<RadarController>()?.RevealTool(tool);
+        ToolEffects.Get().Use(tool, transform.position, facing);
         ItemUsed?.Invoke(tool);
     }
 
@@ -238,6 +308,7 @@ public class PlayerLoadout : MonoBehaviour
         // TryAdd is only used for picking things up in the maze.
         if (AudioManager.Instance != null)
             AudioManager.Instance.PlaySFX(AudioManager.Instance.Player.Grab);
+        NetworkJobSync.ShareSound(PlayerSound.Grab);
         return true;
     }
 
@@ -252,6 +323,8 @@ public class PlayerLoadout : MonoBehaviour
 
     void AfterSelectionChange()
     {
+        if (dropButton != null)
+            dropButton.gameObject.SetActive(selectedIndex >= 0 && selectedIndex < contents.Count && contents[selectedIndex] != null);
         RefreshSelectedText();
         SelectionChanged?.Invoke();
     }
@@ -308,7 +381,7 @@ public class PlayerLoadout : MonoBehaviour
         if (content == null)
             slots[index].ShowIcon(null, "", clickable: false);
         else if (content.tool != null)
-            slots[index].ShowIcon(content.tool.icon, content.tool.displayName, clickable: true);
+            slots[index].ShowIcon(content.tool.ShopIcon, content.tool.displayName, clickable: true);
         else
             slots[index].ShowIcon(content.jobItemIcon, content.jobItemName, clickable: true);
 
@@ -317,10 +390,20 @@ public class PlayerLoadout : MonoBehaviour
             background.color = index == selectedIndex ? selectedColor : slotColors[index];
     }
 
+    bool warnedNoSelectedText;
+
     void RefreshSelectedText()
     {
         if (selectedItemText == null)
+        {
+            if (!warnedNoSelectedText && selectedIndex >= 0)
+            {
+                warnedNoSelectedText = true;
+                Debug.LogWarning("PlayerLoadout: Selected Item Text is empty, so the selected item's name can't show. " +
+                                 "Drag a TMP text (e.g. above the hotbar) into PlayerLoadout > Selected Item Text.", this);
+            }
             return;
+        }
 
         SlotContent content = selectedIndex >= 0 ? contents[selectedIndex] : null;
         if (content == null)
@@ -333,6 +416,11 @@ public class PlayerLoadout : MonoBehaviour
         // Pops up only while something is selected.
         GameObject popup = selectedItemPopup != null ? selectedItemPopup : selectedItemText.gameObject;
         popup.SetActive(content != null);
+        if (content != null)
+        {
+            selectedItemText.gameObject.SetActive(true);   // in case the text itself was left turned off
+            popup.transform.SetAsLastSibling();            // drawn above the hotbar and other HUD
+        }
     }
 
     void ApplyUpgrades()
@@ -345,9 +433,18 @@ public class PlayerLoadout : MonoBehaviour
             playerMovement = GetComponent<PlayerMovement>();
         if (playerMovement != null)
             playerMovement.ApplyUpgrades(speed, stamina);
+        else if (speed > 0f || stamina > 0f)
+            Debug.LogWarning("Upgrades: Player Movement is empty on PlayerLoadout, so walk speed and " +
+                             "run stamina upgrades do nothing. Drag the Player in.", this);
 
-        if (torchlightLayer != null)
-            torchlightLayer.localScale *= 1f + flashlight;
+        FlashlightCone cone = torchlightLayer != null ? torchlightLayer.GetComponent<FlashlightCone>() : null;
+        if (cone != null)
+            cone.SetUpgradeBonus(flashlight);          // the cone gets wider
+        else if (torchlightLayer != null)
+            torchlightLayer.localScale *= 1f + flashlight;   // old round light: it gets bigger
+        else if (flashlight > 0f)
+            Debug.LogWarning("Upgrades: Torchlight Layer is empty on PlayerLoadout, so the flashlight " +
+                             "range upgrade does nothing. Drag the Torchlight Layer in.", this);
 
         Debug.Log($"Upgrades applied: flashlight +{flashlight:P0}, speed +{speed:P0}, stamina +{stamina:P0}.", this);
     }

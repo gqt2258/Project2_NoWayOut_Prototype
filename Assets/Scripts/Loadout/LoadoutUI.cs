@@ -3,17 +3,22 @@ using System.Collections.Generic;
 using System.Linq;
 using TMPro;
 using UnityEngine;
+using UnityEngine.EventSystems;
 
 // Goes on each player's Loadout panel. Updates each time the panel opens and whenever
-// the wallet changes. Equipment shows 6 to 8 boxes. Upgrades shows one box per upgrade.
+// the wallet changes. Shows the equipment taken into the next job: 6 to 8 boxes
+// (the Inventory upgrade adds boxes). Upgrades are seen in the Upgrades shop, not here.
 // Click an equipment box once to see its sell price, and click it again to sell it.
 // Player 2's panel (Is Local Player off) shows the co-op partner's loadout, live, read only.
-public class LoadoutUI : MonoBehaviour
+//
+// Cancelling a sell: tap an empty box or the panel's background
+// (the panel needs an Image with Raycast Target on for the background).
+public class LoadoutUI : MonoBehaviour, IPointerClickHandler
 {
     [SerializeField] ShopData database;
+    [Tooltip("The equipment box. Give it an Image for the icon and drag that into the box's Icon slot.")]
     [SerializeField] ShopItemSlot slotPrefab;
     [SerializeField] Transform equipmentContainer;
-    [SerializeField] Transform upgradeContainer;
 
     [Tooltip("Tick for this player's own panel. Untick for Player 2 (the co-op partner).")]
     [SerializeField] bool isLocalPlayer = true;
@@ -21,8 +26,8 @@ public class LoadoutUI : MonoBehaviour
     [SerializeField] TMP_Text titleText;
 
     readonly List<ShopItemSlot> equipmentBoxes = new List<ShopItemSlot>();
-    readonly List<ShopItemSlot> upgradeBoxes = new List<ShopItemSlot>();
     int sellIndex = -1;   // box waiting for the second click
+    bool warnedNoSellPanel;
 
     void OnEnable()
     {
@@ -51,7 +56,6 @@ public class LoadoutUI : MonoBehaviour
         PlayerProfile shown = Shown;
         RefreshTitle(shown);
         RefreshEquipment(shown);
-        RefreshUpgrades(shown);
     }
 
     void RefreshTitle(PlayerProfile shown)
@@ -67,36 +71,30 @@ public class LoadoutUI : MonoBehaviour
     void RefreshEquipment(PlayerProfile shown)
     {
         int slotCount = shown.EquipmentSlots;
-        SetBoxCount(equipmentBoxes, equipmentContainer, slotCount, OnEquipmentClicked);
+        SetBoxCount(equipmentBoxes, equipmentContainer, slotCount, OnEquipmentClicked, slotPrefab);
 
         for (int i = 0; i < slotCount; i++)
         {
             ShopItem item = GetEquipment(shown, i);
-            string detail = item != null && i == sellIndex
-                ? $"Sell +{PlayerWallet.Instance.SellPrice(item)}?"
-                : "";
+            bool selling = item != null && i == sellIndex;
+            ShopItemSlot box = equipmentBoxes[i];
 
-            equipmentBoxes[i].ShowLoadout(item, detail, isLocalPlayer);
-        }
-    }
-
-    void RefreshUpgrades(PlayerProfile shown)
-    {
-        var upgrades = database.GetFiltered(ShopType.Upgrade, "")
-            .GroupBy(item => item.upgradeLine)
-            .Select(line => line.OrderBy(item => item.level).ToList())
-            .ToList();
-
-        SetBoxCount(upgradeBoxes, upgradeContainer, upgrades.Count, null);
-
-        for (int i = 0; i < upgrades.Count; i++)
-        {
-            ShopItem current = upgrades[i].LastOrDefault(item => shown.Owned.Contains(item.itemId));
-
-            if (current != null)
-                upgradeBoxes[i].ShowLoadout(current, $"Level {current.level}: \n {current.description}");
+            if (box.HasSellPanel)
+            {
+                // The question goes on the panel over the box.
+                box.ShowLoadout(item, "", isLocalPlayer);
+                box.ShowSellPanel(selling ? $"Sell for {PlayerWallet.Instance.SellPrice(item)} coins?" : null);
+            }
             else
-                upgradeBoxes[i].ShowLoadout(upgrades[i][0], "Level 0 : \n No upgrades");
+            {
+                if (selling && !warnedNoSellPanel)
+                {
+                    warnedNoSellPanel = true;
+                    Debug.LogWarning("Loadout: the box has no Sell Panel, so the sell price shows in Price Text instead. " +
+                                     "Open the Loadout Slot prefab and drag the panel into ShopItemSlot > Sell Panel.", box);
+                }
+                box.ShowLoadout(item, selling ? $"Sell +{PlayerWallet.Instance.SellPrice(item)}?" : "", isLocalPlayer);
+            }
         }
     }
 
@@ -113,7 +111,11 @@ public class LoadoutUI : MonoBehaviour
     {
         if (!isLocalPlayer) return;   // the partner's loadout can't be sold from here
         ShopItem item = GetEquipment(Shown, index);
-        if (item == null) return;
+        if (item == null)
+        {
+            CancelSell();   // tapped an empty box
+            return;
+        }
 
         if (sellIndex == index)
         {
@@ -123,18 +125,37 @@ public class LoadoutUI : MonoBehaviour
         }
 
         sellIndex = index;
+        AudioManager.Instance?.PlayButtonClick();   // first tap: "Sell for … coins?"
         Refresh();
     }
 
+    // A tap on an empty box or the background.
+    void CancelSell()
+    {
+        if (sellIndex < 0) return;   // nothing waiting to be sold
+        sellIndex = -1;
+        AudioManager.Instance?.PlayButtonClick();
+        Refresh();
+    }
+
+    // A tap on the panel's background (not on a box).
+    public void OnPointerClick(PointerEventData eventData)
+    {
+        CancelSell();
+    }
+
     // Creates boxes the first time, then hides any extras.
-    void SetBoxCount(List<ShopItemSlot> boxes, Transform container, int count, Action<int> onClick)
+    void SetBoxCount(List<ShopItemSlot> boxes, Transform container, int count, Action<int> onClick, ShopItemSlot prefab)
     {
         while (boxes.Count < count)
         {
             int index = boxes.Count;
-            ShopItemSlot box = Instantiate(slotPrefab, container);
+            ShopItemSlot box = Instantiate(prefab, container);
             if (onClick != null)
-                box.OnItemClicked += _ => onClick(index);
+            {
+                box.OnBoxClicked += () => onClick(index);   // every tap, empty boxes too (tap again = sell)
+            }
+
 
             boxes.Add(box);
         }

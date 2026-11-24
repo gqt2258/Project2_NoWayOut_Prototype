@@ -68,6 +68,7 @@ public class DepositBox : MonoBehaviour
 
         if (AudioManager.Instance != null)
             AudioManager.Instance.PlaySFX(AudioManager.Instance.Player.Deposit);
+        NetworkJobSync.ShareSound(PlayerSound.Deposit);
     }
 
     void RefreshDisplay()

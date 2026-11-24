@@ -66,6 +66,7 @@ public class PlayerHealth : MonoBehaviour
 
         if (AudioManager.Instance != null)
             AudioManager.Instance.PlaySpatialSFX(hurtAudio, AudioManager.Instance.PlayerHurt);
+        NetworkJobSync.ShareSound(PlayerSound.Hurt);
 
         if (currentHealth <= 0)
             HandleAllHeartsLost();
@@ -91,6 +92,7 @@ public class PlayerHealth : MonoBehaviour
 
         if (AudioManager.Instance != null)
             AudioManager.Instance.PlaySFX(AudioManager.Instance.Player.Revive);
+        NetworkJobSync.ShareSound(PlayerSound.Revive);
         Debug.Log($"Player revived at the safe base. Revives left: {revivesLeft}.", this);
     }
 
@@ -162,10 +164,9 @@ public class PlayerHealth : MonoBehaviour
 
         if (AudioManager.Instance != null)
             AudioManager.Instance.PlaySpatialSFX(hurtAudio, AudioManager.Instance.PlayerDied);
+        NetworkJobSync.ShareSound(PlayerSound.Die);
 
-        GameplayEndScreen endScreen = FindAnyObjectByType<GameplayEndScreen>();
-        if (endScreen != null)
-            endScreen.ShowLose(RoundEndReason.OutOfRevives);
+        GameplayEndScreen.Get().ShowLose(RoundEndReason.OutOfRevives);
     }
 
     private void RefreshReviveBar()

@@ -5,8 +5,24 @@ using NoWayOut.Maze;
 // Controls the player-centred radar. The existing icons are kept hidden until a locator is used.
 public sealed class RadarController : MonoBehaviour
 {
+    [Tooltip("Item Locator: how long the nearest item shows on the radar.")]
     [SerializeField, Min(0.1f)] private float revealSeconds = 2f;
+    [Tooltip("Monster Locator: how long the monster shows on the radar.")]
+    [SerializeField, Min(0.1f)] private float monsterRevealSeconds = 4f;
     [SerializeField, Range(0.02f, 0.2f)] private float edgeMargin = 0.08f;
+
+    [Header("Marker art (optional)")]
+    [Tooltip("Item Locator marker. Empty = the found item's own radar icon.")]
+    [SerializeField] private Sprite itemMarkerIcon;
+    [Tooltip("Monster Locator marker. Empty = the monster's Enemy Minimap Icon picture.")]
+    [SerializeField] private Sprite monsterMarkerIcon;
+
+    [Header("Co-op partner")]
+    [Tooltip("Always show the other player on the radar (pinned to the edge when far away).")]
+    [SerializeField] private bool showPartner = true;
+    [Tooltip("Optional. The partner's radar icon. Empty = the Player Minimap Icon's picture, tinted.")]
+    [SerializeField] private Sprite partnerIcon;
+    [SerializeField] private Color partnerColour = new Color(0.3f, 0.85f, 1f);
 
     private Camera radarCamera;
     private Transform baseIndicator;
@@ -14,6 +30,9 @@ public sealed class RadarController : MonoBehaviour
     private Transform enemy;
     private SpriteRenderer itemMarker;
     private SpriteRenderer monsterMarker;
+    private SpriteRenderer partnerMarker;
+    private SpriteRenderer playerIconSource;
+    private Transform partner;
     private TextMeshProUGUI distanceText;
     private float tileSize = 1f;
     private float itemHideTime;
@@ -29,7 +48,10 @@ public sealed class RadarController : MonoBehaviour
 
         Transform playerIcon = transform.Find("Player Minimap Icon");
         if (playerIcon != null && playerIcon.TryGetComponent(out SpriteRenderer playerSprite))
+        {
             playerSprite.enabled = false;
+            playerIconSource = playerSprite;
+        }
 
         GameObject baseObject = GameObject.Find("Safe Base");
         safeBase = baseObject != null ? baseObject.transform : null;
@@ -50,6 +72,7 @@ public sealed class RadarController : MonoBehaviour
             {
                 sprite.enabled = false;
                 monsterMarker = MakeMarker("Monster Radar Marker", sprite);
+                if (monsterMarkerIcon != null) monsterMarker.sprite = monsterMarkerIcon;
             }
         }
 
@@ -81,6 +104,45 @@ public sealed class RadarController : MonoBehaviour
 
         UpdateMarker(itemMarker, revealedItem, itemHideTime);
         UpdateMarker(monsterMarker, enemy, monsterHideTime);
+        UpdatePartnerMarker();
+    }
+
+    // Co-op: the other player's dot, always shown.
+    private void UpdatePartnerMarker()
+    {
+        if (!showPartner || !JobSession.IsCoop)
+            return;
+
+        if (partner == null)
+        {
+            foreach (NetworkPlayerAvatar avatar in FindObjectsByType<NetworkPlayerAvatar>())
+                if (avatar.IsSpawned && !avatar.IsOwner)
+                    partner = avatar.transform;
+        }
+
+        if (partner != null && partnerMarker == null)
+        {
+            Sprite sprite = partnerIcon != null ? partnerIcon : playerIconSource != null ? playerIconSource.sprite : null;
+            if (sprite == null || baseIndicator == null)
+                return;   // nothing to draw it with
+
+            GameObject marker = new GameObject("Partner Radar Marker");
+            marker.layer = baseIndicator.gameObject.layer;   // seen by the MiniMap Camera
+            marker.transform.SetParent(transform);
+            marker.transform.localScale = playerIconSource != null
+                ? playerIconSource.transform.lossyScale / Mathf.Max(0.01f, transform.lossyScale.x)
+                : Vector3.one / Mathf.Max(0.01f, transform.lossyScale.x);
+            partnerMarker = marker.AddComponent<SpriteRenderer>();
+            partnerMarker.sprite = sprite;
+            partnerMarker.color = partnerColour;
+            partnerMarker.sortingOrder = playerIconSource != null ? playerIconSource.sortingOrder + 1 : 10;
+        }
+
+        if (partnerMarker == null)
+            return;
+        partnerMarker.enabled = partner != null;
+        if (partner != null)
+            partnerMarker.transform.position = ClampToRadar(partner.position);
     }
 
     public void RevealTool(ShopItem tool)
@@ -88,7 +150,7 @@ public sealed class RadarController : MonoBehaviour
         if (tool == null || radarCamera == null)
             return;
 
-        if (tool.itemId == "eq_itemloc")
+        if (tool.itemId == "eq_itemloc")   // Item Locator
         {
             MazeItemPickup nearest = null;
             float nearestDistance = float.PositiveInfinity;
@@ -114,14 +176,14 @@ public sealed class RadarController : MonoBehaviour
             {
                 if (itemMarker == null)
                     itemMarker = MakeMarker("Item Radar Marker", icon);
-                itemMarker.sprite = icon.sprite;
-                itemMarker.color = icon.color;
+                itemMarker.sprite = itemMarkerIcon != null ? itemMarkerIcon : icon.sprite;
+                itemMarker.color = itemMarkerIcon != null ? Color.white : icon.color;
             }
             itemHideTime = Time.time + revealSeconds;
         }
         else if (tool.itemId == "eq_monsterloc" && enemy != null)
         {
-            monsterHideTime = Time.time + revealSeconds;
+            monsterHideTime = Time.time + monsterRevealSeconds;
         }
     }
 

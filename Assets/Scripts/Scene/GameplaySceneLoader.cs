@@ -3,6 +3,23 @@ using UnityEngine;
 using UnityEngine.InputSystem;
 using UnityEngine.UI;
 
+// The Gameplay version of SceneLoader: opens and closes the Gameplay screens.
+// Put it on an object that is always on (e.g. Gameplay Settings), NOT on a panel.
+// Point each button's On Click here in the Inspector:
+//
+//   Case File / Job Description button -> ToggleCaseFile   (or OpenCaseFile / CloseCaseFile)
+//   Settings (gear) button             -> ToggleSettings
+//   Resume / Back to Game              -> CloseSettings
+//   End Job                            -> AskEndJob
+//   Back to Main Menu                  -> AskMainMenu
+//   Confirm Yes / No                   -> ConfirmYes / ConfirmNo
+//
+// The Case File is handled here. It also opens by itself when the job starts, as the briefing:
+// the player reads the case and presses Start Job (solo is paused until then).
+// After that the Case File / button opens the same file with a Close button.
+//
+// The Case File is handled here. Settings are passed on to GameplaySettings, which handles
+// pausing, solo / host / guest buttons and the confirm panel.
 public class GameplayScreenLoader : MonoBehaviour
 {
     [Header("Case File (job description)")]
@@ -117,6 +134,14 @@ public class GameplayScreenLoader : MonoBehaviour
         }
     }
 
+    // Solo: keeps the game paused while the briefing is open, even if Settings was opened
+    // and closed on top of it (closing Settings un-pauses the game).
+    void LateUpdate()
+    {
+        if (briefing && pausedByBriefing && Time.timeScale > 0f)
+            Time.timeScale = 0f;
+    }
+
     // Start Job button in the briefing.
     public void StartJob()
     {
@@ -127,10 +152,8 @@ public class GameplayScreenLoader : MonoBehaviour
         }
 
         briefing = false;
-        if (AudioManager.Instance != null)
-            AudioManager.Instance.PlaySFX(AudioManager.Instance.UI.JobConfirmClick);
         caseFileOpen = false;
-        RefreshCaseFile();
+        RefreshCaseFile();   // Case File Off only (it stops the button's default click playing too)
         SetButtons();
 
         if (pausedByBriefing)
@@ -150,7 +173,7 @@ public class GameplayScreenLoader : MonoBehaviour
     {
         if (briefing)
         {
-            StartJob();   
+            StartJob();   // the  button during the briefing works like Start Job
             return;
         }
         caseFileOpen = !caseFileOpen;
@@ -186,7 +209,7 @@ public class GameplayScreenLoader : MonoBehaviour
         RefreshCaseFile();
     }
 
-    void RefreshCaseFile()
+    void RefreshCaseFile(bool playSound = true)
     {
         if (caseFilePanel == null)
             return;
@@ -200,7 +223,7 @@ public class GameplayScreenLoader : MonoBehaviour
             PanelFade.Show(caseFilePanel);
         else
             PanelFade.Hide(caseFilePanel);
-        if (AudioManager.Instance != null)
+        if (playSound && AudioManager.Instance != null)
             AudioManager.Instance.PlaySFX(open ? AudioManager.Instance.UI.CaseFileOn : AudioManager.Instance.UI.CaseFileOff);
     }
 

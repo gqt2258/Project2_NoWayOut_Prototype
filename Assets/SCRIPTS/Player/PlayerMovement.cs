@@ -21,6 +21,9 @@ public class PlayerMovement : MonoBehaviour
     private float currentStamina;
     private float lastSprintTime = float.NegativeInfinity;
     private Vector2 moveInput;
+
+    // The way the player last moved (down = towards the camera at the start). Tools aim this way.
+    public Vector2 Facing { get; private set; } = Vector2.down;
     private bool isSprinting;
     private bool sprintHeld;        // Shift, or any other Sprint binding
     private bool sprintButtonHeld;
@@ -82,6 +85,7 @@ public class PlayerMovement : MonoBehaviour
                 // Out of breath.
                 if (AudioManager.Instance != null)
                     AudioManager.Instance.PlaySFX(AudioManager.Instance.Player.Panting);
+                NetworkJobSync.ShareSound(PlayerSound.Panting);
             }
         }
         else if (Time.time - lastSprintTime >= stats.staminaRecoveryDelay)
@@ -107,7 +111,7 @@ public class PlayerMovement : MonoBehaviour
         if (!isMoving)
             animator.speed = idleAnimationSpeed;
         else
-            animator.speed = isSprinting ? sprintAnimationSpeed : walkAnimationSpeed;
+            animator.speed = (isSprinting ? sprintAnimationSpeed : walkAnimationSpeed) * speedMultiplier;   // faster legs with the speed upgrade
 
         if (!isMoving) return; // keep the last direction for idle
 
@@ -142,6 +146,8 @@ public class PlayerMovement : MonoBehaviour
     public void Move(InputAction.CallbackContext context)
     {
         moveInput = context.ReadValue<Vector2>();
+        if (moveInput.sqrMagnitude > 0.04f)
+            Facing = moveInput.normalized;
     }
 
     public void Sprint(InputAction.CallbackContext context)

@@ -67,7 +67,6 @@ public static class ShopSeeder
         Make("eq_freezegun", E, "Wall Tools", "", "Freeze Gun", 0, "Locks a wall for a few seconds.", 50);
         Make("eq_gridscanner", E, "Wall Tools", "", "Grid Scanner", 0, "Reveals nearby walls for the next shift.", 60);
         Make("eq_earthwand", E, "Wall Tools", "", "Earth Wand", 0, "Forces a wall open or closed.", 80);
-        Make("eq_clueloc", E, "Others (Minimap)", "", "Clue Locator", 0, "Shows direction of the nearest clue.", 70);
         Make("eq_itemloc", E, "Others (Minimap)", "", "Item Locator", 0, "Shows direction of the nearest item.", 90);
         Make("eq_monsterloc", E, "Others (Minimap)", "", "Monster Locator", 0, "Shows the monster's direction for a few seconds.", 120);
 

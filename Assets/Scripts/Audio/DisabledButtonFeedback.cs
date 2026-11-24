@@ -10,22 +10,29 @@ using UnityEngine.UI;
 // To give a button a message, type it in Message on this component, or set it from code with
 // DisabledButtonFeedback.SetMessage(button, "...").
 [RequireComponent(typeof(Button))]
-public class DisabledButtonFeedback : MonoBehaviour, IPointerClickHandler
+public class DisabledButtonFeedback : MonoBehaviour, IPointerDownHandler, IPointerClickHandler
 {
     [Tooltip("Optional. Added to the server log when the greyed-out button is pressed. Empty = sound only.")]
     public string message;
 
     Button button;
+    bool disabledWhenPressed;   // a working button that greys itself out when pressed (e.g. the last page) is not an error
 
     void Awake()
     {
         button = GetComponent<Button>();
     }
 
+    public void OnPointerDown(PointerEventData eventData)
+    {
+        disabledWhenPressed = button != null && !button.IsInteractable();
+    }
+
     public void OnPointerClick(PointerEventData eventData)
     {
-        if (button == null || button.IsInteractable() || eventData.button != PointerEventData.InputButton.Left)
+        if (button == null || !disabledWhenPressed || eventData.button != PointerEventData.InputButton.Left)
             return;
+        disabledWhenPressed = false;
 
         if (!string.IsNullOrEmpty(message))
             GameServerLogs.AddError(message);   // also plays the error sound

@@ -158,13 +158,18 @@ public class AudioManager : MonoBehaviour
         new LocationAudio { Location = "Mansion" },
     };
 
-    // ---------- SFX NOT IN THE NEW GROUPS (still used by existing scripts) ----------
+    // ---------- OTHER ----------
 
-    [Header("Other SFX")]
+    [Header("Footsteps")]
     [Tooltip("Running plays the walk sound faster. 1 = same speed, 1.3 = 30% faster.")]
     [Range(1f, 2f)] public float runSpeed = 1.3f;
-    public AudioClip PlayerBleed;
-    public AudioClip MonsterSeenBass;
+    [Header("Monster")]
+    [Tooltip("Volume of all the monster's sounds (walk loop, scream, slash, hurt). 1 = full.")]
+    [Range(0f, 1f)] public float monsterVolume = 0.5f;
+    [Tooltip("How far away (world units) the monster's walking can be heard.")]
+    [Min(1f)] public float monsterHearingDistance = 12f;
+    [Tooltip("The monster's walking loop plays this much faster while it chases. 1 = no change.")]
+    [Range(1f, 2f)] public float monsterChaseSpeed = 1.3f;
 
     // ---------- OLD NAMES ----------
     // Other scripts still use these names. They now read from the new slots,
@@ -227,7 +232,16 @@ public class AudioManager : MonoBehaviour
 
     void Awake()
     {
-        if (Instance != null) { Destroy(gameObject); return; }
+        if (Instance != null)
+        {
+            // A second AudioManager (e.g. the prefab in Gameplay when coming from the Main Menu):
+            // silence it right away so its sources never play over the real one.
+            foreach (AudioSource source in GetComponentsInChildren<AudioSource>(true))
+                source.Stop();
+            gameObject.SetActive(false);
+            Destroy(gameObject);
+            return;
+        }
         Instance = this;
         DontDestroyOnLoad(gameObject);
 
@@ -290,6 +304,23 @@ public class AudioManager : MonoBehaviour
             PlayMusic(GameMusic);
             PlayAmbience(GameAmbience);
             PlaySFX(Player.Appear);   // arriving in the map through the portal
+            StartCoroutine(WarnAboutOtherMusic());
+        }
+    }
+
+    // Finds other looping sounds in the scene that aren't from this AudioManager (e.g. an old
+    // music object), which would play on top of the music.
+    IEnumerator WarnAboutOtherMusic()
+    {
+        yield return new WaitForSecondsRealtime(1f);
+        foreach (AudioSource source in FindObjectsByType<AudioSource>())
+        {
+            if (source == null || !source.isPlaying || !source.loop || source.transform.IsChildOf(transform))
+                continue;
+            if (source.clip != null && source.clip.length < 20f)
+                continue;   // short loops (footsteps, monster walk, portal hum) are fine
+            Debug.LogWarning($"[Audio] \"{source.name}\" is also playing a long loop ({source.clip?.name}). " +
+                             "If that is music, remove it: the AudioManager already plays the music.", source);
         }
     }
 
@@ -527,24 +558,25 @@ public class AudioManager : MonoBehaviour
 
     public void PlayMonsterScream(Vector3 position)
     {
-        PlaySFXAt(MonsterScream, position);
+        PlayVoice(MonsterScream, true, position, monsterVolume, monsterHearingDistance, false);
     }
 
     public void PlayMonsterHurt(Vector3 position)
     {
         LocationAudio location = CurrentLocation();
-        if (location != null) PlaySFXAt(location.MonsterHurt, position);
+        if (location != null) PlayVoice(location.MonsterHurt, true, position, monsterVolume, monsterHearingDistance, false);
     }
 
     public void PlayMonsterSlash(Vector3 position)
     {
-        PlayRandomSFXAt(Monster.SlashVariations, position);
+        PlayVoice(Pick(Monster.SlashVariations, null), true, position, monsterVolume, monsterHearingDistance, true);
     }
 
     public void PlayMonsterWalk(AudioSource monsterSource, float audibleDistance = -1f)
     {
         LocationAudio location = CurrentLocation();
         if (location != null) PlayLoopOn(monsterSource, location.MonsterWalk, audibleDistance);
+        if (monsterSource != null) monsterSource.volume = sfxVolume * monsterVolume;
     }
 
     // The "use" sound for a tool, found from its name (e.g. "Bear Trap" -> Tools.BearTrapUse).
@@ -575,6 +607,13 @@ public class AudioManager : MonoBehaviour
     public void PlayToolUse(string toolName, Vector3 position)
     {
         PlayToolUse(toolName);
+        effectRoutines.RemoveAll(routine => routine == null);
+        effectRoutines.Add(StartCoroutine(ToolEffect(toolName, position)));
+    }
+
+    // Co-op: the other player's tool, heard only where it happened (no 2D "use" sound).
+    public void PlayToolEffectAt(string toolName, Vector3 position)
+    {
         effectRoutines.RemoveAll(routine => routine == null);
         effectRoutines.Add(StartCoroutine(ToolEffect(toolName, position)));
     }
@@ -614,6 +653,22 @@ public class AudioManager : MonoBehaviour
                 yield return new WaitForSeconds(i == 0 ? 0.5f : 2.5f);
                 PlayNoiseMakerVoice(position);
             }
+        }
+    }
+
+    // Co-op: a sound the partner made, played in 3D from where they are.
+    public void PlayPartnerSound(PlayerSound sound, Vector3 position)
+    {
+        const float distance = 12f;
+        switch (sound)
+        {
+            case PlayerSound.Grab: PlaySFXAt(Player.Grab, position, distance); break;
+            case PlayerSound.Drop: PlaySFXAt(Player.Drop, position, distance); break;
+            case PlayerSound.Deposit: PlaySFXAt(Player.Deposit, position, distance); break;
+            case PlayerSound.Hurt: PlayRandomSFXAt(Player.HurtVariations, position, null, distance); break;
+            case PlayerSound.Die: PlaySFXAt(Player.Die, position, distance); break;
+            case PlayerSound.Revive: PlaySFXAt(Player.Revive, position, distance); break;
+            case PlayerSound.Panting: PlaySFXAt(Player.Panting, position, distance); break;
         }
     }
 

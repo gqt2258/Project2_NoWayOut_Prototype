@@ -11,8 +11,23 @@ using System;
 public class ShopItemSlot : MonoBehaviour, IPointerClickHandler
 {
     [SerializeField] private Image icon;
+    [Tooltip("Shown when an item has no icon yet, so the layout keeps its shape. " +
+             "Empty = a plain grey square.")]
+    [SerializeField] private Sprite missingIcon;
+    [SerializeField] private Color missingIconColour = new Color(0.5f, 0.5f, 0.5f, 0.6f);
     [SerializeField] private TMP_Text nameText;
     [SerializeField] private TMP_Text priceText;
+
+    [Header("Loadout: sell panel (optional)")]
+    [Tooltip("A panel covering this box, shown when the player taps to sell. Tap it again to sell. " +
+             "Turned off at the start.")]
+    [SerializeField] private GameObject sellPanel;
+    [Tooltip("Text on the sell panel, e.g. \"Sell for 29 coins?\". Empty = the first text inside the panel.")]
+    [SerializeField] private TMP_Text sellPanelText;
+    [Tooltip("The hint under the price.")]
+    [SerializeField] private string sellHint = "Tap again to sell";
+    [Tooltip("Optional. A separate text for the hint. Empty = it goes under the price, a bit smaller.")]
+    [SerializeField] private TMP_Text sellHintText;
 
     [Header("Upgrades only")]
     [SerializeField] private TMP_Text levelText;
@@ -31,8 +46,19 @@ public class ShopItemSlot : MonoBehaviour, IPointerClickHandler
     // Event to notify ShopUI when this panel's Upgrade button is clicked
     public event Action<ShopItem> OnUpgradeClicked;
 
+    public bool HasSellPanel => sellPanel != null;
+
+    // Any tap on this box, even an empty one (the Loadout uses it to cancel a sell).
+    public event Action OnBoxClicked;
+
     void Awake()
     {
+        if (sellPanel != null)
+        {
+            if (sellPanelText == null) sellPanelText = sellPanel.GetComponentInChildren<TMP_Text>(true);
+            sellPanel.SetActive(false);
+        }
+
         if (upgradeButton != null)
         {
             upgradeButton.onClick.AddListener(() =>
@@ -45,7 +71,7 @@ public class ShopItemSlot : MonoBehaviour, IPointerClickHandler
 
     public void OnPointerClick(PointerEventData eventData)
     {
-        Debug.Log("Panel clicked!");
+        OnBoxClicked?.Invoke();
 
         if (item != null)
         {
@@ -72,9 +98,35 @@ public class ShopItemSlot : MonoBehaviour, IPointerClickHandler
             priceText.gameObject.SetActive(false);
         }
 
-        icon.sprite = iconSprite;
-        icon.enabled = iconSprite != null;
+        SetIcon(iconSprite, iconSprite != null || !string.IsNullOrEmpty(label));
     }
+
+    // The icon is optional on a slot. An item with no picture yet shows the Missing Icon
+    // (or a grey square), so the layout looks the same. No item at all = no icon.
+    void SetIcon(Sprite sprite, bool hasItem = true)
+    {
+        if (icon == null) return;
+        if (iconColour == null) iconColour = icon.color;
+
+        if (sprite != null)
+        {
+            icon.sprite = sprite;
+            icon.color = iconColour.Value;
+            icon.enabled = true;
+        }
+        else if (hasItem)
+        {
+            icon.sprite = missingIcon;
+            icon.color = missingIcon != null ? iconColour.Value : missingIconColour;
+            icon.enabled = true;
+        }
+        else
+        {
+            icon.enabled = false;
+        }
+    }
+
+    Color? iconColour;   // the Icon's own colour, from the prefab
 
     public void Show(ShopItem newItem, bool owned)
     {
@@ -85,8 +137,7 @@ public class ShopItemSlot : MonoBehaviour, IPointerClickHandler
         bool worn = owned && PlayerWallet.Instance != null && PlayerWallet.Instance.IsWearing(item);
         priceText.text = worn ? "Equipped" : owned ? "Owned" : $"{item.price} Coins";
 
-        icon.sprite = item.ShopIcon;
-        icon.enabled = item.ShopIcon != null;
+        SetIcon(item.ShopIcon);
     }
 
     // current = highest level owned (null if none owned)
@@ -100,8 +151,7 @@ public class ShopItemSlot : MonoBehaviour, IPointerClickHandler
         int currentLevel = current != null ? current.level : 0;
 
         nameText.text = shown.displayName;
-        icon.sprite = shown.icon;
-        icon.enabled = shown.icon != null;
+        SetIcon(shown.ShopIcon);
 
         if (next == null)
         {
@@ -124,6 +174,39 @@ public class ShopItemSlot : MonoBehaviour, IPointerClickHandler
 
     // Used by LoadoutUI. Pass null for an empty box.
     // clickable boxes send OnItemClicked when pressed.
+    // The loadout's sell question, on the sell panel. null hides it.
+    public void ShowSellPanel(string question)
+    {
+        if (sellPanel == null) return;
+        bool show = !string.IsNullOrEmpty(question);
+        if (!show)
+        {
+            sellPanel.SetActive(false);
+            return;
+        }
+
+        sellPanel.transform.SetAsLastSibling();   // on top of the icon and texts
+        sellPanel.SetActive(true);
+        bool separateHint = sellHintText != null && sellHintText != sellPanelText;
+        if (separateHint)
+        {
+            sellHintText.gameObject.SetActive(!string.IsNullOrEmpty(sellHint));
+            sellHintText.text = sellHint;
+        }
+
+        if (sellPanelText != null)
+        {
+            sellPanelText.gameObject.SetActive(true);
+            sellPanelText.text = separateHint || string.IsNullOrEmpty(sellHint)
+                ? question
+                : $"{question}\n<size=70%>{sellHint}</size>";
+        }
+        else
+        {
+            Debug.LogWarning("Loadout: the Sell Panel has no TextMeshPro text inside it, so the price can't show.", sellPanel);
+        }
+    }
+
     public void ShowLoadout(ShopItem shown, string detail, bool clickable = false)
     {
         item = clickable ? shown : null;
@@ -139,8 +222,7 @@ public class ShopItemSlot : MonoBehaviour, IPointerClickHandler
             priceText.gameObject.SetActive(!string.IsNullOrEmpty(detail));   // equipment has no detail
         }
 
-        icon.sprite = shown != null ? shown.ShopIcon : null;
-        icon.enabled = shown != null && shown.ShopIcon != null;
+        SetIcon(shown != null ? shown.ShopIcon : null, shown != null);   // an empty box has no icon
     }
 
     public void Hide()

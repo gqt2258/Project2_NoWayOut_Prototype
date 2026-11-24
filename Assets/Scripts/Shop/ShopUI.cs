@@ -75,6 +75,7 @@ public class ShopUI : MonoBehaviour
 
     void OnItemClicked(ShopItem item)
     {
+        AudioManager.Instance?.PlayButtonClick();
         Select(item);
     }
 

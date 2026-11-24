@@ -126,6 +126,7 @@ public sealed class NearbyGames : MonoBehaviour
         {
             socket = new UdpClient(DiscoveryPort);
             socket.Client.Blocking = false;
+            IgnoreConnectionResets(socket);
             roomId = Guid.NewGuid().ToString("N");
             hosting = true;
         }
@@ -188,6 +189,7 @@ public sealed class NearbyGames : MonoBehaviour
             socket = new UdpClient(0);
             socket.EnableBroadcast = true;
             socket.Client.Blocking = false;
+            IgnoreConnectionResets(socket);
             return true;
         }
         catch (SocketException error)
@@ -223,11 +225,35 @@ public sealed class NearbyGames : MonoBehaviour
                 }
             }
         }
+        catch (SocketException error) when (error.SocketErrorCode == SocketError.ConnectionReset)
+        {
+            // Windows: the search also goes to this same computer (for testing). With no room
+            // hosted here, Windows reports "forcibly closed" on the next read. Harmless: keep listening.
+        }
         catch (SocketException error)
         {
             Debug.LogWarning($"Nearby Games stopped: {error.Message}", this);
             CloseSocket();
         }
+    }
+
+    // Windows only: stops UDP reporting "connection forcibly closed" when a search reaches
+    // a device (or this computer) with no room on it. Other platforms don't do this.
+    private static void IgnoreConnectionResets(UdpClient client)
+    {
+        // Compile-time check: the Device Simulator pretends to be a phone, but the editor
+        // underneath is still Windows, so this still has to run there.
+#if UNITY_EDITOR_WIN || UNITY_STANDALONE_WIN
+        try
+        {
+            const int SioUdpConnReset = -1744830452;
+            client.Client.IOControl(SioUdpConnReset, new byte[] { 0, 0, 0, 0 }, null);
+        }
+        catch (Exception)
+        {
+            // Not supported here: the catch in Update covers it.
+        }
+#endif
     }
 
     private static int PlayersInRoom()

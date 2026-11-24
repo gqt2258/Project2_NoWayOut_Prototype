@@ -36,6 +36,9 @@ public sealed class SharedJobData
 }
 
 // The host waits until every client has received the job before loading Gameplay.
+// Sounds a player makes that the other player hears from where they are (co-op).
+public enum PlayerSound : byte { Grab, Drop, Deposit, Hurt, Die, Revive, Panting }
+
 public sealed class NetworkJobSync : NetworkBehaviour
 {
     private readonly HashSet<ulong> waitingFor = new HashSet<ulong>();
@@ -357,7 +360,7 @@ public sealed class NetworkJobSync : NetworkBehaviour
 
     private void ShareResult(JobResult result, RoundEndReason reason, string itemId, string itemName)
     {
-        GameplayEndScreen screen = FindAnyObjectByType<GameplayEndScreen>();
+        GameplayEndScreen screen = GameplayEndScreen.Get();
         if (resultSent || screen == null || screen.IsFinished)
             return;
         resultSent = true;
@@ -368,7 +371,7 @@ public sealed class NetworkJobSync : NetworkBehaviour
     [Rpc(SendTo.NotServer)]
     private void ReceiveResultRpc(int result, int reason, string itemId, string itemName)
     {
-        FindAnyObjectByType<GameplayEndScreen>()?.ApplySharedResult((JobResult)result, (RoundEndReason)reason, itemId, itemName);
+        GameplayEndScreen.Get().ApplySharedResult((JobResult)result, (RoundEndReason)reason, itemId, itemName);
     }
 
     // Each player sends their revives / status to the other, for the results screen's Player Status.
@@ -382,6 +385,57 @@ public sealed class NetworkJobSync : NetworkBehaviour
     private void PlayerStatsRpc(int revivesLeft, int revivesTotal, bool isOut)
     {
         RoundResult.SetPartner(revivesLeft, revivesTotal, isOut);
+    }
+
+    // ---------- PLAYER SOUNDS FOR THE PARTNER ----------
+
+    // This player made a sound (grab, hurt, ...): the other player hears it from where this player is.
+    public static void ShareSound(PlayerSound sound)
+    {
+        NetworkManager network = NetworkManager.Singleton;
+        if (!JobSession.IsCoop || network == null || !network.IsListening || network.LocalClient?.PlayerObject == null)
+            return;
+        NetworkJobSync sync = network.LocalClient.PlayerObject.GetComponent<NetworkJobSync>();
+        if (sync != null && sync.IsSpawned)
+            sync.PlayerSoundRpc((byte)sound);
+    }
+
+    [Rpc(SendTo.NotMe, InvokePermission = RpcInvokePermission.Everyone)]
+    private void PlayerSoundRpc(byte sound)
+    {
+        // Runs on the partner's player object, which stands where the partner is.
+        AudioManager.Instance?.PlayPartnerSound((PlayerSound)sound, transform.position);
+    }
+
+    // ---------- EQUIPMENT (ToolEffects) ----------
+
+    // This player used a tool: the other player sees it too (and the host runs the monster part).
+    public void ShareToolUse(string itemId, Vector2 position, Vector2 facing)
+    {
+        if (!IsSpawned || !IsOwner) return;
+        ShopItem tool = null;
+        PlayerLoadout loadout = GameObject.Find("Player") != null ? GameObject.Find("Player").GetComponent<PlayerLoadout>() : null;
+        if (loadout != null) tool = loadout.FindTool(itemId);
+        ToolUsedRpc(itemId ?? "", position, facing, tool != null ? tool.displayName : itemId ?? "");
+    }
+
+    [Rpc(SendTo.NotMe, InvokePermission = RpcInvokePermission.Everyone)]
+    private void ToolUsedRpc(string itemId, Vector2 position, Vector2 facing, string toolName)
+    {
+        ToolEffects.Get().ApplyFromPartner(itemId, position, facing, toolName);
+    }
+
+    // Host: what the coming wall shift will change, for the guest's Grid Scanner.
+    public void ShareScannerPlan(string edges)
+    {
+        if (IsSpawned && IsServer)
+            ScannerPlanRpc(edges ?? "");
+    }
+
+    [Rpc(SendTo.NotServer)]
+    private void ScannerPlanRpc(string edges)
+    {
+        FindAnyObjectByType<MazeShiftController>()?.ReceiveScannerPlan(edges);
     }
 
     // ---------- RESULTS SCREEN (Main Menu) ----------

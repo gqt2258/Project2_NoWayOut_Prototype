@@ -1,11 +1,13 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using TMPro;
 using UnityEngine;
 
 // Goes on each player's Loadout panel. Updates each time the panel opens and whenever
 // the wallet changes. Equipment shows 6 to 8 boxes. Upgrades shows one box per upgrade.
 // Click an equipment box once to see its sell price, and click it again to sell it.
+// Player 2's panel (Is Local Player off) shows the co-op partner's loadout, live, read only.
 public class LoadoutUI : MonoBehaviour
 {
     [SerializeField] ShopData database;
@@ -13,8 +15,10 @@ public class LoadoutUI : MonoBehaviour
     [SerializeField] Transform equipmentContainer;
     [SerializeField] Transform upgradeContainer;
 
-    [Tooltip("Tick for this player's own panel. Untick for Player 2 until co-op data is connected.")]
+    [Tooltip("Tick for this player's own panel. Untick for Player 2 (the co-op partner).")]
     [SerializeField] bool isLocalPlayer = true;
+    [Tooltip("Optional. Shows e.g. \"Player 1: Bob (Host)\".")]
+    [SerializeField] TMP_Text titleText;
 
     readonly List<ShopItemSlot> equipmentBoxes = new List<ShopItemSlot>();
     readonly List<ShopItemSlot> upgradeBoxes = new List<ShopItemSlot>();
@@ -26,6 +30,7 @@ public class LoadoutUI : MonoBehaviour
         if (PlayerWallet.Instance == null) return;
 
         PlayerWallet.Instance.Changed += Refresh;
+        PlayerProfileSync.ProfilesChanged += Refresh;
         Refresh();
     }
 
@@ -33,22 +38,40 @@ public class LoadoutUI : MonoBehaviour
     {
         if (PlayerWallet.Instance != null)
             PlayerWallet.Instance.Changed -= Refresh;
+        PlayerProfileSync.ProfilesChanged -= Refresh;
     }
+
+    // This panel's player: this device, or the co-op partner.
+    PlayerProfile Shown => isLocalPlayer ? PlayerProfile.FromLocalWallet()
+                         : PlayerProfileSync.Partner != null ? PlayerProfileSync.Partner.Profile : new PlayerProfile();
 
     void Refresh()
     {
-        RefreshEquipment();
-        RefreshUpgrades();
+        if (this == null) return;
+        PlayerProfile shown = Shown;
+        RefreshTitle(shown);
+        RefreshEquipment(shown);
+        RefreshUpgrades(shown);
     }
 
-    void RefreshEquipment()
+    void RefreshTitle(PlayerProfile shown)
     {
-        int slotCount = isLocalPlayer ? PlayerWallet.Instance.EquipmentSlots : PlayerWallet.BaseEquipmentSlots;
+        if (titleText == null) return;
+        bool coop = JobSession.IsCoop && Unity.Netcode.NetworkManager.Singleton != null &&
+                    Unity.Netcode.NetworkManager.Singleton.IsListening;
+        bool host = isLocalPlayer ? coop && Unity.Netcode.NetworkManager.Singleton.IsServer : shown.IsHost;
+        string role = coop ? (host ? " (Host)" : " (Guest)") : "";
+        titleText.text = $"Player {(isLocalPlayer ? 1 : 2)}: {shown.Name}{role}";
+    }
+
+    void RefreshEquipment(PlayerProfile shown)
+    {
+        int slotCount = shown.EquipmentSlots;
         SetBoxCount(equipmentBoxes, equipmentContainer, slotCount, OnEquipmentClicked);
 
         for (int i = 0; i < slotCount; i++)
         {
-            ShopItem item = GetEquipment(i);
+            ShopItem item = GetEquipment(shown, i);
             string detail = item != null && i == sellIndex
                 ? $"Sell +{PlayerWallet.Instance.SellPrice(item)}?"
                 : "";
@@ -57,7 +80,7 @@ public class LoadoutUI : MonoBehaviour
         }
     }
 
-    void RefreshUpgrades()
+    void RefreshUpgrades(PlayerProfile shown)
     {
         var upgrades = database.GetFiltered(ShopType.Upgrade, "")
             .GroupBy(item => item.upgradeLine)
@@ -68,9 +91,7 @@ public class LoadoutUI : MonoBehaviour
 
         for (int i = 0; i < upgrades.Count; i++)
         {
-            ShopItem current = isLocalPlayer
-                ? upgrades[i].LastOrDefault(item => PlayerWallet.Instance.Owns(item))
-                : null;
+            ShopItem current = upgrades[i].LastOrDefault(item => shown.Owned.Contains(item.itemId));
 
             if (current != null)
                 upgradeBoxes[i].ShowLoadout(current, $"Level {current.level}: \n {current.description}");
@@ -79,18 +100,19 @@ public class LoadoutUI : MonoBehaviour
         }
     }
 
-    ShopItem GetEquipment(int index)
+    ShopItem GetEquipment(PlayerProfile shown, int index)
     {
-        if (!isLocalPlayer || index >= PlayerWallet.Instance.Equipment.Count)
+        if (index >= shown.Equipment.Count)
             return null;
 
-        string itemId = PlayerWallet.Instance.Equipment[index];
-        return database.items.FirstOrDefault(entry => entry.itemId == itemId);
+        string itemId = shown.Equipment[index];
+        return database.items.FirstOrDefault(entry => entry != null && entry.itemId == itemId);
     }
 
     void OnEquipmentClicked(int index)
     {
-        ShopItem item = GetEquipment(index);
+        if (!isLocalPlayer) return;   // the partner's loadout can't be sold from here
+        ShopItem item = GetEquipment(Shown, index);
         if (item == null) return;
 
         if (sellIndex == index)

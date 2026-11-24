@@ -10,6 +10,17 @@ public class ShopData : ScriptableObject
 {
     public List<ShopItem> items = new List<ShopItem>();
 
+    [Header("Starter look (worn when nothing is equipped in that slot)")]
+    [Tooltip("The starter shirt, e.g. the vest. Worn when no shirt is equipped.")]
+    public CosmeticLook starterShirt;
+    [Tooltip("The starter flashlight. Held when no flashlight skin is equipped.")]
+    public CosmeticLook starterFlashlight;
+    // No starter hat: with no hat equipped, the head is bare.
+
+    public CosmeticLook StarterLook(CosmeticSlot slot) =>
+        slot == CosmeticSlot.Shirt ? starterShirt :
+        slot == CosmeticSlot.FlashlightSkin ? starterFlashlight : null;
+
     public IEnumerable<ShopItem> GetByShop(ShopType shop) =>
         items.Where(i => i.shop == shop);
 

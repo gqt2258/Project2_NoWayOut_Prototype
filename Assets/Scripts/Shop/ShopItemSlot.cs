@@ -82,10 +82,11 @@ public class ShopItemSlot : MonoBehaviour, IPointerClickHandler
         gameObject.SetActive(true);
 
         nameText.text = item.displayName;
-        priceText.text = owned ? "Owned" : $"{item.price} Coins";
+        bool worn = owned && PlayerWallet.Instance != null && PlayerWallet.Instance.IsWearing(item);
+        priceText.text = worn ? "Equipped" : owned ? "Owned" : $"{item.price} Coins";
 
-        icon.sprite = item.icon;
-        icon.enabled = item.icon != null;
+        icon.sprite = item.ShopIcon;
+        icon.enabled = item.ShopIcon != null;
     }
 
     // current = highest level owned (null if none owned)
@@ -138,8 +139,8 @@ public class ShopItemSlot : MonoBehaviour, IPointerClickHandler
             priceText.gameObject.SetActive(!string.IsNullOrEmpty(detail));   // equipment has no detail
         }
 
-        icon.sprite = shown != null ? shown.icon : null;
-        icon.enabled = shown != null && shown.icon != null;
+        icon.sprite = shown != null ? shown.ShopIcon : null;
+        icon.enabled = shown != null && shown.ShopIcon != null;
     }
 
     public void Hide()

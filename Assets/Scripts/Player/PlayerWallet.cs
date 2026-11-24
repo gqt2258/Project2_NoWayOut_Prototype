@@ -23,6 +23,7 @@ public class PlayerWallet : MonoBehaviour
     const int StartingCoins = 1000;   // test amount for a new save
     const string CoinsKey = "PlayerWallet.Coins";
     const string OwnedItemsKey = "PlayerWallet.OwnedItems";
+    const string CosmeticsKey = "PlayerWallet.Cosmetics";
     const string EquipmentKey = "PlayerWallet.Equipment";
     public const int BaseEquipmentSlots = 6;
 
@@ -37,6 +38,7 @@ public class PlayerWallet : MonoBehaviour
     readonly HashSet<string> ownedItems = new HashSet<string>();
     readonly List<string> equipment = new List<string>();   // item ids, one per filled slot
     readonly List<string> lastMatchEquipment = new List<string>();   // what was taken into the current match
+    readonly Dictionary<CosmeticSlot, string> wornCosmetics = new Dictionary<CosmeticSlot, string>();   // one per slot
     int lastMatchEquipmentValue;   // what that equipment cost, set by PlayerLoadout
 
     // PlayerLoadout tells the wallet what the equipment taken into the match cost.
@@ -76,6 +78,7 @@ public class PlayerWallet : MonoBehaviour
     public event Action Changed;
     public int Coins => coins;
     public IReadOnlyList<string> Equipment => equipment;
+    public IReadOnlyCollection<string> OwnedItems => ownedItems;   // upgrades and cosmetics
     public bool IsEquipmentFull => equipment.Count >= EquipmentSlots;
 
     // 6 slots, plus 1 or 2 from the inventory upgrades, so 8 at most.
@@ -360,6 +363,8 @@ public class PlayerWallet : MonoBehaviour
             Debug.LogWarning("PlayerWallet: no CoinLogs text is active, so this purchase has no pop-up.");
         if (item.shop == ShopType.Equipment) equipment.Add(item.itemId);
         else ownedItems.Add(item.itemId);
+        if (item.Slot != CosmeticSlot.None)
+            wornCosmetics[item.Slot] = item.itemId;   // a new cosmetic is worn straight away
         Debug.Log($"Purchased {item.displayName} for {item.price}. Coins left: {coins}. Equipment: {equipment.Count}/{EquipmentSlots}.");
         if (AudioManager.Instance != null)
             AudioManager.Instance.PlaySFX(item.shop == ShopType.Upgrade
@@ -452,6 +457,32 @@ public class PlayerWallet : MonoBehaviour
         SaveAndNotify();
     }
 
+    // ---------- COSMETICS (worn) ----------
+
+    // The item id worn in this slot, or null.
+    public string WornCosmetic(CosmeticSlot slot) =>
+        wornCosmetics.TryGetValue(slot, out string itemId) ? itemId : null;
+
+    public bool IsWearing(ShopItem item) =>
+        item != null && item.Slot != CosmeticSlot.None && WornCosmetic(item.Slot) == item.itemId;
+
+    // Shop Equip / Unequip button. Only owned cosmetics can be worn. One per slot.
+    public bool ToggleCosmetic(ShopItem item)
+    {
+        if (item == null || item.Slot == CosmeticSlot.None || !Owns(item))
+            return false;
+
+        bool wearing = IsWearing(item);
+        if (wearing) wornCosmetics.Remove(item.Slot);
+        else wornCosmetics[item.Slot] = item.itemId;
+
+        if (AudioManager.Instance != null)
+            AudioManager.Instance.PlaySFX(wearing ? AudioManager.Instance.UI.CosmeticEquipOff
+                                                  : AudioManager.Instance.UI.CosmeticEquipOn);
+        SaveAndNotify();
+        return true;
+    }
+
     // Use for a New Game option, or from this component's menu during Play mode.
     [ContextMenu("Reset Saved Progress")]
     public void ResetProgress()
@@ -460,6 +491,7 @@ public class PlayerWallet : MonoBehaviour
         pendingChange = 0;
         ownedItems.Clear();
         equipment.Clear();
+        wornCosmetics.Clear();
         SaveAndNotify();
     }
 
@@ -471,6 +503,7 @@ public class PlayerWallet : MonoBehaviour
             PlayerPrefs.DeleteKey(CoinsKey);
             PlayerPrefs.DeleteKey(OwnedItemsKey);
             PlayerPrefs.DeleteKey(EquipmentKey);
+            PlayerPrefs.DeleteKey(CosmeticsKey);
         }
 #endif
 
@@ -484,6 +517,16 @@ public class PlayerWallet : MonoBehaviour
         equipment.Clear();
         saved = PlayerPrefs.GetString(EquipmentKey, "");
         equipment.AddRange(saved.Split(new[] { ',' }, StringSplitOptions.RemoveEmptyEntries));
+
+        // "Hat=cos_hat_beanie,Shirt=cos_shirt_hoodie"
+        wornCosmetics.Clear();
+        saved = PlayerPrefs.GetString(CosmeticsKey, "");
+        foreach (string pair in saved.Split(new[] { ',' }, StringSplitOptions.RemoveEmptyEntries))
+        {
+            string[] parts = pair.Split('=');
+            if (parts.Length == 2 && Enum.TryParse(parts[0], out CosmeticSlot slot) && ownedItems.Contains(parts[1]))
+                wornCosmetics[slot] = parts[1];
+        }
     }
 
     void SaveAndNotify()
@@ -491,6 +534,10 @@ public class PlayerWallet : MonoBehaviour
         PlayerPrefs.SetInt(CoinsKey, coins);
         PlayerPrefs.SetString(OwnedItemsKey, string.Join(",", ownedItems));
         PlayerPrefs.SetString(EquipmentKey, string.Join(",", equipment));
+        var worn = new List<string>();
+        foreach (var pair in wornCosmetics)
+            worn.Add($"{pair.Key}={pair.Value}");
+        PlayerPrefs.SetString(CosmeticsKey, string.Join(",", worn));
         PlayerPrefs.Save();
         RefreshCoinTexts();
         Changed?.Invoke();

@@ -37,6 +37,10 @@ public class ShopUI : MonoBehaviour
     [SerializeField] Button buyButton;
     [SerializeField] TMP_Text buyLabel;
 
+    [Header("Cosmetics (optional)")]
+    [Tooltip("A CharacterPreviewUI in this shop. The selected cosmetic is shown on it to try on.")]
+    [SerializeField] CharacterPreviewUI preview;
+
     [Header("Coins")]
     [SerializeField] TMP_Text coinText;
 
@@ -98,6 +102,7 @@ public class ShopUI : MonoBehaviour
     void OnDisable()
     {
         if (PlayerWallet.Instance != null) PlayerWallet.Instance.Changed -= OnWalletChanged;
+        if (preview != null) preview.TryOn(null);   // leaving the shop: back to what's worn
     }
 
     void OnWalletChanged()
@@ -169,6 +174,7 @@ public class ShopUI : MonoBehaviour
         if (IsUpgradeShop) return;   // the Upgrades layout has no selected item panel
 
         selected = item;
+        if (preview != null) preview.TryOn(item);
 
         if (selectedName != null)
             selectedName.text = item != null ? item.displayName : "";
@@ -180,8 +186,8 @@ public class ShopUI : MonoBehaviour
 
         if (selectedIcon != null)
         {
-            selectedIcon.sprite = item != null ? item.icon : null;
-            selectedIcon.enabled = item != null && item.icon != null;
+            selectedIcon.sprite = item != null ? item.ShopIcon : null;
+            selectedIcon.enabled = item != null && item.ShopIcon != null;
         }
         else
         {
@@ -203,7 +209,13 @@ public class ShopUI : MonoBehaviour
             return;
         }
 
-        if (IsOwned(selected))
+        if (IsOwned(selected) && selected.Slot != CosmeticSlot.None)
+        {
+            // Owned cosmetic: the same button wears / takes it off.
+            buyButton.interactable = true;
+            buyLabel.text = PlayerWallet.Instance.IsWearing(selected) ? "Unequip" : "Equip";
+        }
+        else if (IsOwned(selected))
         {
             buyButton.interactable = false;
             buyLabel.text = "Owned";
@@ -237,6 +249,11 @@ public class ShopUI : MonoBehaviour
     void OnBuyClicked()
     {
         if (selected == null || PlayerWallet.Instance == null) return;
+        if (IsOwned(selected) && selected.Slot != CosmeticSlot.None)
+        {
+            PlayerWallet.Instance.ToggleCosmetic(selected);   // fires Changed, which refreshes the UI
+            return;
+        }
         if (!PlayerWallet.Instance.TryPurchase(selected))   // fires Changed, which refreshes the UI
             PlayError();
     }

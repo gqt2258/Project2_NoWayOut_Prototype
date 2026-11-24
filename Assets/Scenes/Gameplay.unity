@@ -9705,6 +9705,7 @@ GameObject:
   - component: {fileID: 1718104157}
   - component: {fileID: 1718104159}
   - component: {fileID: 1718104158}
+  - component: {fileID: 1718104160}
   m_Layer: 5
   m_Name: Torchlight Layer
   m_TagString: Untagged
@@ -9769,6 +9770,28 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1718104156}
   m_CullTransparentMesh: 1
+--- !u!114 &1718104160
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1718104156}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d0189d2fc1a5a1042a592e8278386725, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::FlashlightCone
+  coneLength: 0.55
+  coneAngle: 60
+  circleRadius: 0.12
+  circleBrightness: 0.7
+  edgeSoftness: 0.3
+  darkness: 0.93
+  turnSpeed: 9999
+  database: {fileID: 11400000, guid: ae9822836dcbc7040ba5c9a6bd580d7d, type: 2}
+  defaultLightColour: {r: 1, g: 0.95, b: 0.8, a: 0.12}
+  textureSize: 512
 --- !u!1 &1733757145
 GameObject:
   m_ObjectHideFlags: 0
@@ -12869,6 +12892,14 @@ PrefabInstance:
       propertyPath: staminaBar
       value: 
       objectReference: {fileID: 513068680}
+    - target: {fileID: 4423507963975890451, guid: 95db552fa8af00e4785beae5b129470f, type: 3}
+      propertyPath: idleAnimationSpeed
+      value: 0.1
+      objectReference: {fileID: 0}
+    - target: {fileID: 4423507963975890451, guid: 95db552fa8af00e4785beae5b129470f, type: 3}
+      propertyPath: walkAnimationSpeed
+      value: 0.3
+      objectReference: {fileID: 0}
     - target: {fileID: 5667797656690697362, guid: 95db552fa8af00e4785beae5b129470f, type: 3}
       propertyPath: jobPanelButton
       value: 
@@ -12912,19 +12943,47 @@ PrefabInstance:
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
-    m_AddedComponents: []
+    m_AddedComponents:
+    - targetCorrespondingSourceObject: {fileID: 7878811516614966225, guid: 95db552fa8af00e4785beae5b129470f, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 888146076474378384}
   m_SourcePrefab: {fileID: 100100000, guid: 95db552fa8af00e4785beae5b129470f, type: 3}
+--- !u!212 &519195115739064874 stripped
+SpriteRenderer:
+  m_CorrespondingSourceObject: {fileID: 6683490971555374618, guid: 95db552fa8af00e4785beae5b129470f, type: 3}
+  m_PrefabInstance: {fileID: 519195115739064873}
+  m_PrefabAsset: {fileID: 0}
+--- !u!1 &519195115739064875 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 7878811516614966225, guid: 95db552fa8af00e4785beae5b129470f, type: 3}
+  m_PrefabInstance: {fileID: 519195115739064873}
+  m_PrefabAsset: {fileID: 0}
 --- !u!114 &888146076474378383 stripped
 MonoBehaviour:
   m_CorrespondingSourceObject: {fileID: 4423507963975890451, guid: 95db552fa8af00e4785beae5b129470f, type: 3}
   m_PrefabInstance: {fileID: 519195115739064873}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
+  m_GameObject: {fileID: 519195115739064875}
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 7b17bf5a61ef0d64da9529357a06bb60, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::PlayerMovement
+--- !u!114 &888146076474378384
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 519195115739064875}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 6280b60c759a702409edc414d93aae66, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::CharacterLayers
+  body: {fileID: 519195115739064874}
+  bodyLook: {fileID: 11400000, guid: 19c54409916fbce4886a7555e3fc52ad, type: 2}
+  database: {fileID: 11400000, guid: ae9822836dcbc7040ba5c9a6bd580d7d, type: 2}
 --- !u!114 &1048513166814029363
 MonoBehaviour:
   m_ObjectHideFlags: 0

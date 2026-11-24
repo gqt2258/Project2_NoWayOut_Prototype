@@ -65,6 +65,7 @@ public class SceneLoader : MonoBehaviour
 
     private void Start()
     {
+        PlayerProfileSync.ProfilesChanged += OnProfilesChanged;
         // Quick fade in whenever one of these screens opens.
         PanelFade.Add(lobbyBoard, jobBoard, mainMenuCanvas, lobbyCreate, Settings, Shop,
                       EquipmentShop, UpgradesShop, CosmeticsShop, Loadout, Player2Loadout, resultsPanel,
@@ -136,6 +137,7 @@ public class SceneLoader : MonoBehaviour
         {
             CoopSession.ReturnToLobby = false;
             CoopSession.JustReconnected = false;   // the lobby uses the server log, not the disconnect screen
+            partnerNameLogged = PlayerProfileSync.Partner != null ? PlayerProfileSync.Partner.Profile.Name : null;   // back from a job: no "has joined" again
             if (NetworkManager.Singleton.IsHost)
             {
                 NetworkManager.Singleton.OnClientConnectedCallback -= OnGuestConnected;
@@ -339,7 +341,7 @@ public class SceneLoader : MonoBehaviour
         jobBoard.SetActive(false);
         Settings.SetActive(false);
         lobbyCreate.SetActive(false);
-        PlayerSlot2.SetActive(true);
+        PlayerSlot2.SetActive(PlayerProfileSync.HasPartner);   // only once someone has joined
         Shop.SetActive(false);
         EquipmentShop.SetActive(false);
         UpgradesShop.SetActive(false);
@@ -591,10 +593,37 @@ public class SceneLoader : MonoBehaviour
     {
         if (NetworkManager.Singleton != null && clientId != NetworkManager.Singleton.LocalClientId)
         {
-            GameServerLogs.Add("A player has joined");
-            PlayUI(a => a.UI.ShopOn);   // Player 2 walks into the office
+            PlayUI(a => a.UI.ShopOn);   // Player 2 walks into the office (the log line comes with their name)
             StartCoroutine(SendRoomNameSoon());
         }
+    }
+
+    // ---------- THE OTHER PLAYER (co-op) ----------
+
+    private string partnerNameLogged;
+
+    // The partner joined, left, or changed their loadout / cosmetics / upgrades.
+    private void OnProfilesChanged()
+    {
+        PlayerProfileSync partner = PlayerProfileSync.Partner;
+        bool here = isCoopLobby && partner != null;
+
+        if (lobbyBoard.activeSelf && isCoopLobby)
+            PlayerSlot2.SetActive(here);
+        if (Loadout.activeSelf && isCoopLobby)
+            Player2Loadout.SetActive(here);
+
+        // "Jacob (Guest) has joined" once their name arrives.
+        if (here && partner.Profile.HasData && partnerNameLogged != partner.Profile.Name)
+        {
+            if (partnerNameLogged == null)
+                GameServerLogs.Add(partner.Profile.IsHost ? $"You joined {partner.Profile.Name} (Host)" : $"{partner.Profile.Name} (Guest) has joined");
+            else
+                GameServerLogs.Add($"{partnerNameLogged} is now called {partner.Profile.Name}");   // they renamed themselves
+            partnerNameLogged = partner.Profile.Name;
+        }
+        if (partner == null)
+            partnerNameLogged = null;
     }
 
     // Host side: the guest left the lobby.
@@ -604,7 +633,10 @@ public class SceneLoader : MonoBehaviour
             !lobbyBoard.activeInHierarchy && !jobBoard.activeInHierarchy && !Shop.activeInHierarchy && !Loadout.activeInHierarchy)
             return;
 
-        GameServerLogs.Add("The guest left the room");
+        if (LobbyPlayerSlot.KickedJustNow)
+            LobbyPlayerSlot.KickedJustNow = false;   // already logged "You removed ..."
+        else
+            GameServerLogs.Add("The guest left the room");
         PlayUI(a => a.UI.ShopOff);   // Player 2 leaves the office
     }
 
@@ -672,6 +704,7 @@ public class SceneLoader : MonoBehaviour
             return;
 
         network.OnClientDisconnectCallback -= OnHostLost;
+        bool removed = network.DisconnectReason == LobbyPlayerSlot.KickReason;   // the host pressed X
         if (network.IsListening && !network.ShutdownInProgress)
             network.Shutdown();
 
@@ -680,7 +713,7 @@ public class SceneLoader : MonoBehaviour
 
         // The Join screen has no server log, so the disconnect panel shows the message.
         if (DisconnectScreen.Instance != null)
-            DisconnectScreen.Instance.ShowKickedFromRoom();
+            DisconnectScreen.Instance.ShowKickedFromRoom(removed);
         else
             GameServerLogs.AddError("Disconnected from the room");
     }
@@ -708,6 +741,7 @@ public class SceneLoader : MonoBehaviour
 
     private void OnDestroy()
     {
+        PlayerProfileSync.ProfilesChanged -= OnProfilesChanged;
         StopWaitingForCoop();
         StopWatchingForGuests();
         if (NetworkManager.Singleton != null)
@@ -727,7 +761,7 @@ public class SceneLoader : MonoBehaviour
         EquipmentShop.SetActive(false);
         UpgradesShop.SetActive(false);
         CosmeticsShop.SetActive(false);
-        Player2Loadout.SetActive(isCoopLobby);   // solo only shows Player 1
+        Player2Loadout.SetActive(isCoopLobby && PlayerProfileSync.HasPartner);   // solo / alone: only Player 1
         Loadout.SetActive(true);
     }
 

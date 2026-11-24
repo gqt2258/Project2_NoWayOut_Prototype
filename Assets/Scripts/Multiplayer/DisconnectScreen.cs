@@ -194,10 +194,14 @@ public class DisconnectScreen : MonoBehaviour
     }
 
     // Main Menu: the guest was sent back to the Join screen because the room ended.
-    public void ShowKickedFromRoom()
+    // removedByHost: the host pressed X on this player in the lobby.
+    public void ShowKickedFromRoom(bool removedByHost = false)
     {
+        this.removedByHost = removedByHost;
         Show(State.KickedFromRoom);
     }
+
+    bool removedByHost;
 
     // Called through NetworkJobSync when the other player's app is paused or resumed.
     public void OnPartnerPaused(bool paused)
@@ -269,7 +273,8 @@ public class DisconnectScreen : MonoBehaviour
 
             case State.KickedFromRoom:
                 bool hostLeft = Time.unscaledTime - partnerLeftAt < 5f;
-                SetPanel("Disconnected",
+                SetPanel(removedByHost ? "Removed" : "Disconnected",
+                         removedByHost ? "The host removed you from the room." :
                          hostLeft ? "The host left the room." : "Lost connection to the host.",
                          "", true);
                 SetButtons("OK", Hide);

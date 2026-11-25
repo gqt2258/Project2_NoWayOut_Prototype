@@ -1,0 +1,614 @@
+fileFormatVersion: 2
+guid: a0e38b113863079a81b231b136f2a1e2
+TextureImporter:
+  internalIDToNameTable:
+  - first:
+      213: -7473939106303966886
+    second: prison monster lose sight back_0
+  - first:
+      213: 3471836248495804503
+    second: prison monster lose sight back_1
+  - first:
+      213: -1847450452739152592
+    second: prison monster lose sight back_2
+  - first:
+      213: -7023204918107713988
+    second: prison monster lose sight back_3
+  - first:
+      213: -265855475126015074
+    second: prison monster lose sight back_4
+  - first:
+      213: -1002241468307136046
+    second: prison monster lose sight back_5
+  - first:
+      213: 3076372886919957477
+    second: prison monster lose sight back_6
+  - first:
+      213: -5747250490375382266
+    second: prison monster lose sight back_7
+  - first:
+      213: 4221255317165359070
+    second: prison monster lose sight back_8
+  - first:
+      213: -2121722856487561628
+    second: prison monster lose sight back_9
+  - first:
+      213: 1651490581878813024
+    second: prison monster lose sight back_10
+  - first:
+      213: -6645934226788170083
+    second: prison monster lose sight back_11
+  - first:
+      213: 164624558710183928
+    second: prison monster lose sight back_12
+  - first:
+      213: -5357495032036805105
+    second: prison monster lose sight back_13
+  - first:
+      213: -5211026841925617559
+    second: prison monster lose sight back_14
+  - first:
+      213: -8878127760361589045
+    second: prison monster lose sight back_15
+  - first:
+      213: -5034342007818578446
+    second: prison monster lose sight back_16
+  - first:
+      213: -3529020427557921294
+    second: prison monster lose sight back_17
+  - first:
+      213: 1073733851554532014
+    second: prison monster lose sight back_18
+  - first:
+      213: -579085183704992278
+    second: prison monster lose sight back_19
+  - first:
+      213: -3548727586180765882
+    second: prison monster lose sight back_20
+  - first:
+      213: 4707657858157303311
+    second: prison monster lose sight back_21
+  - first:
+      213: 3573925121045301823
+    second: prison monster lose sight back_22
+  - first:
+      213: -2935484109899295205
+    second: prison monster lose sight back_23
+  - first:
+      213: 4116598824024948304
+    second: prison monster lose sight back_24
+  - first:
+      213: -5467076234687571540
+    second: prison monster lose sight back_25
+  - first:
+      213: 3171498367009722087
+    second: prison monster lose sight back_26
+  - first:
+      213: 6513807481788435330
+    second: prison monster lose sight back_27
+  - first:
+      213: 6092233639361444157
+    second: prison monster lose sight back_28
+  - first:
+      213: 6291624337858457946
+    second: prison monster lose sight back_29
+  - first:
+      213: 9024677222804389184
+    second: prison monster lose sight back_30
+  - first:
+      213: -6881120483344715161
+    second: prison monster lose sight back_31
+  - first:
+      213: 588468209207997567
+    second: prison monster lose sight back_32
+  - first:
+      213: -7062679985198826941
+    second: prison monster lose sight back_33
+  - first:
+      213: -8654835421959067393
+    second: prison monster lose sight back_34
+  - first:
+      213: 90988627004507088
+    second: prison monster lose sight back_35
+  - first:
+      213: 5947577267801318427
+    second: prison monster lose sight back_36
+  - first:
+      213: -1912808128534222995
+    second: prison monster lose sight back_37
+  - first:
+      213: 5295273781071526344
+    second: prison monster lose sight back_38
+  - first:
+      213: 375184072491632347
+    second: prison monster lose sight back_39
+  - first:
+      213: -747260915392132655
+    second: prison monster lose sight back_40
+  - first:
+      213: 264849246701485149
+    second: prison monster lose sight back_41
+  - first:
+      213: -293650920342045391
+    second: prison monster lose sight back_42
+  - first:
+      213: 1856237672635802554
+    second: prison monster lose sight back_43
+  - first:
+      213: 541524576668387249
+    second: prison monster lose sight back_44
+  - first:
+      213: -8941213528379933001
+    second: prison monster lose sight back_45
+  - first:
+      213: -360392129980357174
+    second: prison monster lose sight back_46
+  - first:
+      213: 4209849364729938488
+    second: prison monster lose sight back_47
+  - first:
+      213: 8252520276098618307
+    second: prison monster lose sight back_48
+  - first:
+      213: -294753101279470297
+    second: prison monster lose sight back_49
+  - first:
+      213: 6529188460827113480
+    second: prison monster lose sight back_50
+  - first:
+      213: -7307156737535586177
+    second: prison monster lose sight back_51
+  - first:
+      213: 2016893308017245361
+    second: prison monster lose sight back_52
+  - first:
+      213: 4136498258082010408
+    second: prison monster lose sight back_53
+  - first:
+      213: -2396380271796616209
+    second: prison monster lose sight back_54
+  externalObjects: {}
+  serializedVersion: 13
+  mipmaps:
+    mipMapMode: 0
+    enableMipMap: 0
+    sRGBTexture: 1
+    linearTexture: 0
+    fadeOut: 0
+    borderMipMap: 0
+    mipMapsPreserveCoverage: 0
+    alphaTestReferenceValue: 0.5
+    mipMapFadeDistanceStart: 1
+    mipMapFadeDistanceEnd: 3
+  bumpmap:
+    convertToNormalMap: 0
+    externalNormalMap: 0
+    heightScale: 0.25
+    normalMapFilter: 0
+    flipGreenChannel: 0
+  isReadable: 0
+  streamingMipmaps: 0
+  streamingMipmapsPriority: 0
+  vTOnly: 0
+  ignoreMipmapLimit: 0
+  grayScaleToAlpha: 0
+  generateCubemap: 6
+  cubemapConvolution: 0
+  seamlessCubemap: 0
+  textureFormat: 1
+  maxTextureSize: 2048
+  textureSettings:
+    serializedVersion: 2
+    filterMode: 0
+    aniso: 1
+    mipBias: 0
+    wrapU: 1
+    wrapV: 1
+    wrapW: 1
+  nPOTScale: 0
+  lightmap: 0
+  compressionQuality: 50
+  spriteMode: 2
+  spriteExtrude: 1
+  spriteMeshType: 1
+  alignment: 0
+  spritePivot: {x: 0.5, y: 0.5}
+  spritePixelsToUnits: 16
+  spriteBorder: {x: 0, y: 0, z: 0, w: 0}
+  spriteGenerateFallbackPhysicsShape: 1
+  alphaUsage: 1
+  alphaIsTransparency: 1
+  spriteTessellationMethod: 0
+  spriteTessellationDetail: -1
+  spriteGeometrySubdivision: -1
+  textureType: 8
+  textureShape: 1
+  singleChannelComponent: 0
+  flipbookRows: 1
+  flipbookColumns: 1
+  maxTextureSizeSet: 0
+  compressionQualitySet: 0
+  textureFormatSet: 0
+  ignorePngGamma: 0
+  applyGammaDecoding: 0
+  swizzle: 50462976
+  cookieLightType: 0
+  platformSettings:
+  - serializedVersion: 4
+    buildTarget: DefaultTexturePlatform
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  - serializedVersion: 4
+    buildTarget: Standalone
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  - serializedVersion: 4
+    buildTarget: Android
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  - serializedVersion: 4
+    buildTarget: VisionOS
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  - serializedVersion: 4
+    buildTarget: tvOS
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  - serializedVersion: 4
+    buildTarget: iOS
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  spriteSheet:
+    serializedVersion: 2
+    sprites:
+    - serializedVersion: 2
+      name: prison monster lose sight back_0
+      rect:
+        serializedVersion: 2
+        x: 0
+        y: 0
+        width: 48
+        height: 60
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 1b975d0d154b7467853397acb3531def
+      internalID: -7473939106303966886
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: prison monster lose sight back_1
+      rect:
+        serializedVersion: 2
+        x: 48
+        y: 0
+        width: 48
+        height: 60
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 26796521f9361eb710cdf5c08fdb3329
+      internalID: 3471836248495804503
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: prison monster lose sight back_2
+      rect:
+        serializedVersion: 2
+        x: 96
+        y: 0
+        width: 48
+        height: 60
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: eabe8632f61dd969f9b9753b3baccb67
+      internalID: -1847450452739152592
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: prison monster lose sight back_3
+      rect:
+        serializedVersion: 2
+        x: 144
+        y: 0
+        width: 48
+        height: 60
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: e213c4fb4388b9425c8a3fd259063c1c
+      internalID: -7023204918107713988
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: prison monster lose sight back_4
+      rect:
+        serializedVersion: 2
+        x: 192
+        y: 0
+        width: 48
+        height: 60
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 86e0d4701df5a54618eba91f972e8cdc
+      internalID: -265855475126015074
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: prison monster lose sight back_5
+      rect:
+        serializedVersion: 2
+        x: 240
+        y: 0
+        width: 48
+        height: 60
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 56c12732a3254a9a46a666f3f28e5fc9
+      internalID: -1002241468307136046
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: prison monster lose sight back_6
+      rect:
+        serializedVersion: 2
+        x: 288
+        y: 0
+        width: 48
+        height: 60
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: cde1858382c742bbba9bced61f8ae72d
+      internalID: 3076372886919957477
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: prison monster lose sight back_7
+      rect:
+        serializedVersion: 2
+        x: 336
+        y: 0
+        width: 48
+        height: 60
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 8afbf5ed7bfa145d6fee836db0d69831
+      internalID: -5747250490375382266
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: prison monster lose sight back_8
+      rect:
+        serializedVersion: 2
+        x: 384
+        y: 0
+        width: 48
+        height: 60
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 885bb0e08c9511ad223ab0199912a81b
+      internalID: 4221255317165359070
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: prison monster lose sight back_9
+      rect:
+        serializedVersion: 2
+        x: 432
+        y: 0
+        width: 48
+        height: 60
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 0673335fc2bdaa0cd501b508e689a7bf
+      internalID: -2121722856487561628
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: prison monster lose sight back_10
+      rect:
+        serializedVersion: 2
+        x: 480
+        y: 0
+        width: 48
+        height: 60
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: ef2088452a7ed4364424c97cbc6c00fb
+      internalID: 1651490581878813024
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: prison monster lose sight back_11
+      rect:
+        serializedVersion: 2
+        x: 528
+        y: 0
+        width: 48
+        height: 60
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 5176c5a3e054d6599c4fa4671886b420
+      internalID: -6645934226788170083
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    outline: []
+    customData: 
+    physicsShape: []
+    bones: []
+    spriteID: da8d46193b5c9d4173b0561c86956aa4
+    internalID: 0
+    vertices: []
+    indices: 
+    edges: []
+    weights: []
+    secondaryTextures: []
+    spriteCustomMetadata:
+      entries:
+      - key: SpriteEditor.SliceSettings
+        value: '{"sliceOnImport":false,"gridCellCount":{"x":12.0,"y":1.0},"gridSpriteSize":{"x":48.0,"y":60.0},"gridSpriteOffset":{"x":0.0,"y":0.0},"gridSpritePadding":{"x":0.0,"y":0.0},"pivot":{"x":0.5,"y":0.5},"pivotPixels":{"x":0.0,"y":0.0},"autoSlicingMethod":0,"spriteAlignment":0,"pivotUnitMode":0,"slicingType":2,"keepEmptyRects":false,"isAlternate":false}'
+    nameFileIdTable:
+      prison monster lose sight back_0: -7473939106303966886
+      prison monster lose sight back_1: 3471836248495804503
+      prison monster lose sight back_10: 1651490581878813024
+      prison monster lose sight back_11: -6645934226788170083
+      prison monster lose sight back_2: -1847450452739152592
+      prison monster lose sight back_3: -7023204918107713988
+      prison monster lose sight back_4: -265855475126015074
+      prison monster lose sight back_5: -1002241468307136046
+      prison monster lose sight back_6: 3076372886919957477
+      prison monster lose sight back_7: -5747250490375382266
+      prison monster lose sight back_8: 4221255317165359070
+      prison monster lose sight back_9: -2121722856487561628
+  mipmapLimitGroupName: 
+  pSDRemoveMatte: 0
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 

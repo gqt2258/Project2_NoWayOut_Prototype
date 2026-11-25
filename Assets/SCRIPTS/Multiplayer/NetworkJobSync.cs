@@ -262,6 +262,9 @@ public sealed class NetworkJobSync : NetworkBehaviour
 
     public override void OnNetworkSpawn()
     {
+        // Every copy (also the host's copy of the guest) is ready for the next job's result.
+        // Before, only the owner's copy reset, so after one job the host ignored the guest's result.
+        SceneManager.sceneLoaded += ResetForNewScene;
         if (IsOwner)
         {
             SceneManager.sceneLoaded += OnSceneLoaded;
@@ -288,6 +291,7 @@ public sealed class NetworkJobSync : NetworkBehaviour
         if (scene.name == "Gameplay")
         {
             resultSent = false;
+            PartnerOut = false;   // a new job: both players are in
             StartCoroutine(ConnectMaze());
         }
         else
@@ -385,6 +389,80 @@ public sealed class NetworkJobSync : NetworkBehaviour
     private void PlayerStatsRpc(int revivesLeft, int revivesTotal, bool isOut)
     {
         RoundResult.SetPartner(revivesLeft, revivesTotal, isOut);
+    }
+
+    // ---------- CO-OP: A PLAYER IS OUT (no revives left) ----------
+
+    // True once the other player has gone down with no revives left in this job.
+    public static bool PartnerOut { get; private set; }
+
+    [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.SubsystemRegistration)]
+    private static void ResetPartnerOut() => PartnerOut = false;
+
+    public void SharePlayerOut()
+    {
+        if (IsSpawned && IsOwner)
+            PlayerOutRpc();
+    }
+
+    [Rpc(SendTo.NotMe, InvokePermission = RpcInvokePermission.Everyone)]
+    private void PlayerOutRpc()
+    {
+        PartnerOut = true;
+        NetworkPlayerAvatar avatar = GetComponent<NetworkPlayerAvatar>();
+        if (avatar != null) avatar.IsOut = true;   // their character disappears for the survivor
+
+        // Already out here too: both players are out, so the job fails.
+        GameObject player = GameObject.Find("Player");
+        PlayerHealth health = player != null ? player.GetComponent<PlayerHealth>() : null;
+        if (health != null && health.IsOut)
+            GameplayEndScreen.Get().ShowLose(RoundEndReason.OutOfRevives);
+    }
+
+    // ---------- JOB BOARD (the guest sees the host's) ----------
+
+    // This device's own NetworkJobSync, or null outside a co-op room.
+    public static NetworkJobSync Local
+    {
+        get
+        {
+            NetworkManager network = NetworkManager.Singleton;
+            if (!JobSession.IsCoop || network == null || !network.IsListening || network.LocalClient?.PlayerObject == null)
+                return null;
+            NetworkJobSync sync = network.LocalClient.PlayerObject.GetComponent<NetworkJobSync>();
+            return sync != null && sync.IsSpawned ? sync : null;
+        }
+    }
+
+    // Guest: asks the host for its board (when the guest opens the Job Board).
+    public void RequestBoard()
+    {
+        if (IsServer)
+            return;
+        if (IsOwner)
+            RequestBoardRpc();
+    }
+
+    [Rpc(SendTo.Server, InvokePermission = RpcInvokePermission.Everyone)]
+    private void RequestBoardRpc()
+    {
+        ShareBoard();
+    }
+
+    // Host: sends the board to the guest (after a request, and whenever the host confirms a job).
+    public void ShareBoard()
+    {
+        if (!IsServer)
+            return;
+        JobBoardController board = FindAnyObjectByType<JobBoardController>(FindObjectsInactive.Include);
+        if (board != null)
+            ReceiveBoardRpc(board.GetBoardForGuest());
+    }
+
+    [Rpc(SendTo.NotServer)]
+    private void ReceiveBoardRpc(string json)
+    {
+        FindAnyObjectByType<JobBoardController>(FindObjectsInactive.Include)?.ShowHostBoard(json);
     }
 
     // ---------- PLAYER SOUNDS FOR THE PARTNER ----------
@@ -601,8 +679,15 @@ public sealed class NetworkJobSync : NetworkBehaviour
         action?.Invoke();
     }
 
+    private void ResetForNewScene(Scene scene, LoadSceneMode mode)
+    {
+        resultSent = false;
+        returning = false;
+    }
+
     public override void OnNetworkDespawn()
     {
+        SceneManager.sceneLoaded -= ResetForNewScene;
         SceneManager.sceneLoaded -= OnSceneLoaded;
         NetworkManager.OnClientDisconnectCallback -= OnGameDisconnected;
         if (maze != null)

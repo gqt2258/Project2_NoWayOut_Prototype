@@ -1,0 +1,37 @@
+﻿#include "pch-c.h"
+
+
+#include "codegen/il2cpp-codegen-metadata.h"
+
+
+
+
+
+extern void Ngo1WithUtp2AdapterInitializer_InitializeAdapter_m4B60A4320F9BC257F98480406B58D8B167184EF6 (void);
+extern void Ngo1WithUtp2AdapterInitializer_AddAdapter_mE2173ADD84361F91766E57CF58FCDB6506941B80 (void);
+extern void Ngo1WithUtp2AdapterInitializer_RemoveAdapter_m3ADAC1D18F14724B3A10E50530E2D8DA4DD1D27E (void);
+extern void Ngo1WithUtp2AdapterInitializer__cctor_m6A17980B8B43AB8D97292B2A0425BCD956EE3C56 (void);
+extern void NetworkVariableSerializationHelper_InitializeSerialization_mE85497859622E01EF6B7CD79D1E18ABBEE218864 (void);
+static Il2CppMethodPointer s_methodPointers[5] = 
+{
+	Ngo1WithUtp2AdapterInitializer_InitializeAdapter_m4B60A4320F9BC257F98480406B58D8B167184EF6,
+	Ngo1WithUtp2AdapterInitializer_AddAdapter_mE2173ADD84361F91766E57CF58FCDB6506941B80,
+	Ngo1WithUtp2AdapterInitializer_RemoveAdapter_m3ADAC1D18F14724B3A10E50530E2D8DA4DD1D27E,
+	Ngo1WithUtp2AdapterInitializer__cctor_m6A17980B8B43AB8D97292B2A0425BCD956EE3C56,
+	NetworkVariableSerializationHelper_InitializeSerialization_mE85497859622E01EF6B7CD79D1E18ABBEE218864,
+};
+IL2CPP_EXTERN_C const Il2CppCodeGenModule g_Unity_Multiplayer_Tools_Adapters_Ngo1WithUtp2_CodeGenModule;
+const Il2CppCodeGenModule g_Unity_Multiplayer_Tools_Adapters_Ngo1WithUtp2_CodeGenModule = 
+{
+	"Unity.Multiplayer.Tools.Adapters.Ngo1WithUtp2.dll",
+	5,
+	s_methodPointers,
+	0,
+	NULL,
+	0,
+	NULL,
+	NULL,
+	NULL,
+	NULL,
+	NULL,
+};

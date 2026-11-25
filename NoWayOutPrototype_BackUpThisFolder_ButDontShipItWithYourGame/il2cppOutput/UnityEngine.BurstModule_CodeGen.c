@@ -15,6 +15,7 @@ extern void BurstCompileAttribute_set_FloatMode_mD3DFDBBBE47A2E177F2D0764CD8F4F5
 extern void BurstCompileAttribute_set_FloatPrecision_m51910AF7BA7B527BF0B12F5634B5C187B384EC25 (void);
 extern void BurstCompileAttribute_set_CompileSynchronously_mB5EDE71C1B8820D3ECF853F4448970E239C04720 (void);
 extern void BurstCompileAttribute_set_DisableSafetyChecks_mC59260A30D53202FCADB79548C0DF7868794A2FB (void);
+extern void BurstCompileAttribute_set_DisableDirectCall_mFDDCC31F67BED6DA26108D38B5D7E0B99B5CB7F1 (void);
 extern void BurstCompileAttribute_set_OptimizeFor_mA72C8C5110B44CBFE7EB483EFF86B340D3E9106B (void);
 extern void BurstCompileAttribute_set_Options_m0210E524B7FE44CDD4A4030AFE0BB4586B9E39A9 (void);
 extern void BurstCompileAttribute__ctor_m008E06219AB42305C40B9B130074718859EB3551 (void);
@@ -44,6 +45,7 @@ extern void BurstCompilerOptions_HasBurstCompileAttribute_m33D637AD44900B97A7874
 extern void BurstCompilerOptions_OnOptionsChanged_mAE3F7E9329F744D6E752B0C2DF35D76BE73D4464 (void);
 extern void BurstCompilerOptions_MaybeTriggerRecompilation_mB019091C9647A4406D0106B4C79C6CA50B49D0F0 (void);
 extern void BurstCompilerOptions__cctor_m6D7ADBD01216E559A874FB4B1243D2BC9620F8BD (void);
+extern void BurstRuntime_GetHashCode64_mF911B41DF1731A5EB9A551951EE288ED79640522 (void);
 extern void BurstRuntime_HashStringWithFNV1A64_mB99A3F00B50E38FE98BAD95DC4268387AC1FD933 (void);
 extern void BurstRuntime_RuntimeLog_mBDB9DB7DF0AC27C9DF65204B12FF9D19DC91318D (void);
 extern void BurstRuntime_PreventRequiredAttributeStrip_m7BC1CA068FD4BF9BD24DD5A9DCED740209FEFFE9 (void);
@@ -157,7 +159,7 @@ extern void BurstCompilerService_CompileAsyncDelegateMethod_Injected_m2903A77B25
 extern void ExtractCompilerFlags__ctor_m9A3B046A39A1E2A71D73003742C4741CA328B252 (void);
 extern void ExtractCompilerFlags_Invoke_mE790ED3E3B463A4EF1F31A3F30E7B1523269EABF (void);
 extern void BurstUnsafeUtility_MemCpy_m2AC37FF2F833B5D0941CF54DA8FBFFB2FCEC5D04 (void);
-static Il2CppMethodPointer s_methodPointers[160] = 
+static Il2CppMethodPointer s_methodPointers[162] = 
 {
 	EmbeddedAttribute__ctor_mDADEB9C6C7A820738A5D93EA963473E0B9B44026,
 	RefSafetyRulesAttribute__ctor_mAD199F9531D8AA8A542C8A2F5EF2D09030383A32,
@@ -166,6 +168,7 @@ static Il2CppMethodPointer s_methodPointers[160] =
 	BurstCompileAttribute_set_FloatPrecision_m51910AF7BA7B527BF0B12F5634B5C187B384EC25,
 	BurstCompileAttribute_set_CompileSynchronously_mB5EDE71C1B8820D3ECF853F4448970E239C04720,
 	BurstCompileAttribute_set_DisableSafetyChecks_mC59260A30D53202FCADB79548C0DF7868794A2FB,
+	BurstCompileAttribute_set_DisableDirectCall_mFDDCC31F67BED6DA26108D38B5D7E0B99B5CB7F1,
 	BurstCompileAttribute_set_OptimizeFor_mA72C8C5110B44CBFE7EB483EFF86B340D3E9106B,
 	BurstCompileAttribute_set_Options_m0210E524B7FE44CDD4A4030AFE0BB4586B9E39A9,
 	BurstCompileAttribute__ctor_m008E06219AB42305C40B9B130074718859EB3551,
@@ -197,6 +200,7 @@ static Il2CppMethodPointer s_methodPointers[160] =
 	BurstCompilerOptions_MaybeTriggerRecompilation_mB019091C9647A4406D0106B4C79C6CA50B49D0F0,
 	BurstCompilerOptions__cctor_m6D7ADBD01216E559A874FB4B1243D2BC9620F8BD,
 	NULL,
+	BurstRuntime_GetHashCode64_mF911B41DF1731A5EB9A551951EE288ED79640522,
 	BurstRuntime_HashStringWithFNV1A64_mB99A3F00B50E38FE98BAD95DC4268387AC1FD933,
 	BurstRuntime_RuntimeLog_mBDB9DB7DF0AC27C9DF65204B12FF9D19DC91318D,
 	BurstRuntime_PreventRequiredAttributeStrip_m7BC1CA068FD4BF9BD24DD5A9DCED740209FEFFE9,
@@ -326,20 +330,20 @@ extern void f16_Equals_mCD714A7455678A0E0F3029F8F31235228E624395_AdjustorThunk (
 extern void f16_GetHashCode_mC6EBC1EE55501C0D1C1B55AAE958EF62F0DC8C20_AdjustorThunk (void);
 static Il2CppTokenAdjustorThunkPair s_adjustorThunks[4] = 
 {
-	{ 0x0600006B, FormatOptions_ToString_mBD55E8FD75446A8D2A0D16CEA04658E898508E99_AdjustorThunk },
-	{ 0x06000077, f16_Equals_m57F80FB9FC916922D2D1345F5C1D71838AF8A363_AdjustorThunk },
-	{ 0x06000078, f16_Equals_mCD714A7455678A0E0F3029F8F31235228E624395_AdjustorThunk },
-	{ 0x06000079, f16_GetHashCode_mC6EBC1EE55501C0D1C1B55AAE958EF62F0DC8C20_AdjustorThunk },
+	{ 0x0600006D, FormatOptions_ToString_mBD55E8FD75446A8D2A0D16CEA04658E898508E99_AdjustorThunk },
+	{ 0x06000079, f16_Equals_m57F80FB9FC916922D2D1345F5C1D71838AF8A363_AdjustorThunk },
+	{ 0x0600007A, f16_Equals_mCD714A7455678A0E0F3029F8F31235228E624395_AdjustorThunk },
+	{ 0x0600007B, f16_GetHashCode_mC6EBC1EE55501C0D1C1B55AAE958EF62F0DC8C20_AdjustorThunk },
 };
 static const Il2CppTokenIndexMethodTuple s_reversePInvokeIndices[1] = 
 {
-	{ 0x06000012, 106,  (void**)&BurstCompilerHelper_IsBurstEnabled_mC2CE69BA880DB5A9980580DF02F209ADC821695C_RuntimeMethod_var, 0 },
+	{ 0x06000013, 128,  (void**)&BurstCompilerHelper_IsBurstEnabled_mC2CE69BA880DB5A9980580DF02F209ADC821695C_RuntimeMethod_var, 0 },
 };
 IL2CPP_EXTERN_C const Il2CppCodeGenModule g_UnityEngine_BurstModule_CodeGenModule;
 const Il2CppCodeGenModule g_UnityEngine_BurstModule_CodeGenModule = 
 {
 	"UnityEngine.BurstModule.dll",
-	160,
+	162,
 	s_methodPointers,
 	4,
 	s_adjustorThunks,

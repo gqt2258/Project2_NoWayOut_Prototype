@@ -30,6 +30,9 @@ public class ScreenFader : MonoBehaviour
     [SerializeField, Min(0f)] float fadeInSeconds = 0.4f;
     [Tooltip("The loading screen stays at least this long, so it never just flickers.")]
     [SerializeField, Min(0f)] float minimumLoadingSeconds = 0.8f;
+    [Tooltip("Makes the background fully solid and puts the loading screen above every other canvas, " +
+             "so nothing behind it shows while the screen changes.")]
+    [SerializeField] bool forceSolid = true;
 
     CanvasGroup group;
     TMP_Text message;
@@ -62,6 +65,9 @@ public class ScreenFader : MonoBehaviour
         Transform found = FindChild(transform, "Message");
         message = found != null ? found.GetComponent<TMP_Text>() : null;
 
+        if (forceSolid)
+            MakeSolid();
+
         // Hidden until something asks for the loading screen.
         SetAlpha(0f);
         SetMessage("");
@@ -74,6 +80,53 @@ public class ScreenFader : MonoBehaviour
         {
             SceneManager.sceneLoaded -= OnSceneLoaded;
             Instance = null;
+        }
+    }
+
+    // A see-through background, a CanvasGroup under 1 inside the prefab, or another canvas drawn on
+    // top would all let the screen behind show through.
+    void MakeSolid()
+    {
+        foreach (CanvasGroup inner in GetComponentsInChildren<CanvasGroup>(true))
+            if (inner != group) inner.alpha = 1f;
+
+        Canvas canvas = GetComponent<Canvas>();
+        if (canvas != null)
+        {
+            canvas.renderMode = RenderMode.ScreenSpaceOverlay;
+            canvas.overrideSorting = true;
+            canvas.sortingOrder = Mathf.Max(canvas.sortingOrder, 30000);   // above every other canvas
+        }
+
+        // A solid black sheet behind your art, so nothing shows through even if the
+        // background picture itself has see-through pixels.
+        var backing = new GameObject("Solid Backing", typeof(RectTransform), typeof(CanvasRenderer), typeof(Image));
+        backing.transform.SetParent(transform, false);
+        backing.transform.SetAsFirstSibling();
+        RectTransform backingRect = (RectTransform)backing.transform;
+        backingRect.anchorMin = Vector2.zero;
+        backingRect.anchorMax = Vector2.one;
+        backingRect.offsetMin = new Vector2(-50f, -50f);
+        backingRect.offsetMax = new Vector2(50f, 50f);
+        Image solid = backing.GetComponent<Image>();
+        solid.color = Color.black;
+        solid.raycastTarget = false;
+
+        // The biggest image is the background: make its colour fully solid (keeps the colour and art).
+        Image background = null;
+        float biggest = 0f;
+        foreach (Image image in GetComponentsInChildren<Image>(true))
+        {
+            Rect rect = image.rectTransform.rect;
+            bool stretched = image.rectTransform.anchorMin == Vector2.zero && image.rectTransform.anchorMax == Vector2.one;
+            float size = stretched ? float.MaxValue : rect.width * rect.height;
+            if (size > biggest) { biggest = size; background = image; }
+        }
+        if (background != null)
+        {
+            Color colour = background.color;
+            colour.a = 1f;
+            background.color = colour;
         }
     }
 

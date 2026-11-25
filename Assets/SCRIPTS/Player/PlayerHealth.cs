@@ -22,6 +22,10 @@ public class PlayerHealth : MonoBehaviour
     [Tooltip("Revive: how long the player fades back in at the safe base.")]
     [SerializeField, Min(0f)] private float reviveFadeInSeconds = 0.5f;
 
+    [Header("Co-op spectating")]
+    [Tooltip("Optional. Shown while this player is out and watching their partner, e.g. \"Spectating - your partner is still in the job\".")]
+    [SerializeField] private GameObject spectatingBanner;
+
     private int currentHealth;
     private int revivesLeft;
     private bool isInvulnerable;
@@ -107,6 +111,15 @@ public class PlayerHealth : MonoBehaviour
         if (movement != null) movement.enabled = false;   // also stops the footsteps
         if (body != null) body.linearVelocity = Vector2.zero;
 
+        // No touching anything while fading: otherwise the player stands on the items they
+        // just dropped and picks them straight back up (or the monster keeps hitting them).
+        bool wasSimulated = body != null && body.simulated;
+        if (body != null) body.simulated = false;
+        var switchedOff = new System.Collections.Generic.List<Collider2D>();
+        if (body == null)
+            foreach (Collider2D part in GetComponentsInChildren<Collider2D>())
+                if (part.enabled) { part.enabled = false; switchedOff.Add(part); }
+
         // The body's colour (the cosmetic layers copy it, so they fade too).
         SpriteRenderer bodySprite = GetComponent<SpriteRenderer>();
         if (bodySprite == null) bodySprite = GetComponentInChildren<SpriteRenderer>();
@@ -117,6 +130,9 @@ public class PlayerHealth : MonoBehaviour
         yield return Fade(bodySprite, colour, 0f, 1f, reviveFadeInSeconds);
 
         if (bodySprite != null) bodySprite.color = colour;
+        if (body != null) body.simulated = wasSimulated;
+        foreach (Collider2D part in switchedOff)
+            if (part != null) part.enabled = true;
         if (movement != null) movement.enabled = true;
         isInvulnerable = false;
         StartCoroutine(FlashAndIgnoreEnemy(null));   // a moment of safety after respawning
@@ -199,6 +215,24 @@ public class PlayerHealth : MonoBehaviour
     private void FailJob()
     {
         jobFailed = true;
+
+        // Co-op: this player is out and watches their partner. The job only fails once both are out.
+        if (JobSession.IsCoop && NetworkJobSync.Local != null)
+        {
+            Debug.Log("No revives left. Spectating the partner until they finish (or are out too).", this);
+            if (AudioManager.Instance != null)
+                AudioManager.Instance.PlaySpatialSFX(hurtAudio, AudioManager.Instance.PlayerDied);
+            NetworkJobSync.ShareSound(PlayerSound.Die);
+            DropEverything();   // left for the partner to use
+            StartCoroutine(Spectate());
+
+            if (NetworkJobSync.PartnerOut)
+                GameplayEndScreen.Get().ShowLose(RoundEndReason.OutOfRevives);   // both out: the job fails
+            else
+                NetworkJobSync.Local.SharePlayerOut();   // the partner fails it if they go out too
+            return;
+        }
+
         Debug.Log("No revives left. The job has failed.", this);
 
         if (AudioManager.Instance != null)
@@ -206,6 +240,32 @@ public class PlayerHealth : MonoBehaviour
         NetworkJobSync.ShareSound(PlayerSound.Die);
 
         GameplayEndScreen.Get().ShowLose(RoundEndReason.OutOfRevives);
+    }
+
+    // Out in co-op: invisible, can't move or touch anything, and sticks to the partner so the
+    // camera, flashlight and radar follow them.
+    private IEnumerator Spectate()
+    {
+        PlayerMovement movement = GetComponent<PlayerMovement>();
+        if (movement != null) movement.enabled = false;
+        if (body != null) { body.linearVelocity = Vector2.zero; body.simulated = false; }
+        foreach (Collider2D part in GetComponentsInChildren<Collider2D>())
+            part.enabled = false;
+
+        SpriteRenderer bodySprite = GetComponent<SpriteRenderer>();
+        if (bodySprite == null) bodySprite = GetComponentInChildren<SpriteRenderer>();
+        if (bodySprite != null)
+            yield return Fade(bodySprite, bodySprite.color, 1f, 0f, reviveFadeOutSeconds);
+
+        if (spectatingBanner != null) spectatingBanner.SetActive(true);
+
+        while (true)
+        {
+            Transform partner = NetworkPlayerAvatar.PartnerTransform;
+            if (partner != null)
+                transform.position = new Vector3(partner.position.x, partner.position.y, transform.position.z);
+            yield return null;
+        }
     }
 
     private void RefreshReviveBar()

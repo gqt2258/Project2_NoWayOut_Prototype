@@ -20,6 +20,6 @@ MonoBehaviour:
   level: 0
   description: Red walls appear, green vanish. Lasts one shift.
   price: 60
-  icon: {fileID: 0}
+  icon: {fileID: 21300000, guid: dc59efc0dd54e2642959e44c4a833e17, type: 3}
   look: {fileID: 0}
   lightColour: {r: 1, g: 1, b: 1, a: 0}

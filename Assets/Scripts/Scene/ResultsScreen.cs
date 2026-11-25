@@ -108,6 +108,7 @@ public class ResultsScreen : MonoBehaviour, IPointerClickHandler
 
     private void OnEnable()
     {
+        GameServerLogs.Paused = true;   // nothing goes into the lobby's server log while the results show
         Time.timeScale = 1f;
         if (!slipPositionSaved)
         {
@@ -130,6 +131,7 @@ public class ResultsScreen : MonoBehaviour, IPointerClickHandler
 
     private void OnDisable()
     {
+        GameServerLogs.Paused = false;
         if (sequence != null) StopCoroutine(sequence);
         sequence = null;
         if (PlayerWallet.Instance != null)

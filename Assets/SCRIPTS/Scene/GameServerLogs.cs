@@ -18,6 +18,9 @@ public class GameServerLogs : MonoBehaviour
     static readonly List<string> history = new List<string>();
     static GameServerLogs instance;
 
+    // True while something covers the lobby board (the results screen): nothing is logged then.
+    public static bool Paused;
+
     [SerializeField] ScrollRect scrollRect;
     [SerializeField] TMP_Text messagePrefab;
 
@@ -40,12 +43,13 @@ public class GameServerLogs : MonoBehaviour
     {
         history.Clear();
         instance = null;
+        Paused = false;
     }
 
     public static void Add(string message)
     {
         if (string.IsNullOrWhiteSpace(message)) return;
-        if (instance == null) return;   // the lobby board isn't showing: don't log it
+        if (instance == null || Paused) return;   // the lobby board isn't showing (or is covered): don't log it
 
         string line = $"[{DateTime.Now:HH:mm}] {message}";
         history.Add(line);

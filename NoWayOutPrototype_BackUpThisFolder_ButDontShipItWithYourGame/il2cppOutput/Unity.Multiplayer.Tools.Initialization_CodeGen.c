@@ -1,0 +1,41 @@
+﻿#include "pch-c.h"
+
+
+#include "codegen/il2cpp-codegen-metadata.h"
+
+
+
+
+
+extern void ContextsDefinition_GetContextsDefinitions_m601F9E5C49C5C39E4B7CEF0722842AA4E97018E6 (void);
+extern void ContextsDefinition_InitializeNetVisContexts_m50604EC7CC64F5B9B401486E7C02AB1A0C6067AB (void);
+extern void ContextsInitializer_ReinitializeEditorContexts_mF744268221B3C95417B37B67A0B9B986E20CB6A8 (void);
+extern void ContextsInitializer__cctor_mE74764BE541A446B919854A4DE1EE0CE1FDB58FB (void);
+extern void ContextsInitializer_EnableEditorContexts_m8FC064FA2B08C4E3DECFF0F9C05C9812E4FD8B10 (void);
+extern void ContextsInitializer_EnableRuntimeContexts_m73426613931500F441DCC7C3948F4980D0D2E3FF (void);
+extern void ContextsInitializer_DisableRuntimeContexts_mD007C46B7C34B2311167F70AAE6A3FA436AF5ABD (void);
+static Il2CppMethodPointer s_methodPointers[7] = 
+{
+	ContextsDefinition_GetContextsDefinitions_m601F9E5C49C5C39E4B7CEF0722842AA4E97018E6,
+	ContextsDefinition_InitializeNetVisContexts_m50604EC7CC64F5B9B401486E7C02AB1A0C6067AB,
+	ContextsInitializer_ReinitializeEditorContexts_mF744268221B3C95417B37B67A0B9B986E20CB6A8,
+	ContextsInitializer__cctor_mE74764BE541A446B919854A4DE1EE0CE1FDB58FB,
+	ContextsInitializer_EnableEditorContexts_m8FC064FA2B08C4E3DECFF0F9C05C9812E4FD8B10,
+	ContextsInitializer_EnableRuntimeContexts_m73426613931500F441DCC7C3948F4980D0D2E3FF,
+	ContextsInitializer_DisableRuntimeContexts_mD007C46B7C34B2311167F70AAE6A3FA436AF5ABD,
+};
+IL2CPP_EXTERN_C const Il2CppCodeGenModule g_Unity_Multiplayer_Tools_Initialization_CodeGenModule;
+const Il2CppCodeGenModule g_Unity_Multiplayer_Tools_Initialization_CodeGenModule = 
+{
+	"Unity.Multiplayer.Tools.Initialization.dll",
+	7,
+	s_methodPointers,
+	0,
+	NULL,
+	0,
+	NULL,
+	NULL,
+	NULL,
+	NULL,
+	NULL,
+};

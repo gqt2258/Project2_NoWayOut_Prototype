@@ -33,6 +33,11 @@ extern void MemberExpression_GetMember_mB44F09D4104C91F27C0F3246C222224728A9C3FC
 extern void Strings_ExtensionNodeMustOverrideProperty_m9104CAA7D2A9E08CBB135788A14930D2B9720284 (void);
 extern void UnaryExpression_get_Operand_mE144387E98BABF0D3FD8E4640612A726D91E2943 (void);
 extern void ContractUtils_get_Unreachable_m792F83C753CCE84550E4F0442CDC49B978FD0CE6 (void);
+extern void BitHelper__ctor_m141F24AE9FFCB3EA3D2C7EA79BDAC722026EDEB3 (void);
+extern void BitHelper__ctor_m795A92E9A03F57547FD78A8E50F730C2778DDD19 (void);
+extern void BitHelper_MarkBit_m12EFF71C5444F4E4D076F514C0C0723B39E50F86 (void);
+extern void BitHelper_IsMarked_m0A02826959B4EF6381B8F6C7DF0EDBFC55EE8EF2 (void);
+extern void BitHelper_ToIntArrayLength_m59204C3775D26A8B9532246C2F384C92D02E713C (void);
 extern void ReaderWriterCount__ctor_m8FE7B774A506545AF710639DB53F7677A2FA658A (void);
 extern void ReaderWriterLockSlim_InitializeThreadCounts_m7A12BC0D8F0D8C70EC8CA19F435EEEDAE5475A41 (void);
 extern void ReaderWriterLockSlim__ctor_m617A86382C7F076BC04E68726F50961C799688E8 (void);
@@ -81,7 +86,7 @@ extern void ReaderWriterLockSlim_get_WaitingWriteCount_m8FE677BDB0E776125691C0A4
 extern void TimeoutTracker__ctor_mBFE73B99C5BBB93D251DF9731B9C5D824F30CDCE (void);
 extern void TimeoutTracker_get_RemainingMilliseconds_mDAA8A0E545F8E28D3688095CA346B0A04337BC23 (void);
 extern void TimeoutTracker_get_IsExpired_m5E08DCC01117EF66ADEBA5472B27833577289813 (void);
-static Il2CppMethodPointer s_methodPointers[296] = 
+static Il2CppMethodPointer s_methodPointers[330] = 
 {
 	SR_GetString_m2213C501E26D6A1AE8D0644E9685AF8A4204CA7F,
 	SR_Format_m7198B645F5C0A5E33F30AEF003C1F1D1415A9F86,
@@ -120,8 +125,33 @@ static Il2CppMethodPointer s_methodPointers[296] =
 	NULL,
 	NULL,
 	NULL,
+	NULL,
+	NULL,
+	NULL,
+	NULL,
 	Enumerable_Range_m4FB9BBBA09BEF5177C13506DB385CF4467C15FD8,
 	Enumerable_RangeIterator_mAD9E9F85AF2156C74E78C2EA554F0F32EA0E91C9,
+	NULL,
+	NULL,
+	NULL,
+	NULL,
+	NULL,
+	NULL,
+	NULL,
+	NULL,
+	NULL,
+	NULL,
+	NULL,
+	NULL,
+	NULL,
+	NULL,
+	NULL,
+	NULL,
+	NULL,
+	NULL,
+	NULL,
+	NULL,
+	NULL,
 	NULL,
 	NULL,
 	NULL,
@@ -291,6 +321,15 @@ static Il2CppMethodPointer s_methodPointers[296] =
 	NULL,
 	NULL,
 	ContractUtils_get_Unreachable_m792F83C753CCE84550E4F0442CDC49B978FD0CE6,
+	BitHelper__ctor_m141F24AE9FFCB3EA3D2C7EA79BDAC722026EDEB3,
+	BitHelper__ctor_m795A92E9A03F57547FD78A8E50F730C2778DDD19,
+	BitHelper_MarkBit_m12EFF71C5444F4E4D076F514C0C0723B39E50F86,
+	BitHelper_IsMarked_m0A02826959B4EF6381B8F6C7DF0EDBFC55EE8EF2,
+	BitHelper_ToIntArrayLength_m59204C3775D26A8B9532246C2F384C92D02E713C,
+	NULL,
+	NULL,
+	NULL,
+	NULL,
 	NULL,
 	NULL,
 	NULL,
@@ -384,7 +423,7 @@ IL2CPP_EXTERN_C const Il2CppCodeGenModule g_System_Core_CodeGenModule;
 const Il2CppCodeGenModule g_System_Core_CodeGenModule = 
 {
 	"System.Core.dll",
-	296,
+	330,
 	s_methodPointers,
 	0,
 	NULL,

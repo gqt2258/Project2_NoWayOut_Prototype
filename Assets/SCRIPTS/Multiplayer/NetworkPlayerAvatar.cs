@@ -18,11 +18,39 @@ public sealed class NetworkPlayerAvatar : NetworkBehaviour
     private float partnerSpeed;
     public Vector2 ReportedPosition => position.Value;
 
+    // Co-op: this player has no revives left and is spectating, so their character is hidden.
+    public bool IsOut { get; set; }
+
+    // The other player's character in Gameplay (null in solo or before they appear).
+    public static Transform PartnerTransform
+    {
+        get
+        {
+            foreach (NetworkPlayerAvatar avatar in FindObjectsByType<NetworkPlayerAvatar>())
+                if (avatar.IsSpawned && !avatar.IsOwner)
+                    return avatar.transform;
+            return null;
+        }
+    }
+
+    [Header("Partner animation (copies your own player's animations)")]
+    [Tooltip("Same as PlayerMovement's, so the partner's legs move at the same speed as yours.")]
+    [SerializeField, Min(0.1f)] private float walkAnimationSpeed = 0.7f;
+    [SerializeField, Min(0.1f)] private float sprintAnimationSpeed = 1.5f;
+    [SerializeField, Min(0.1f)] private float idleAnimationSpeed = 0.6f;
+    private Animator partnerAnimator;
+    private bool triedAnimator;
+    private Vector2 animationFrom;
+    private Vector2 smoothedVelocity;
+
     private void Update()
     {
         bool inGame = SceneManager.GetActiveScene().name == "Gameplay";
+        if (!inGame) IsOut = false;   // back in the lobby: in again for the next job
         if (sprite != null)
-            sprite.enabled = inGame && IsSpawned && !IsOwner;
+            sprite.enabled = inGame && IsSpawned && !IsOwner && !IsOut;
+        if (IsOut && footsteps != null && footsteps.isPlaying)
+            footsteps.Stop();
 
         if (!inGame || !IsSpawned)
             return;
@@ -47,7 +75,64 @@ public sealed class NetworkPlayerAvatar : NetworkBehaviour
             Vector2 target = position.Value;
             transform.position = Vector3.Lerp(transform.position,
                 new Vector3(target.x, target.y, transform.position.z), 15f * Time.deltaTime);
-            UpdatePartnerFootsteps(target);
+            if (!IsOut)
+            {
+                UpdatePartnerFootsteps(target);
+                UpdatePartnerAnimation();
+            }
+        }
+    }
+
+    // Walks, runs, idles and turns like a real player, worked out from how the partner is moving.
+    // Uses the same Animator Controller as your own Player, so there is nothing to set up.
+    private void UpdatePartnerAnimation()
+    {
+        if (sprite == null || Time.deltaTime <= 0f)
+            return;
+
+        if (partnerAnimator == null && !triedAnimator)
+        {
+            triedAnimator = true;
+            GameObject player = GameObject.Find("Player");
+            Animator mine = player != null ? player.GetComponentInChildren<Animator>() : null;
+            if (mine == null || mine.runtimeAnimatorController == null)
+            {
+                Debug.LogWarning("Partner animation: your Player has no Animator to copy, so the partner stays still.", this);
+                return;
+            }
+
+            partnerAnimator = sprite.GetComponent<Animator>();
+            if (partnerAnimator == null) partnerAnimator = sprite.gameObject.AddComponent<Animator>();
+            partnerAnimator.runtimeAnimatorController = mine.runtimeAnimatorController;
+            animationFrom = transform.position;
+        }
+        if (partnerAnimator == null)
+            return;
+
+        // How fast and which way the shown partner is moving (smoothed, so network gaps don't flicker).
+        Vector2 now = transform.position;
+        Vector2 velocity = (now - animationFrom) / Time.deltaTime;
+        animationFrom = now;
+        smoothedVelocity = Vector2.Lerp(smoothedVelocity, velocity, 12f * Time.deltaTime);
+
+        float speed = smoothedVelocity.magnitude;
+        bool moving = speed > 0.3f;
+        partnerAnimator.SetBool("IsMoving", moving);
+        partnerAnimator.speed = !moving ? idleAnimationSpeed
+                              : partnerSpeed > runSpeedThreshold ? sprintAnimationSpeed : walkAnimationSpeed;
+        if (!moving)
+            return;   // keeps facing the last way, like your own player
+
+        if (Mathf.Abs(smoothedVelocity.x) > Mathf.Abs(smoothedVelocity.y))
+        {
+            partnerAnimator.SetFloat("MoveX", Mathf.Sign(smoothedVelocity.x));
+            partnerAnimator.SetFloat("MoveY", 0f);
+            sprite.flipX = smoothedVelocity.x < 0f;
+        }
+        else
+        {
+            partnerAnimator.SetFloat("MoveX", 0f);
+            partnerAnimator.SetFloat("MoveY", Mathf.Sign(smoothedVelocity.y));
         }
     }
 

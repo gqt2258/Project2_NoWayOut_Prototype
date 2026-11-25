@@ -20,6 +20,6 @@ MonoBehaviour:
   level: 1
   description: +20% beam width
   price: 300
-  icon: {fileID: 0}
+  icon: {fileID: 21300000, guid: bb94a2c364506cf49b57912a59fe43fa, type: 3}
   look: {fileID: 0}
   lightColour: {r: 1, g: 1, b: 1, a: 0}

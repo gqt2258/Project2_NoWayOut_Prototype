@@ -20,6 +20,6 @@ MonoBehaviour:
   level: 0
   description: Shows the monster's direction for a few seconds.
   price: 120
-  icon: {fileID: 0}
-  prefab: {fileID: 0}
-  material: {fileID: 0}
+  icon: {fileID: 21300000, guid: 404bc3748576f3647b562b8f7f0a36c3, type: 3}
+  look: {fileID: 0}
+  lightColour: {r: 1, g: 1, b: 1, a: 0}

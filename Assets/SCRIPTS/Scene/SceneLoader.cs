@@ -63,6 +63,14 @@ public class SceneLoader : MonoBehaviour
     [SerializeField] private TMP_Text leaveConfirmTitle;
     [SerializeField] private TMP_Text leaveConfirmMessage;
 
+    [Header("Co-op")]
+    [Tooltip("How long the other player can go silent before they count as disconnected and the " +
+             "disconnect screen shows. Unity's default is 30 seconds, which feels like nothing happened.")]
+    [SerializeField, Range(3f, 30f)] private float disconnectAfterSeconds = 6f;
+    [Tooltip("The lobby Start button. The guest sees it greyed out with the Guest Start Label instead.")]
+    [SerializeField] private Button startButton;
+    [SerializeField] private string guestStartLabel = "Waiting for host";
+
     private void Start()
     {
         PlayerProfileSync.ProfilesChanged += OnProfilesChanged;
@@ -248,6 +256,27 @@ public class SceneLoader : MonoBehaviour
         Player2Loadout.SetActive(false);
     }
 
+    // Main Menu Quit button: On Click -> SceneLoader.QuitGame.
+    // Closes the game (on a phone it goes back to the home screen). In the Editor it stops Play mode.
+    public void QuitGame()
+    {
+        StartCoroutine(QuitAfterClick());
+    }
+
+    private IEnumerator QuitAfterClick()
+    {
+        AudioManager.Instance?.PlayButtonClick();
+        LeaveRoomOnPurpose();   // just in case: tells the other player first
+        PlayerPrefs.Save();     // coins, cosmetics and name are saved before closing
+        yield return new WaitForSecondsRealtime(0.25f);   // lets the click sound play
+
+#if UNITY_EDITOR
+        UnityEditor.EditorApplication.isPlaying = false;
+#else
+        Application.Quit();
+#endif
+    }
+
     // Host / Join screen. Leaving a co-op room shows the loading screen.
     public void LoadLobbyCreate()
     {
@@ -258,6 +287,9 @@ public class SceneLoader : MonoBehaviour
     private void ShowLobbyCreate()
     {
         HideResults();
+        GetComponent<NearbyGames>()?.StopDiscovery();   // a closed room stops showing in Nearby Games
+        StopWatchingForGuests();
+        LeaveRoomOnPurpose();   // already done if they pressed Leave / Close Room
         NearbyGames.ResetRoomName();   // the next room starts with the default name
         AudioManager.Instance?.StopAmbience();   // leaving the office
         GameServerLogs.Clear();   // leaving the room
@@ -329,6 +361,7 @@ public class SceneLoader : MonoBehaviour
         CosmeticsShop.SetActive(false);
         Loadout.SetActive(false);
         Player2Loadout.SetActive(false);
+        RefreshStartButton();
     }
 
     public void LoadCoopLobbyBoard()
@@ -348,6 +381,28 @@ public class SceneLoader : MonoBehaviour
         CosmeticsShop.SetActive(false);
         Loadout.SetActive(false);
         Player2Loadout.SetActive(false);
+        RefreshStartButton();
+    }
+
+    // ---------- START BUTTON ----------
+
+    private string startLabel;
+
+    // Solo and the host: "Start". The guest: greyed out "Waiting for host" (tapping it says why).
+    private void RefreshStartButton()
+    {
+        if (startButton == null)
+            return;
+
+        TMP_Text label = startButton.GetComponentInChildren<TMP_Text>(true);
+        if (label != null && startLabel == null)
+            startLabel = label.text;   // whatever it says in the scene
+
+        bool guest = isCoopLobby && IsCoopGuest;
+        startButton.interactable = !guest;
+        if (label != null)
+            label.text = guest ? guestStartLabel : startLabel;
+        DisabledButtonFeedback.SetMessage(startButton, guest ? "Only the host can start the job" : "");
     }
 
     // ---------- LOBBY NAME ----------
@@ -520,7 +575,14 @@ public class SceneLoader : MonoBehaviour
         PlayUI(a => a.UI.JobConfirmClick);
         if (leaveConfirmPanel != null) leaveConfirmPanel.SetActive(false);
         if (lobbySettingsPanel != null) lobbySettingsPanel.SetActive(false);
-        LoadLobbyCreate();
+
+        // Leave the room right now, so this player disappears from the other player's lobby
+        // straight away (not only once they leave the Host / Join screen).
+        bool wasInRoom = InRoom;
+        StopWatchingForGuests();
+        LeaveRoomOnPurpose();
+        if (wasInRoom) ScreenFader.Cover("Leaving room", ShowLobbyCreate);
+        else LoadLobbyCreate();
     }
 
     // Office ambience, plus the "entering the office" sound when coming in from outside the lobby.
@@ -575,6 +637,7 @@ public class SceneLoader : MonoBehaviour
         }
 
         transport.SetConnectionData("127.0.0.1", 7777, "0.0.0.0");
+        transport.DisconnectTimeoutMS = Mathf.RoundToInt(disconnectAfterSeconds * 1000f);
         if (!network.IsListening && !network.StartHost())
         {
             GameServerLogs.AddError("Could not start the co-op host");
@@ -605,6 +668,7 @@ public class SceneLoader : MonoBehaviour
     // The partner joined, left, or changed their loadout / cosmetics / upgrades.
     private void OnProfilesChanged()
     {
+        RefreshStartButton();   // the guest's role is known by now
         PlayerProfileSync partner = PlayerProfileSync.Partner;
         bool here = isCoopLobby && partner != null;
 
@@ -666,6 +730,7 @@ public class SceneLoader : MonoBehaviour
         }
 
         transport.SetConnectionData(address, 7777);
+        transport.DisconnectTimeoutMS = Mathf.RoundToInt(disconnectAfterSeconds * 1000f);
         CoopSession.LastHostAddress = address;   // used by Reconnect on the disconnect screen
         network.OnClientConnectedCallback += OnCoopConnected;
         network.OnClientDisconnectCallback += OnCoopDisconnected;
@@ -770,7 +835,7 @@ public class SceneLoader : MonoBehaviour
     {
         if (IsCoopGuest)
         {
-            GameServerLogs.AddError("Only the host can close the results");
+            PlayUI(a => a.UI.ErrorClick);   // the button already says "Waiting for host"
             return;
         }
 
@@ -800,12 +865,7 @@ public class SceneLoader : MonoBehaviour
 
     public void LoadJobBoard()
     {
-        if (JobSession.IsCoop && (NetworkManager.Singleton == null || !NetworkManager.Singleton.IsServer))
-        {
-            GameServerLogs.AddError("Only the host can choose the co-op job");
-            return;
-        }
-
+        // The guest can look (the host's jobs, read-only) but not choose: see JobBoardController.
         PlayUI(a => a.UI.JobBoardOn);
         lobbyBoard.SetActive(false);
         jobBoard.SetActive(true);

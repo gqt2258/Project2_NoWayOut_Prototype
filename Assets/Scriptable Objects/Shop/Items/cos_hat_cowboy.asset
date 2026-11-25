@@ -20,6 +20,7 @@ MonoBehaviour:
   level: 0
   description: 
   price: 250
+  hideInShop: 0
   icon: {fileID: 0}
-  prefab: {fileID: 0}
-  material: {fileID: 0}
+  look: {fileID: 11400000, guid: f8b56ad6a4aabcc488342206fedb9683, type: 2}
+  lightColour: {r: 1, g: 1, b: 1, a: 0}

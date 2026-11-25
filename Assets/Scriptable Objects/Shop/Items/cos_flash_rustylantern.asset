@@ -20,6 +20,7 @@ MonoBehaviour:
   level: 0
   description: 
   price: 350
+  hideInShop: 0
   icon: {fileID: 0}
-  look: {fileID: 0}
+  look: {fileID: 11400000, guid: 6488d2171e129be479dd7a4b30910a7c, type: 2}
   lightColour: {r: 1, g: 0.6666667, b: 0.3137255, a: 0.09803922}

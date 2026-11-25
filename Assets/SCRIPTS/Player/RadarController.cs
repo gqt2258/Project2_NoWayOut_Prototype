@@ -16,6 +16,8 @@ public sealed class RadarController : MonoBehaviour
     [SerializeField] private Sprite itemMarkerIcon;
     [Tooltip("Monster Locator marker. Empty = the monster's Enemy Minimap Icon picture.")]
     [SerializeField] private Sprite monsterMarkerIcon;
+    [Tooltip("How big the item, monster and partner markers are on the radar, in maze tiles.")]
+    [SerializeField, Min(0.2f)] private float markerSize = 1.5f;
 
     [Header("Co-op partner")]
     [Tooltip("Always show the other player on the radar (pinned to the edge when far away).")]
@@ -72,7 +74,12 @@ public sealed class RadarController : MonoBehaviour
             {
                 sprite.enabled = false;
                 monsterMarker = MakeMarker("Monster Radar Marker", sprite);
-                if (monsterMarkerIcon != null) monsterMarker.sprite = monsterMarkerIcon;
+                if (monsterMarkerIcon != null)
+                {
+                    monsterMarker.sprite = monsterMarkerIcon;
+                    monsterMarker.color = Color.white;
+                    SizeMarker(monsterMarker);
+                }
             }
         }
 
@@ -114,11 +121,7 @@ public sealed class RadarController : MonoBehaviour
             return;
 
         if (partner == null)
-        {
-            foreach (NetworkPlayerAvatar avatar in FindObjectsByType<NetworkPlayerAvatar>())
-                if (avatar.IsSpawned && !avatar.IsOwner)
-                    partner = avatar.transform;
-        }
+            partner = NetworkPlayerAvatar.PartnerTransform;
 
         if (partner != null && partnerMarker == null)
         {
@@ -127,20 +130,21 @@ public sealed class RadarController : MonoBehaviour
                 return;   // nothing to draw it with
 
             GameObject marker = new GameObject("Partner Radar Marker");
-            marker.layer = baseIndicator.gameObject.layer;   // seen by the MiniMap Camera
             marker.transform.SetParent(transform);
-            marker.transform.localScale = playerIconSource != null
-                ? playerIconSource.transform.lossyScale / Mathf.Max(0.01f, transform.lossyScale.x)
-                : Vector3.one / Mathf.Max(0.01f, transform.lossyScale.x);
             partnerMarker = marker.AddComponent<SpriteRenderer>();
             partnerMarker.sprite = sprite;
             partnerMarker.color = partnerColour;
             partnerMarker.sortingOrder = playerIconSource != null ? playerIconSource.sortingOrder + 1 : 10;
+            UseRadarLook(partnerMarker);
         }
 
         if (partnerMarker == null)
             return;
-        partnerMarker.enabled = partner != null;
+        NetworkPlayerAvatar partnerAvatar = partner != null ? partner.GetComponent<NetworkPlayerAvatar>() : null;
+        PlayerHealth myHealth = GetComponentInParent<PlayerHealth>();
+        // Hidden when the partner is out, or when this player is out (they're watching the partner).
+        partnerMarker.enabled = partner != null && (partnerAvatar == null || !partnerAvatar.IsOut) &&
+                                (myHealth == null || !myHealth.IsOut);
         if (partner != null)
             partnerMarker.transform.position = ClampToRadar(partner.position);
     }
@@ -178,6 +182,7 @@ public sealed class RadarController : MonoBehaviour
                     itemMarker = MakeMarker("Item Radar Marker", icon);
                 itemMarker.sprite = itemMarkerIcon != null ? itemMarkerIcon : icon.sprite;
                 itemMarker.color = itemMarkerIcon != null ? Color.white : icon.color;
+                SizeMarker(itemMarker);
             }
             itemHideTime = Time.time + revealSeconds;
         }
@@ -190,15 +195,39 @@ public sealed class RadarController : MonoBehaviour
     private SpriteRenderer MakeMarker(string markerName, SpriteRenderer source)
     {
         GameObject marker = new GameObject(markerName);
-        marker.layer = source.gameObject.layer;
         marker.transform.SetParent(transform);
-        marker.transform.localScale = Vector3.one / Mathf.Max(0.01f, transform.lossyScale.x);
         SpriteRenderer sprite = marker.AddComponent<SpriteRenderer>();
         sprite.sprite = source.sprite;
         sprite.color = source.color;
-        sprite.sortingOrder = source.sortingOrder;
+        sprite.sortingOrder = source.sortingOrder + 5;
+        UseRadarLook(sprite);
         sprite.enabled = false;
         return sprite;
+    }
+
+    // Drawn by the radar camera (same layer as the Base Indicator), unlit so the 2D lights
+    // don't darken it, and sized in maze tiles whatever the sprite's own size.
+    private void UseRadarLook(SpriteRenderer sprite)
+    {
+        if (baseIndicator != null)
+        {
+            sprite.gameObject.layer = baseIndicator.gameObject.layer;
+            if (baseIndicator.TryGetComponent(out SpriteRenderer baseSprite))
+            {
+                sprite.sharedMaterial = baseSprite.sharedMaterial;
+                sprite.sortingLayerID = baseSprite.sortingLayerID;
+            }
+        }
+        SizeMarker(sprite);
+    }
+
+    private void SizeMarker(SpriteRenderer sprite)
+    {
+        if (sprite == null || sprite.sprite == null)
+            return;
+        float spriteSize = Mathf.Max(sprite.sprite.bounds.size.x, sprite.sprite.bounds.size.y);
+        float parentScale = Mathf.Max(0.01f, transform.lossyScale.x);
+        sprite.transform.localScale = Vector3.one * (markerSize * tileSize / Mathf.Max(0.01f, spriteSize) / parentScale);
     }
 
     private void UpdateMarker(SpriteRenderer marker, Transform target, float hideTime)

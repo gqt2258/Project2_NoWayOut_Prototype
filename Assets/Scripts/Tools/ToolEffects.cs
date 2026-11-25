@@ -55,7 +55,22 @@ public class ToolEffects : MonoBehaviour
     [Header("Earth Wand")]
     [SerializeField, Min(1f)] float wandSeconds = 12f;
 
-    [Header("Look (until there is art)")]
+    [Header("Art (optional prefabs, placed where the tool is used)")]
+    [Tooltip("The noise maker on the floor. Can have an Animator (e.g. shaking / speaker pulsing).")]
+    [SerializeField] GameObject noiseMakerPrefab;
+    [Tooltip("The smoke cloud. Draw it about Smoke Radius x 2 units across (5 units by default). " +
+             "A Particle System works too. It is faded out and removed when the smoke ends.")]
+    [SerializeField] GameObject smokePrefab;
+    [Tooltip("The open bear trap on the floor.")]
+    [SerializeField] GameObject bearTrapPrefab;
+    [Tooltip("Optional. The closed trap, shown for a moment after it snaps.")]
+    [SerializeField] GameObject bearTrapSnappedPrefab;
+    [Tooltip("Optional. The flashbang lying on the floor during the fuse.")]
+    [SerializeField] GameObject flashbangPrefab;
+    [Tooltip("Optional. The burst when it goes off (e.g. a white starburst or particles). Removed after 1 second.")]
+    [SerializeField] GameObject flashBurstPrefab;
+
+    [Header("Placeholder look (used when a prefab above is empty)")]
     [SerializeField] Color smokeColour = new Color(0.75f, 0.75f, 0.75f, 0.85f);
     [SerializeField] Color trapColour = new Color(0.45f, 0.1f, 0.1f, 1f);
     [SerializeField] Color noiseColour = new Color(1f, 0.85f, 0.2f, 1f);
@@ -65,7 +80,7 @@ public class ToolEffects : MonoBehaviour
     public static ToolEffects Get()
     {
         if (Instance == null)
-            Instance = new GameObject("Tool Effects").AddComponent<ToolEffects>();
+            Instance = new GameObject("Tool Effects (made by code)").AddComponent<ToolEffects>();
         return Instance;
     }
 
@@ -73,7 +88,13 @@ public class ToolEffects : MonoBehaviour
     {
         if (Instance != null && Instance != this) { Destroy(this); return; }
         Instance = this;
+        Debug.Log($"[Tools] Tool Effects ready on \"{name}\" in {gameObject.scene.name}. Art: " +
+                  $"noise {Has(noiseMakerPrefab)}, smoke {Has(smokePrefab)}, trap {Has(bearTrapPrefab)}, " +
+                  $"trap snapped {Has(bearTrapSnappedPrefab)}, flashbang {Has(flashbangPrefab)}, burst {Has(flashBurstPrefab)}" +
+                  (name == "Tool Effects (made by code)" ? "  <- made by code, so no art. Add a Tool Effects object to the Gameplay scene." : ""), this);
     }
+
+    static string Has(GameObject prefab) => prefab != null ? prefab.name : "EMPTY";
 
     void OnDestroy()
     {
@@ -147,22 +168,23 @@ public class ToolEffects : MonoBehaviour
 
     IEnumerator NoiseMaker(Vector3 position)
     {
-        GameObject marker = MakeCircle("Noise Maker", position, 0.35f, noiseColour, 20);
+        bool placeholder = noiseMakerPrefab == null;
+        GameObject marker = placeholder ? MakeCircle("Noise Maker", position, 0.35f, noiseColour, 20)
+                                        : Place(noiseMakerPrefab, position);
         yield return new WaitForSeconds(0.5f);
 
         EnemyMovement enemy = Enemy;
         if (enemy != null && Vector2.Distance(enemy.transform.position, position) <= noiseHearingDistance)
             enemy.Distract(position, noiseSeconds);
 
-        // Pulses while it plays its voice lines.
-        SpriteRenderer sprite = marker.GetComponent<SpriteRenderer>();
+        // The placeholder pulses while the voice lines play (your prefab can animate itself).
         for (float t = 0f; t < noiseSeconds; t += Time.deltaTime)
         {
-            float pulse = 1f + 0.25f * Mathf.Sin(t * 8f);
-            marker.transform.localScale = Vector3.one * 0.7f * pulse;
+            if (placeholder)
+                marker.transform.localScale = Vector3.one * 0.7f * (1f + 0.25f * Mathf.Sin(t * 8f));
             yield return null;
         }
-        yield return Fade(sprite, 0.4f);
+        yield return FadeAll(marker, 0.4f);
         Destroy(marker);
     }
 
@@ -170,31 +192,43 @@ public class ToolEffects : MonoBehaviour
     {
         yield return new WaitForSeconds(0.8f);   // matches the smoke sound
 
-        GameObject cloud = MakeCircle("Smoke", position, smokeRadius, smokeColour, 60);
-        SpriteRenderer sprite = cloud.GetComponent<SpriteRenderer>();
         SmokeZones.Add(position, smokeRadius, Time.time + smokeSeconds);
         Enemy?.ForgetIfHiddenBySmoke();
 
-        Color full = sprite.color;
-        for (float t = 0f; t < 0.4f; t += Time.deltaTime)   // puff out
+        GameObject cloud;
+        if (smokePrefab != null)
         {
-            float k = t / 0.4f;
-            cloud.transform.localScale = Vector3.one * smokeRadius * 2f * Mathf.Lerp(0.3f, 1f, k);
-            sprite.color = new Color(full.r, full.g, full.b, full.a * k);
-            yield return null;
+            cloud = Place(smokePrefab, position, true);
         }
-        cloud.transform.localScale = Vector3.one * smokeRadius * 2f;
-        sprite.color = full;
+        else
+        {
+            cloud = MakeCircle("Smoke", position, smokeRadius, smokeColour, 60);
+            SpriteRenderer sprite = cloud.GetComponent<SpriteRenderer>();
+            Color full = sprite.color;
+            for (float t = 0f; t < 0.4f; t += Time.deltaTime)   // puff out
+            {
+                float k = t / 0.4f;
+                cloud.transform.localScale = Vector3.one * smokeRadius * 2f * Mathf.Lerp(0.3f, 1f, k);
+                sprite.color = new Color(full.r, full.g, full.b, full.a * k);
+                yield return null;
+            }
+            cloud.transform.localScale = Vector3.one * smokeRadius * 2f;
+            sprite.color = full;
+        }
 
         yield return new WaitForSeconds(Mathf.Max(0f, smokeSeconds - 1.4f));
-        yield return Fade(sprite, 1f);
+        foreach (ParticleSystem particles in cloud.GetComponentsInChildren<ParticleSystem>())
+            particles.Stop();   // let the last puffs drift away
+        yield return FadeAll(cloud, 1f);
         Destroy(cloud);
     }
 
     IEnumerator BearTrap(Vector3 position)
     {
-        GameObject trap = MakeCircle("Bear Trap", position, 0.3f, trapColour, 5);
+        GameObject trap = bearTrapPrefab != null ? Place(bearTrapPrefab, position)
+                                                 : MakeCircle("Bear Trap", position, 0.3f, trapColour, 5);
         float until = Time.time + trapLifetime;
+        bool snapped = false;
 
         while (Time.time < until)
         {
@@ -203,16 +237,29 @@ public class ToolEffects : MonoBehaviour
             {
                 AudioManager.Instance?.PlayBearTrapSnap(position);
                 enemy.Stun(trapStunSeconds, false);   // stuck, then carries on (host / solo only)
+                snapped = true;
                 break;
             }
             yield return null;
         }
         Destroy(trap);
+
+        // The closed trap stays while the monster is stuck in it.
+        if (snapped && bearTrapSnappedPrefab != null)
+        {
+            GameObject closed = Place(bearTrapSnappedPrefab, position);
+            yield return new WaitForSeconds(trapStunSeconds);
+            yield return FadeAll(closed, 0.5f);
+            Destroy(closed);
+        }
     }
 
     IEnumerator Flashbang(Vector3 position)
     {
+        GameObject grenade = flashbangPrefab != null ? Place(flashbangPrefab, position) : null;
         yield return new WaitForSeconds(flashFuseSeconds);   // matches the bang sound
+        if (grenade != null) Destroy(grenade);
+        if (flashBurstPrefab != null) Destroy(Place(flashBurstPrefab, position, true), 1f);
 
         EnemyMovement enemy = Enemy;
         if (enemy != null && Vector2.Distance(enemy.transform.position, position) <= flashRadius)
@@ -237,6 +284,48 @@ public class ToolEffects : MonoBehaviour
     }
 
     // ---------- LOOKS ----------
+
+    // Your art, placed on the spot (at the prefab's own size).
+    // overPlayer: smoke and the flash burst cover the player; everything else lies on the floor,
+    // drawn like the items in the maze (above the floor, under the player).
+    static GameObject Place(GameObject prefab, Vector3 position, bool overPlayer = false)
+    {
+        GameObject placed = Instantiate(prefab, new Vector3(position.x, position.y, 0f), Quaternion.identity);
+        SpriteRenderer player = GameObject.Find("Player") != null ? GameObject.Find("Player").GetComponent<SpriteRenderer>() : null;
+        if (player == null)
+            return placed;
+
+        int layer = player.sortingLayerID;
+        int order = overPlayer ? player.sortingOrder + 20 : player.sortingOrder - 1;
+        foreach (SpriteRenderer sprite in placed.GetComponentsInChildren<SpriteRenderer>(true))
+        {
+            sprite.sortingLayerID = layer;
+            sprite.sortingOrder = order + sprite.sortingOrder;   // keeps the prefab's own order between its parts
+        }
+        foreach (ParticleSystemRenderer particles in placed.GetComponentsInChildren<ParticleSystemRenderer>(true))
+        {
+            particles.sortingLayerID = layer;
+            particles.sortingOrder = order + particles.sortingOrder;
+        }
+        return placed;
+    }
+
+    // Fades every sprite in the object (your prefab or the placeholder).
+    static IEnumerator FadeAll(GameObject target, float seconds)
+    {
+        if (target == null) yield break;
+        SpriteRenderer[] sprites = target.GetComponentsInChildren<SpriteRenderer>();
+        var start = new Color[sprites.Length];
+        for (int i = 0; i < sprites.Length; i++) start[i] = sprites[i].color;
+
+        for (float t = 0f; t < seconds && target != null; t += Time.deltaTime)
+        {
+            for (int i = 0; i < sprites.Length; i++)
+                if (sprites[i] != null)
+                    sprites[i].color = new Color(start[i].r, start[i].g, start[i].b, start[i].a * (1f - t / seconds));
+            yield return null;
+        }
+    }
 
     static GameObject MakeCircle(string objectName, Vector3 position, float radius, Color colour, int sortingOrder)
     {
@@ -267,17 +356,6 @@ public class ToolEffects : MonoBehaviour
         texture.Apply();
         circleSprite = Sprite.Create(texture, new Rect(0, 0, size, size), new Vector2(0.5f, 0.5f), size);
         return circleSprite;
-    }
-
-    static IEnumerator Fade(SpriteRenderer sprite, float seconds)
-    {
-        if (sprite == null) yield break;
-        Color start = sprite.color;
-        for (float t = 0f; t < seconds && sprite != null; t += Time.deltaTime)
-        {
-            sprite.color = new Color(start.r, start.g, start.b, start.a * (1f - t / seconds));
-            yield return null;
-        }
     }
 
     IEnumerator ScreenFlash(float strength)

@@ -373,8 +373,17 @@ MonoBehaviour:
   unreachableGiveUpSeconds: 4
   giveUpCooldownSeconds: 10
   retreatDistance: 8
+  heartbeatDistance: 6
+  chaseMusicDistance: 12
   animator: {fileID: 1982973614275421931}
   spriteRenderer: {fileID: 7599178247800592577}
+  hospitalAnimator: {fileID: 0}
+  prisonAnimator: {fileID: 22100000, guid: 4f67a5f74fd221c76d69d66f745df4e2, type: 2}
+  mansionAnimator: {fileID: 22100000, guid: 255990ae2fc554d01cca4f4119b312ae, type: 2}
+  hospitalSprite: {fileID: 0}
+  prisonSprite: {fileID: 0}
+  mansionSprite: {fileID: 0}
+  testLocation: 0
 --- !u!114 &3929210750593020902
 MonoBehaviour:
   m_ObjectHideFlags: 0

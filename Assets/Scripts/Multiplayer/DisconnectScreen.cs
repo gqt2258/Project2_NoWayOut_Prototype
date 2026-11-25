@@ -66,13 +66,43 @@ public class DisconnectScreen : MonoBehaviour
     void Awake()
     {
         Instance = this;
-        if (overlay != null) overlay.SetActive(false);   // pops in and out instantly, no fade
+        // Listen straight away: if Overlay is this same object, hiding it below stops Start from running.
+        Subscribe();
+        connected = Network != null && Network.IsConnectedClient;
+
+        if (overlay == null)
+            Debug.LogWarning("[Disconnect] Overlay is empty on DisconnectScreen, so nothing can show. " +
+                             "Drag the disconnect panel into Overlay.", this);
+        else
+        {
+            if (transform.IsChildOf(overlay.transform))
+                Debug.LogWarning("[Disconnect] DisconnectScreen is on the Overlay panel itself (or inside it). " +
+                                 "Hiding the panel would also stop its timers. Move the component to an object " +
+                                 "that stays on, e.g. the Canvas.", this);
+            overlay.SetActive(false);   // pops in and out instantly, no fade
+        }
+    }
+
+    // Warns in co-op if a scene has no DisconnectScreen, or only a switched-off one (it can't listen then).
+    [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.AfterSceneLoad)]
+    static void WatchScenes()
+    {
+        SceneManager.sceneLoaded += (scene, mode) =>
+        {
+            if (!JobSession.IsCoop || Instance != null)
+                return;
+            DisconnectScreen inactive = FindAnyObjectByType<DisconnectScreen>(FindObjectsInactive.Include);
+            Debug.LogWarning(inactive != null
+                ? $"[Disconnect] The DisconnectScreen in {scene.name} is on a switched-off object, so it never starts. " +
+                  "Put the component on an object that stays on (e.g. the Canvas) and drag the panel into Overlay."
+                : $"[Disconnect] No DisconnectScreen in {scene.name}, so losing the other player shows nothing.");
+        };
     }
 
     void Start()
     {
         Subscribe();
-        connected = Network != null && Network.IsConnectedClient;
+        connected |= Network != null && Network.IsConnectedClient;
 
         // A reconnect that reloaded the Gameplay scene. (The lobby doesn't show it.)
         if (CoopSession.JustReconnected)
@@ -225,6 +255,11 @@ public class DisconnectScreen : MonoBehaviour
 
         state = next;
         AudioManager audio = AudioManager.Instance;
+        if (next != State.Hidden)
+        {
+            Debug.Log($"[Disconnect] Showing: {next}", this);
+            if (overlay != null) overlay.SetActive(true);   // first, so its timers can run
+        }
 
         switch (next)
         {

@@ -20,6 +20,6 @@ MonoBehaviour:
   level: 0
   description: Shows direction of the nearest item.
   price: 90
-  icon: {fileID: 0}
-  prefab: {fileID: 0}
-  material: {fileID: 0}
+  icon: {fileID: 21300000, guid: 559ea626b0385654b989e5b1542357a5, type: 3}
+  look: {fileID: 0}
+  lightColour: {r: 1, g: 1, b: 1, a: 0}

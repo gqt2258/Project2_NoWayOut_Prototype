@@ -20,6 +20,6 @@ MonoBehaviour:
   level: 0
   description: Breaks the monster's line of sight.
   price: 60
-  icon: {fileID: 0}
-  prefab: {fileID: 0}
-  material: {fileID: 0}
+  icon: {fileID: 21300000, guid: 6eb50b2076ba4c740b724f90e3dd04fd, type: 3}
+  look: {fileID: 0}
+  lightColour: {r: 1, g: 1, b: 1, a: 0}

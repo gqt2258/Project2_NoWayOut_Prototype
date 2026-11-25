@@ -20,6 +20,6 @@ MonoBehaviour:
   level: 0
   description: Immobilises the monster for a few seconds.
   price: 80
-  icon: {fileID: 0}
-  prefab: {fileID: 0}
-  material: {fileID: 0}
+  icon: {fileID: 21300000, guid: ef9ba677bc383ce4ea44eaa455333fd9, type: 3}
+  look: {fileID: 0}
+  lightColour: {r: 1, g: 1, b: 1, a: 0}

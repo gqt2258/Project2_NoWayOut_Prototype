@@ -76,7 +76,9 @@
           },
           {
             "name": "AnimatorOverrideController",
-            "scenes": [],
+            "scenes": [
+              "Assets/Scenes/Gameplay.unity"
+            ],
             "dependencyType": 0,
             "icon": null
           },
@@ -538,7 +540,8 @@
           {
             "name": "SpriteRenderer",
             "scenes": [
-              "Assets/Scenes/Gameplay.unity"
+              "Assets/Scenes/Gameplay.unity",
+              "Assets/Scenes/Main Menu.unity"
             ],
             "dependencyType": 0,
             "icon": null
@@ -1216,9 +1219,27 @@
             "icon": null
           },
           {
+            "name": "FixedJoint",
+            "scenes": [],
+            "dependencyType": 0,
+            "icon": null
+          },
+          {
+            "name": "Joint",
+            "scenes": [],
+            "dependencyType": 1,
+            "icon": null
+          },
+          {
             "name": "PhysicsManager",
             "scenes": [],
             "dependencyType": 1,
+            "icon": null
+          },
+          {
+            "name": "Rigidbody",
+            "scenes": [],
+            "dependencyType": 0,
             "icon": null
           },
           {
@@ -1244,6 +1265,12 @@
       {
         "name": "Physics2D",
         "dependencies": [
+          {
+            "name": "AnchoredJoint2D",
+            "scenes": [],
+            "dependencyType": 1,
+            "icon": null
+          },
           {
             "name": "BoxCollider2D",
             "scenes": [
@@ -1274,6 +1301,18 @@
             "name": "EdgeCollider2D",
             "scenes": [],
             "dependencyType": 0,
+            "icon": null
+          },
+          {
+            "name": "FixedJoint2D",
+            "scenes": [],
+            "dependencyType": 0,
+            "icon": null
+          },
+          {
+            "name": "Joint2D",
+            "scenes": [],
+            "dependencyType": 1,
             "icon": null
           },
           {
@@ -1889,7 +1928,9 @@
           },
           {
             "name": "CanvasGroup",
-            "scenes": [],
+            "scenes": [
+              "Assets/Scenes/Main Menu.unity"
+            ],
             "dependencyType": 0,
             "icon": null
           },

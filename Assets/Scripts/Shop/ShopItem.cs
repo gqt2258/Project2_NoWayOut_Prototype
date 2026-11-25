@@ -13,6 +13,8 @@ public class ShopItem : ScriptableObject
     public int level;               // upgrades only, 0 otherwise
     [TextArea] public string description;
     public int price;
+    [Tooltip("Tick to keep this item out of the shop for now (e.g. no art yet). Players who already own it keep it.")]
+    public bool hideInShop;
 
     [Header("Visuals")]
     [Tooltip("The shop picture. Empty on a cosmetic = its Look's first front frame is used.")]

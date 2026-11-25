@@ -1,0 +1,614 @@
+fileFormatVersion: 2
+guid: a7ab321de9aad59c8fce3114dda91454
+TextureImporter:
+  internalIDToNameTable:
+  - first:
+      213: -4519680220487731201
+    second: mansion monster lose sight front_0
+  - first:
+      213: 4241247456761441055
+    second: mansion monster lose sight front_1
+  - first:
+      213: 6494931432742160963
+    second: mansion monster lose sight front_2
+  - first:
+      213: 7320449554773773406
+    second: mansion monster lose sight front_3
+  - first:
+      213: 5126272762348234151
+    second: mansion monster lose sight front_4
+  - first:
+      213: 8471350559703793359
+    second: mansion monster lose sight front_5
+  - first:
+      213: -989490539202879609
+    second: mansion monster lose sight front_6
+  - first:
+      213: -1771001497318296148
+    second: mansion monster lose sight front_7
+  - first:
+      213: -5384485075936145315
+    second: mansion monster lose sight front_8
+  - first:
+      213: -5025616247785803651
+    second: mansion monster lose sight front_9
+  - first:
+      213: -718656184969580640
+    second: mansion monster lose sight front_10
+  - first:
+      213: 6058811147835182460
+    second: mansion monster lose sight front_11
+  - first:
+      213: 851838542079368749
+    second: mansion monster lose sight front_12
+  - first:
+      213: -6074870205551647214
+    second: mansion monster lose sight front_13
+  - first:
+      213: -1811183917143745733
+    second: mansion monster lose sight front_14
+  - first:
+      213: 758492536640060956
+    second: mansion monster lose sight front_15
+  - first:
+      213: -1812911657151271977
+    second: mansion monster lose sight front_16
+  - first:
+      213: -539677539763865833
+    second: mansion monster lose sight front_17
+  - first:
+      213: 8500642787123095847
+    second: mansion monster lose sight front_18
+  - first:
+      213: 1149408286413893978
+    second: mansion monster lose sight front_19
+  - first:
+      213: -5167301353644377107
+    second: mansion monster lose sight front_20
+  - first:
+      213: -1489039134627224981
+    second: mansion monster lose sight front_21
+  - first:
+      213: 8190569633677868833
+    second: mansion monster lose sight front_22
+  - first:
+      213: -8082449133188511462
+    second: mansion monster lose sight front_23
+  - first:
+      213: 8587988960861030758
+    second: mansion monster lose sight front_24
+  - first:
+      213: -6975647955059632879
+    second: mansion monster lose sight front_25
+  - first:
+      213: 3981350808920911125
+    second: mansion monster lose sight front_26
+  - first:
+      213: -5620228971794876904
+    second: mansion monster lose sight front_27
+  - first:
+      213: -2864910193939615543
+    second: mansion monster lose sight front_28
+  - first:
+      213: 5420765487005620897
+    second: mansion monster lose sight front_29
+  - first:
+      213: 1048624416715065666
+    second: mansion monster lose sight front_30
+  - first:
+      213: 9016027313013101541
+    second: mansion monster lose sight front_31
+  - first:
+      213: -8419443607254181770
+    second: mansion monster lose sight front_32
+  - first:
+      213: 1688102640281895493
+    second: mansion monster lose sight front_33
+  - first:
+      213: 152486015400497624
+    second: mansion monster lose sight front_34
+  - first:
+      213: -8935004195122749636
+    second: mansion monster lose sight front_35
+  - first:
+      213: 3391513112599586658
+    second: mansion monster lose sight front_36
+  - first:
+      213: 8047707600614565136
+    second: mansion monster lose sight front_37
+  - first:
+      213: 7994723555001474071
+    second: mansion monster lose sight front_38
+  - first:
+      213: 2717197119141273704
+    second: mansion monster lose sight front_39
+  - first:
+      213: 3647410927858765681
+    second: mansion monster lose sight front_40
+  - first:
+      213: -6915414319157214125
+    second: mansion monster lose sight front_41
+  - first:
+      213: 8560147871682478905
+    second: mansion monster lose sight front_42
+  - first:
+      213: 5298303080841309133
+    second: mansion monster lose sight front_43
+  - first:
+      213: 3230382254708921799
+    second: mansion monster lose sight front_44
+  - first:
+      213: -7441959252480354731
+    second: mansion monster lose sight front_45
+  - first:
+      213: 1426780009102865248
+    second: mansion monster lose sight front_46
+  - first:
+      213: 124784041340124146
+    second: mansion monster lose sight front_47
+  - first:
+      213: 7156530006761293020
+    second: mansion monster lose sight front_48
+  - first:
+      213: 4238732924740974389
+    second: mansion monster lose sight front_49
+  - first:
+      213: -6541941146782278274
+    second: mansion monster lose sight front_50
+  - first:
+      213: -6951747866643546644
+    second: mansion monster lose sight front_51
+  - first:
+      213: 703954563832528072
+    second: mansion monster lose sight front_52
+  - first:
+      213: -213281343825582018
+    second: mansion monster lose sight front_53
+  - first:
+      213: 6047699935683387393
+    second: mansion monster lose sight front_54
+  externalObjects: {}
+  serializedVersion: 13
+  mipmaps:
+    mipMapMode: 0
+    enableMipMap: 0
+    sRGBTexture: 1
+    linearTexture: 0
+    fadeOut: 0
+    borderMipMap: 0
+    mipMapsPreserveCoverage: 0
+    alphaTestReferenceValue: 0.5
+    mipMapFadeDistanceStart: 1
+    mipMapFadeDistanceEnd: 3
+  bumpmap:
+    convertToNormalMap: 0
+    externalNormalMap: 0
+    heightScale: 0.25
+    normalMapFilter: 0
+    flipGreenChannel: 0
+  isReadable: 0
+  streamingMipmaps: 0
+  streamingMipmapsPriority: 0
+  vTOnly: 0
+  ignoreMipmapLimit: 0
+  grayScaleToAlpha: 0
+  generateCubemap: 6
+  cubemapConvolution: 0
+  seamlessCubemap: 0
+  textureFormat: 1
+  maxTextureSize: 2048
+  textureSettings:
+    serializedVersion: 2
+    filterMode: 0
+    aniso: 1
+    mipBias: 0
+    wrapU: 1
+    wrapV: 1
+    wrapW: 1
+  nPOTScale: 0
+  lightmap: 0
+  compressionQuality: 50
+  spriteMode: 2
+  spriteExtrude: 1
+  spriteMeshType: 1
+  alignment: 0
+  spritePivot: {x: 0.5, y: 0.5}
+  spritePixelsToUnits: 16
+  spriteBorder: {x: 0, y: 0, z: 0, w: 0}
+  spriteGenerateFallbackPhysicsShape: 1
+  alphaUsage: 1
+  alphaIsTransparency: 1
+  spriteTessellationMethod: 0
+  spriteTessellationDetail: -1
+  spriteGeometrySubdivision: -1
+  textureType: 8
+  textureShape: 1
+  singleChannelComponent: 0
+  flipbookRows: 1
+  flipbookColumns: 1
+  maxTextureSizeSet: 0
+  compressionQualitySet: 0
+  textureFormatSet: 0
+  ignorePngGamma: 0
+  applyGammaDecoding: 0
+  swizzle: 50462976
+  cookieLightType: 0
+  platformSettings:
+  - serializedVersion: 4
+    buildTarget: DefaultTexturePlatform
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  - serializedVersion: 4
+    buildTarget: Standalone
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  - serializedVersion: 4
+    buildTarget: Android
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  - serializedVersion: 4
+    buildTarget: VisionOS
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  - serializedVersion: 4
+    buildTarget: tvOS
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  - serializedVersion: 4
+    buildTarget: iOS
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  spriteSheet:
+    serializedVersion: 2
+    sprites:
+    - serializedVersion: 2
+      name: mansion monster lose sight front_0
+      rect:
+        serializedVersion: 2
+        x: 0
+        y: 0
+        width: 48
+        height: 60
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 1d9dd592477d989f8e769f6040e355b1
+      internalID: -4519680220487731201
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: mansion monster lose sight front_1
+      rect:
+        serializedVersion: 2
+        x: 48
+        y: 0
+        width: 48
+        height: 60
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: bb52ebcbf4e4ff532da0acd2707ae824
+      internalID: 4241247456761441055
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: mansion monster lose sight front_2
+      rect:
+        serializedVersion: 2
+        x: 96
+        y: 0
+        width: 48
+        height: 60
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 15ca5b253d21f63bf1e6a90bdd8f13cf
+      internalID: 6494931432742160963
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: mansion monster lose sight front_3
+      rect:
+        serializedVersion: 2
+        x: 144
+        y: 0
+        width: 48
+        height: 60
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: e04e5e2ce3f5c1ae2fa8d0beea192e1a
+      internalID: 7320449554773773406
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: mansion monster lose sight front_4
+      rect:
+        serializedVersion: 2
+        x: 192
+        y: 0
+        width: 48
+        height: 60
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: a02f30918f77826d68097af327ddef24
+      internalID: 5126272762348234151
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: mansion monster lose sight front_5
+      rect:
+        serializedVersion: 2
+        x: 240
+        y: 0
+        width: 48
+        height: 60
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: c243e0bf4de17b5e81c9fc000a38726b
+      internalID: 8471350559703793359
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: mansion monster lose sight front_6
+      rect:
+        serializedVersion: 2
+        x: 288
+        y: 0
+        width: 48
+        height: 60
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 42afd8df05182984e1469e29c55642d9
+      internalID: -989490539202879609
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: mansion monster lose sight front_7
+      rect:
+        serializedVersion: 2
+        x: 336
+        y: 0
+        width: 48
+        height: 60
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 7232e8432205b9274a5c8701475b0398
+      internalID: -1771001497318296148
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: mansion monster lose sight front_8
+      rect:
+        serializedVersion: 2
+        x: 384
+        y: 0
+        width: 48
+        height: 60
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 8ac213d5cf229486ec64ef46eb746f3e
+      internalID: -5384485075936145315
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: mansion monster lose sight front_9
+      rect:
+        serializedVersion: 2
+        x: 432
+        y: 0
+        width: 48
+        height: 60
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 68efdccc9d51910ae96917a006bdca5c
+      internalID: -5025616247785803651
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: mansion monster lose sight front_10
+      rect:
+        serializedVersion: 2
+        x: 480
+        y: 0
+        width: 48
+        height: 60
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 27a8b67443a436a46a78eb466caeb293
+      internalID: -718656184969580640
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: mansion monster lose sight front_11
+      rect:
+        serializedVersion: 2
+        x: 528
+        y: 0
+        width: 48
+        height: 60
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 717d92d2aa74a15fd4d80998805ec3d0
+      internalID: 6058811147835182460
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    outline: []
+    customData: 
+    physicsShape: []
+    bones: []
+    spriteID: 20f11b5bc9bd9ba44166f979c9332443
+    internalID: 0
+    vertices: []
+    indices: 
+    edges: []
+    weights: []
+    secondaryTextures: []
+    spriteCustomMetadata:
+      entries:
+      - key: SpriteEditor.SliceSettings
+        value: '{"sliceOnImport":false,"gridCellCount":{"x":12.0,"y":1.0},"gridSpriteSize":{"x":48.0,"y":60.0},"gridSpriteOffset":{"x":0.0,"y":0.0},"gridSpritePadding":{"x":0.0,"y":0.0},"pivot":{"x":0.5,"y":0.5},"pivotPixels":{"x":0.0,"y":0.0},"autoSlicingMethod":0,"spriteAlignment":0,"pivotUnitMode":0,"slicingType":2,"keepEmptyRects":false,"isAlternate":false}'
+    nameFileIdTable:
+      mansion monster lose sight front_0: -4519680220487731201
+      mansion monster lose sight front_1: 4241247456761441055
+      mansion monster lose sight front_10: -718656184969580640
+      mansion monster lose sight front_11: 6058811147835182460
+      mansion monster lose sight front_2: 6494931432742160963
+      mansion monster lose sight front_3: 7320449554773773406
+      mansion monster lose sight front_4: 5126272762348234151
+      mansion monster lose sight front_5: 8471350559703793359
+      mansion monster lose sight front_6: -989490539202879609
+      mansion monster lose sight front_7: -1771001497318296148
+      mansion monster lose sight front_8: -5384485075936145315
+      mansion monster lose sight front_9: -5025616247785803651
+  mipmapLimitGroupName: 
+  pSDRemoveMatte: 0
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 

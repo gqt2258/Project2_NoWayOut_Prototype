@@ -21,6 +21,20 @@ public sealed class JobBoardController : MonoBehaviour
     [SerializeField] private Button acceptButton;   // this is now the Confirm button
     [SerializeField] private string gameplaySceneName = "Gameplay";
 
+    [Header("Card colours (multiplied with the card art)")]
+    [Tooltip("A card you tapped but haven't confirmed yet.")]
+    [SerializeField] private Color selectedColour = new Color(1f, 0.82f, 0.45f);
+    [Tooltip("The job you confirmed (Accepted). The guest sees the host's accepted job in this colour.")]
+    [SerializeField] private Color acceptedColour = new Color(0.6f, 1f, 0.6f);
+
+    [Header("Co-op guest (sees the host's jobs, can't choose)")]
+    [Tooltip("The guest sees this on the Confirm button instead of its normal label.")]
+    [SerializeField] private string guestConfirmLabel = "Host is picking...";
+    [Tooltip("Optional. An extra text object shown only to the guest. NOT the Confirm button.")]
+    [SerializeField] private GameObject guestNotice;
+
+    private string confirmLabel;   // the Confirm button's own label from the scene
+
     private readonly Jobs[] offers = new Jobs[3];
     private Color[] originalCardColors;
     private int selectedIndex = -1;    // card highlighted on the board
@@ -33,9 +47,22 @@ public sealed class JobBoardController : MonoBehaviour
         RefreshConfirmButton();
     }
 
+    private static bool IsGuest => JobSession.IsCoop && NetworkManager.Singleton != null &&
+                                   NetworkManager.Singleton.IsClient && !NetworkManager.Singleton.IsServer;
+
     // Called every time the board opens. Keeps the same jobs until a new game session.
+    // The guest asks the host for its board instead (shown when it arrives).
     public void ShowBoard()
     {
+        if (guestNotice != null && (acceptButton == null || guestNotice != acceptButton.gameObject))
+            guestNotice.SetActive(IsGuest);
+        if (IsGuest)
+        {
+            RefreshConfirmButton();
+            NetworkJobSync.Local?.RequestBoard();
+            return;
+        }
+
         if (!HasAllOffers())
         {
             GenerateBoard();
@@ -49,6 +76,12 @@ public sealed class JobBoardController : MonoBehaviour
 
     public void SelectJob(int index)
     {
+        if (IsGuest)
+        {
+            GameServerLogs.AddError("Only the host can choose the job");   // also plays the error sound
+            return;
+        }
+
         if (index < 0 || index >= offers.Length || offers[index] == null)
             return;
 
@@ -97,7 +130,63 @@ public sealed class JobBoardController : MonoBehaviour
 
         confirmedIndex = selectedIndex;
         JobSession.Select(offers[confirmedIndex]);
+        UpdateCardColors();
+        NetworkJobSync.Local?.ShareBoard();   // the guest's board highlights it too
         return true;
+    }
+
+    // ---------- CO-OP: THE GUEST SEES THE HOST'S BOARD ----------
+
+    // Host: the three jobs and which one is confirmed (no answers in it).
+    public string GetBoardForGuest()
+    {
+        if (!HasAllOffers())
+            GenerateBoard();   // the guest looked before the host opened the board
+
+        var board = new SharedBoardData { confirmed = confirmedIndex, jobs = new SharedJobData[offers.Length] };
+        for (int i = 0; i < offers.Length; i++)
+        {
+            if (offers[i] == null) continue;
+            SharedJobData job = new SharedJobData(offers[i]);
+            job.correctItemId = null;   // the guest only needs what's on the cards
+            job.clue = null;
+            job.seed = 0;
+            board.jobs[i] = job;
+        }
+        return JsonUtility.ToJson(board);
+    }
+
+    // Guest: shows the host's board. Cards can't be picked; the host's confirmed job is highlighted.
+    public void ShowHostBoard(string json)
+    {
+        if (!IsGuest)
+            return;
+
+        SharedBoardData board = JsonUtility.FromJson<SharedBoardData>(json);
+        if (board == null || board.jobs == null)
+            return;
+
+        for (int i = 0; i < jobPanels.Length && i < board.jobs.Length; i++)
+        {
+            SharedJobData job = board.jobs[i];
+            if (jobPanels[i] != null) jobPanels[i].SetActive(job != null && !string.IsNullOrEmpty(job.title));
+            if (job == null) continue;
+            SetCardText(titleTexts, i, job.title);
+            SetCardText(locationTexts, i, job.location.ToString());
+            SetCardText(difficultyTexts, i, job.tier.ToString());
+            SetCardText(storyTexts, i, job.story);
+            SetCardText(rewardTexts, i, $"{job.rewardCoins} Coins");
+        }
+
+        selectedIndex = confirmedIndex = board.confirmed;   // highlight the host's accepted job
+        UpdateCardColors();
+        RefreshConfirmButton();
+    }
+
+    private static void SetCardText(TMP_Text[] texts, int index, string text)
+    {
+        if (texts != null && index < texts.Length && texts[index] != null)
+            texts[index].text = text;
     }
 
     public bool UseHostJob(SharedJobData data)
@@ -214,8 +303,17 @@ public sealed class JobBoardController : MonoBehaviour
     {
         if (acceptButton != null)
         {
-            acceptButton.interactable = selectedIndex >= 0;
-            DisabledButtonFeedback.SetMessage(acceptButton, "Pick a job first");
+            bool guest = IsGuest;
+            acceptButton.gameObject.SetActive(true);
+            acceptButton.interactable = !guest && selectedIndex >= 0;
+
+            TMP_Text label = acceptButton.GetComponentInChildren<TMP_Text>(true);
+            if (label != null)
+            {
+                if (confirmLabel == null) confirmLabel = label.text;
+                label.text = guest ? guestConfirmLabel : confirmLabel;
+            }
+            DisabledButtonFeedback.SetMessage(acceptButton, guest ? "Only the host can choose the job" : "Pick a job first");
         }
     }
 
@@ -300,9 +398,17 @@ public sealed class JobBoardController : MonoBehaviour
         {
             Image panelImage = jobPanels[i] != null ? jobPanels[i].GetComponent<Image>() : null;
             if (panelImage != null)
-                panelImage.color = i == selectedIndex
-                    ? Color.Lerp(originalCardColors[i], Color.white, 0.5f)
-                    : originalCardColors[i];
+                panelImage.color = i == confirmedIndex && i == selectedIndex ? acceptedColour
+                                 : i == selectedIndex ? selectedColour
+                                 : originalCardColors[i];
         }
     }
+}
+
+// The host's job board, sent to the guest to look at.
+[System.Serializable]
+public sealed class SharedBoardData
+{
+    public SharedJobData[] jobs;
+    public int confirmed = -1;
 }

@@ -13,13 +13,13 @@ MonoBehaviour:
   m_Name: eq_freezegun
   m_EditorClassIdentifier: Assembly-CSharp::ShopItem
   itemId: eq_freezegun
-  displayName: Freeze Gun
+  displayName: Ice Bomb
   shop: 0
   category: Wall Tools
   upgradeLine: 
   level: 0
-  description: Locks a wall for a few seconds.
+  description: Freezes walls near you for few seconds.
   price: 50
-  icon: {fileID: 0}
-  prefab: {fileID: 0}
-  material: {fileID: 0}
+  icon: {fileID: 21300000, guid: dc00c875ddf41a6418ea68e07fc26c29, type: 3}
+  look: {fileID: 0}
+  lightColour: {r: 1, g: 1, b: 1, a: 0}

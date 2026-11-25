@@ -20,6 +20,6 @@ MonoBehaviour:
   level: 2
   description: +10% movement speed
   price: 700
-  icon: {fileID: 0}
-  prefab: {fileID: 0}
-  material: {fileID: 0}
+  icon: {fileID: 21300000, guid: 7bc6c02bce046274fa1496b02bdc3209, type: 3}
+  look: {fileID: 0}
+  lightColour: {r: 1, g: 1, b: 1, a: 0}

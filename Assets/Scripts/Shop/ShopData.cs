@@ -21,8 +21,13 @@ public class ShopData : ScriptableObject
         slot == CosmeticSlot.Shirt ? starterShirt :
         slot == CosmeticSlot.FlashlightSkin ? starterFlashlight : null;
 
+    [Tooltip("Hats, shirts and flashlight skins with no Look yet stay out of the shop until they have art.")]
+    public bool hideCosmeticsWithoutArt = true;
+
+    // What the shop shows: skips items ticked Hide In Shop, and cosmetics that have no art yet.
     public IEnumerable<ShopItem> GetByShop(ShopType shop) =>
-        items.Where(i => i.shop == shop);
+        items.Where(i => i != null && i.shop == shop && !i.hideInShop &&
+                         !(hideCosmeticsWithoutArt && shop == ShopType.Cosmetics && i.look == null));
 
     // Pass null or "All" for the "no filter" case.
     public IEnumerable<ShopItem> GetFiltered(ShopType shop, string category)

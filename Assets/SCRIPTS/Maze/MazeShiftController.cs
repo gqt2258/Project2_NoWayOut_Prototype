@@ -55,6 +55,13 @@ namespace NoWayOut.Maze
         [SerializeField, Min(0f)] private float warningLeadSeconds = 5f;
         [SerializeField] private string warningMessage = "WARNING!! Walls shifting in";
 
+        [Header("Grid Scanner marks")]
+        [Tooltip("How see-through the red / green marks are. They pulse between these two. 0 = invisible, 1 = solid.")]
+        [SerializeField, Range(0f, 1f)] private float scannerAlphaMin = 0.2f;
+        [SerializeField, Range(0f, 1f)] private float scannerAlphaMax = 0.45f;
+        [Tooltip("Optional. Empty = Sprite-Unlit-Default, so the colour shows at full strength and isn't darkened by the 2D lights.")]
+        [SerializeField] private Material scannerMaterial;
+
         private MazeCell[] maze;
         private GameObject[,] horizontalWalls;
         private GameObject[,] verticalWalls;
@@ -412,6 +419,10 @@ namespace NoWayOut.Maze
             if (!CanChooseShift() || !initialized || navMeshUpdateRunning || warningRoutineRunning)
                 return;
 
+            if (!NextPlanStillGood())
+                PlanNextShift();
+            ShareScannerPlan(currentPlan);   // again, in case the guest missed it; arrives before the warning below
+
             if (JobSession.IsCoop && NetworkManager.Singleton.LocalClient.PlayerObject != null)
                 NetworkManager.Singleton.LocalClient.PlayerObject.GetComponent<NetworkJobSync>()?.WarnOtherPlayers();
             StartCoroutine(ShowWarningThenShift());
@@ -426,6 +437,7 @@ namespace NoWayOut.Maze
         private IEnumerator RemoteWarning()
         {
             warningRoutineRunning = true;
+            int planStampAtStart = planStamp;
             if (shiftWarningText != null)
                 shiftWarningText.gameObject.SetActive(true);
             if (AudioManager.Instance != null)
@@ -438,7 +450,11 @@ namespace NoWayOut.Maze
                 yield return new WaitForSeconds(1f);
             }
 
-            EndScannerShift();
+            // A plan that came during the countdown is already the next shift's: keep it.
+            if (planStamp == planStampAtStart)
+                EndScannerShift();
+            else
+                UseUpScanner();
             HideShiftWarning();
             warningRoutineRunning = false;
         }
@@ -447,12 +463,13 @@ namespace NoWayOut.Maze
         {
             warningRoutineRunning = true;
 
-            // Decide the shift now, so the Grid Scanner can show it during the countdown.
-            int planVersion = mazeVersion;
-            bool hasPlan = PlanShiftBatch(rewiresPerBatch, out MazeCell[] plannedMaze, out HashSet<int> plannedEdges);
-            currentPlan = hasPlan ? plannedEdges : null;
-            ShareScannerPlan(currentPlan);
-            ShowScannerMarkers();
+            // The shift was already decided right after the last one (see PlanNextShift).
+            if (!NextPlanStillGood())
+                PlanNextShift();
+            int planVersion = nextPlanVersion;
+            MazeCell[] plannedMaze = nextPlannedMaze;
+            HashSet<int> plannedEdges = currentPlan;
+            bool hasPlan = plannedMaze != null && plannedEdges != null;
 
             if (shiftWarningText != null)
                 shiftWarningText.gameObject.SetActive(true);
@@ -1054,6 +1071,64 @@ namespace NoWayOut.Maze
         private int scannerRadiusCells = 4;
         private readonly List<GameObject> scannerMarkers = new List<GameObject>();
         private static Sprite whiteSprite;
+        private MazeCell[] nextPlannedMaze;        // host: the maze after the next shift, decided early
+        private int nextPlanVersion = -1;          // mazeVersion when it was decided
+        private int planStamp;                     // guest: +1 for each plan the host sends
+        private float nextPlanCheck;
+        private int scannerShownForCell = -2;      // the player's cell when the marks were last drawn
+        private bool pulseRunning;
+
+        // Host / solo: keeps the next shift decided from right after the last one, so the
+        // Grid Scanner can show it straight away. Checked twice a second: if a tool changed the
+        // walls, or a player walked next to a planned wall, a new safe plan is made.
+        // Also redraws the scanner marks when the player walks into another cell.
+        private void Update()
+        {
+            if (!initialized)
+                return;
+
+            if (scannerArmed && player != null && CellAt(player.position) != scannerShownForCell)
+                ShowScannerMarkers();
+
+            if (!CanChooseShift() || warningRoutineRunning || Time.time < nextPlanCheck)
+                return;
+            nextPlanCheck = Time.time + 0.5f;
+
+            if (!NextPlanStillGood())
+                PlanNextShift();
+        }
+
+        private bool NextPlanStillGood()
+        {
+            return nextPlannedMaze != null && currentPlan != null && nextPlanVersion == mazeVersion &&
+                   PlanStillSafe(nextPlannedMaze, currentPlan);
+        }
+
+        private void PlanNextShift()
+        {
+            if (navMeshUpdateRunning)
+                return;   // the last shift is still settling: try again in a moment
+
+            HashSet<int> old = currentPlan;
+            if (PlanShiftBatch(rewiresPerBatch, out MazeCell[] planned, out HashSet<int> edges))
+            {
+                nextPlannedMaze = planned;
+                nextPlanVersion = mazeVersion;
+                currentPlan = edges;
+            }
+            else
+            {
+                nextPlannedMaze = null;
+                currentPlan = null;
+            }
+
+            bool changed = old == null ? currentPlan != null : currentPlan == null || !old.SetEquals(currentPlan);
+            if (changed)
+            {
+                ShareScannerPlan(currentPlan);
+                ShowScannerMarkers();
+            }
+        }
 
         private int HorizontalEdgeCount => rows * (columns - 1);
 
@@ -1196,12 +1271,13 @@ namespace NoWayOut.Maze
         {
             scannerArmed = true;
             scannerRadiusCells = Mathf.Max(1, radiusCells);
-            ShowScannerMarkers();   // a warning is already counting down: show it now
+            ShowScannerMarkers();   // the next shift is already decided: show it now
         }
 
         // Co-op guest: the host sends what the coming shift will change.
         public void ReceiveScannerPlan(string edges)
         {
+            planStamp++;
             currentPlan = new HashSet<int>();
             foreach (string part in (edges ?? "").Split(','))
                 if (int.TryParse(part, out int edge)) currentPlan.Add(edge);
@@ -1225,6 +1301,7 @@ namespace NoWayOut.Maze
                 return;
 
             int playerCell = CellAt(player.position);
+            scannerShownForCell = playerCell;
             int playerRow = playerCell >= 0 ? playerCell / columns : 0, playerColumn = playerCell >= 0 ? playerCell % columns : 0;
 
             foreach (int edge in currentPlan)
@@ -1240,50 +1317,101 @@ namespace NoWayOut.Maze
                     continue;   // too far for the scanner
 
                 bool appears = !(wallTargets.TryGetValue(wall, out bool shown) ? shown : wall.activeSelf);
-                scannerMarkers.Add(MakeMarker(wall.transform.position, horizontal, appears));
+                scannerMarkers.Add(MakeMarker(wall, appears));
             }
 
-            if (scannerMarkers.Count > 0)
+            if (scannerMarkers.Count > 0 && !pulseRunning)
                 StartCoroutine(PulseMarkers());
         }
 
-        private GameObject MakeMarker(Vector3 position, bool horizontalEdge, bool appears)
+        // A see-through copy of the wall's own art, so the mark covers the whole wall (like the Freeze Gun).
+        //   Green over a wall that will disappear. Red where a hidden wall will appear.
+        private GameObject MakeMarker(GameObject wall, bool appears)
         {
-            if (whiteSprite == null)
+            Color colour = appears ? new Color(1f, 0.2f, 0.2f, 0.6f) : new Color(0.2f, 1f, 0.3f, 0.6f);
+            var marker = new GameObject(appears ? "Scanner: wall appears" : "Scanner: wall disappears");
+
+            foreach (SpriteRenderer art in wall.GetComponentsInChildren<SpriteRenderer>(true))
             {
-                Texture2D texture = Texture2D.whiteTexture;
-                whiteSprite = Sprite.Create(texture, new Rect(0, 0, texture.width, texture.height), new Vector2(0.5f, 0.5f), texture.width);
+                if (art.sprite == null || art.gameObject.name == "NavMesh Footprint")
+                    continue;
+
+                // Where the art sits when the wall is up (a hidden wall's art may be sunk for its animation).
+                Vector3 position = artStartPositions.TryGetValue(art.transform, out Vector3 start) && art.transform.parent != null
+                    ? art.transform.parent.TransformPoint(start)
+                    : art.transform.position;
+
+                var copy = new GameObject(art.name);
+                copy.transform.SetParent(marker.transform, false);
+                copy.transform.SetPositionAndRotation(position, art.transform.rotation);
+                copy.transform.localScale = art.transform.lossyScale;
+
+                SpriteRenderer ghost = copy.AddComponent<SpriteRenderer>();
+                ghost.sprite = artStartSprites.TryGetValue(art, out Sprite fullSprite) && fullSprite != null ? fullSprite : art.sprite;   // the standing wall, not a shrink frame
+                ghost.sharedMaterial = ScannerMaterial(art);
+                ghost.flipX = art.flipX;
+                ghost.flipY = art.flipY;
+                ghost.drawMode = art.drawMode;
+                if (art.drawMode != SpriteDrawMode.Simple) ghost.size = art.size;
+                ghost.sortingLayerID = art.sortingLayerID;
+                ghost.sortingOrder = art.sortingOrder + 1;   // on top of the wall art
+                ghost.color = colour;
             }
 
-            // A wall between two columns stands upright; one between two rows lies flat.
-            Vector3 scale = horizontalEdge
-                ? new Vector3(0.35f, Mathf.Abs(cellSpacing.y * wallRoot.lossyScale.y), 1f)
-                : new Vector3(Mathf.Abs(cellSpacing.x * wallRoot.lossyScale.x), 0.35f, 1f);
-
-            var marker = new GameObject(appears ? "Scanner: wall appears" : "Scanner: wall disappears");
-            marker.transform.position = new Vector3(position.x, position.y, 0f);
-            marker.transform.localScale = scale;
-            SpriteRenderer sprite = marker.AddComponent<SpriteRenderer>();
-            sprite.sprite = whiteSprite;
-            sprite.color = appears ? new Color(1f, 0.2f, 0.2f, 0.6f) : new Color(0.2f, 1f, 0.3f, 0.6f);
-            sprite.sortingOrder = 100;
+            // A wall with no art: fall back to a plain bar the size of the wall.
+            if (marker.transform.childCount == 0)
+            {
+                if (whiteSprite == null)
+                {
+                    Texture2D texture = Texture2D.whiteTexture;
+                    whiteSprite = Sprite.Create(texture, new Rect(0, 0, texture.width, texture.height), new Vector2(0.5f, 0.5f), texture.width);
+                }
+                int edge = -1;
+                foreach (int e in currentPlan) if (EdgeToWall(e) == wall) { edge = e; break; }
+                bool horizontal = edge >= 0 && edge < HorizontalEdgeCount;
+                marker.transform.position = new Vector3(wall.transform.position.x, wall.transform.position.y, 0f);
+                marker.transform.localScale = horizontal
+                    ? new Vector3(0.35f, Mathf.Abs(cellSpacing.y * wallRoot.lossyScale.y), 1f)
+                    : new Vector3(Mathf.Abs(cellSpacing.x * wallRoot.lossyScale.x), 0.35f, 1f);
+                SpriteRenderer bar = marker.AddComponent<SpriteRenderer>();
+                bar.sprite = whiteSprite;
+                bar.color = colour;
+                bar.sharedMaterial = ScannerMaterial(null);
+                bar.sortingOrder = 100;
+            }
             return marker;
+        }
+
+        // Unlit, so the 2D lights don't turn the red / green almost black.
+        private Material ScannerMaterial(SpriteRenderer art)
+        {
+            if (scannerMaterial == null)
+            {
+                Shader unlit = Shader.Find("Universal Render Pipeline/2D/Sprite-Unlit-Default");
+                if (unlit != null) scannerMaterial = new Material(unlit) { name = "Scanner Marks (Unlit)" };
+            }
+            if (scannerMaterial != null) return scannerMaterial;
+            return art != null ? art.sharedMaterial : null;
         }
 
         private IEnumerator PulseMarkers()
         {
+            pulseRunning = true;
             while (scannerMarkers.Count > 0)
             {
-                float alpha = 0.35f + 0.3f * Mathf.Sin(Time.time * 6f);
+                float alpha = Mathf.Lerp(scannerAlphaMin, scannerAlphaMax, 0.5f + 0.5f * Mathf.Sin(Time.time * 6f));
                 foreach (GameObject marker in scannerMarkers)
                 {
                     if (marker == null) continue;
-                    SpriteRenderer sprite = marker.GetComponent<SpriteRenderer>();
-                    Color c = sprite.color;
-                    sprite.color = new Color(c.r, c.g, c.b, alpha);
+                    foreach (SpriteRenderer sprite in marker.GetComponentsInChildren<SpriteRenderer>())
+                    {
+                        Color c = sprite.color;
+                        sprite.color = new Color(c.r, c.g, c.b, alpha);
+                    }
                 }
                 yield return null;
             }
+            pulseRunning = false;
         }
 
         private void ClearScannerMarkers()
@@ -1297,7 +1425,14 @@ namespace NoWayOut.Maze
         private void EndScannerShift()
         {
             currentPlan = null;
+            nextPlannedMaze = null;   // the next shift gets decided straight after (Update)
+            UseUpScanner();
+        }
+
+        private void UseUpScanner()
+        {
             scannerArmed = false;
+            scannerShownForCell = -2;
             ClearScannerMarkers();
         }
 

@@ -163,6 +163,11 @@ public class AudioManager : MonoBehaviour
     [Header("Footsteps")]
     [Tooltip("Running plays the walk sound faster. 1 = same speed, 1.3 = 30% faster.")]
     [Range(1f, 2f)] public float runSpeed = 1.3f;
+    [Tooltip("Volume of the player's walking and running (yours and your partner's). 1 = full. Can be changed while playing.")]
+    [Range(0f, 1f)] public float footstepVolume = 0.6f;
+    [Header("Revive")]
+    [Tooltip("How fast the revive sound plays. 1 = normal, 1.5 = 50% faster (and a bit higher).")]
+    [Range(0.5f, 2f)] public float reviveSoundSpeed = 1.2f;
     [Header("Monster")]
     [Tooltip("Volume of all the monster's sounds (walk loop, scream, slash, hurt). 1 = full.")]
     [Range(0f, 1f)] public float monsterVolume = 0.5f;
@@ -667,7 +672,7 @@ public class AudioManager : MonoBehaviour
             case PlayerSound.Deposit: PlaySFXAt(Player.Deposit, position, distance); break;
             case PlayerSound.Hurt: PlayRandomSFXAt(Player.HurtVariations, position, null, distance); break;
             case PlayerSound.Die: PlaySFXAt(Player.Die, position, distance); break;
-            case PlayerSound.Revive: PlaySFXAt(Player.Revive, position, distance); break;
+            case PlayerSound.Revive: PlayRevive(true, position, distance); break;
             case PlayerSound.Panting: PlaySFXAt(Player.Panting, position, distance); break;
         }
     }
@@ -682,6 +687,15 @@ public class AudioManager : MonoBehaviour
     public void PlayNoiseMakerVoice(Vector3 position)
     {
         PlayRandomSFXAt(Tools.NoiseMakerVoices, position);
+    }
+
+    // ---------- REVIVE ----------
+
+    // The revive sound at Revive Sound Speed. 2D for this player, 3D for the partner's.
+    public void PlayRevive(bool spatial = false, Vector3 position = default, float audibleDistance = -1f)
+    {
+        AudioSource voice = PlayVoice(Player.Revive, spatial, position, 1f, Distance(audibleDistance), false);
+        if (voice != null) voice.pitch = reviveSoundSpeed;
     }
 
     // ---------- PLAYER FOOTSTEPS ----------
@@ -700,12 +714,12 @@ public class AudioManager : MonoBehaviour
         if (clip == null) return;
 
         source.pitch = running ? runSpeed : 1f;
+        source.volume = sfxVolume * footstepVolume;   // every frame, so changing it takes effect straight away
 
         if (source.clip != clip)
         {
             source.clip = clip;
             source.loop = true;
-            source.volume = sfxVolume;
             source.Play();
         }
         else if (!source.isPlaying)

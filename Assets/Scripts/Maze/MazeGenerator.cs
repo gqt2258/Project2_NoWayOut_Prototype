@@ -291,7 +291,7 @@ namespace NoWayOut.Maze
 
                 if (item.TryGetComponent(out SpriteRenderer sprite))
                 {
-                    sprite.color = itemIndex == correctIndex ? Color.green : Color.white;
+                    sprite.color = Color.white;
                     if (wallRenderer != null)
                     {
                         sprite.sortingLayerID = wallRenderer.sortingLayerID;
@@ -333,8 +333,7 @@ namespace NoWayOut.Maze
             item.AddComponent<CircleCollider2D>().isTrigger = true;
             MatchWallSorting(item);
             if (item.TryGetComponent(out SpriteRenderer sprite))
-                sprite.color = JobSession.SelectedJob != null && itemId == JobSession.SelectedJob.CorrectItemId
-                             ? Color.green : Color.white;
+                sprite.color = Color.white;
         }
 
         // Drops a hotbar tool on the floor, shown with its shop icon.

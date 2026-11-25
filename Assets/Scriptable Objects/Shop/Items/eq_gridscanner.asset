@@ -18,8 +18,8 @@ MonoBehaviour:
   category: Wall Tools
   upgradeLine: 
   level: 0
-  description: Reveals nearby walls for the next shift.
+  description: Red walls appear, green vanish. Lasts one shift.
   price: 60
   icon: {fileID: 0}
-  prefab: {fileID: 0}
-  material: {fileID: 0}
+  look: {fileID: 0}
+  lightColour: {r: 1, g: 1, b: 1, a: 0}

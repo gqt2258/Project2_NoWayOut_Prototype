@@ -17,6 +17,10 @@ public class PlayerHealth : MonoBehaviour
     [SerializeField] private Slider reviveBar;
     [Tooltip("How far apart dropped items are scattered, in units.")]
     [SerializeField, Min(0f)] private float dropScatter = 0.4f;
+    [Tooltip("Revive: how long the player fades out where they went down.")]
+    [SerializeField, Min(0f)] private float reviveFadeOutSeconds = 0.5f;
+    [Tooltip("Revive: how long the player fades back in at the safe base.")]
+    [SerializeField, Min(0f)] private float reviveFadeInSeconds = 0.5f;
 
     private int currentHealth;
     private int revivesLeft;
@@ -88,12 +92,46 @@ public class PlayerHealth : MonoBehaviour
         RefreshReviveBar();
 
         DropEverything();
-        Respawn();
 
-        if (AudioManager.Instance != null)
-            AudioManager.Instance.PlaySFX(AudioManager.Instance.Player.Revive);
+        AudioManager.Instance?.PlayRevive();
         NetworkJobSync.ShareSound(PlayerSound.Revive);
+        StartCoroutine(ReviveSequence());
+    }
+
+    // Fades out where they went down, moves to the safe base, fades back in.
+    // Can't move or be hurt until it's done.
+    private IEnumerator ReviveSequence()
+    {
+        isInvulnerable = true;
+        PlayerMovement movement = GetComponent<PlayerMovement>();
+        if (movement != null) movement.enabled = false;   // also stops the footsteps
+        if (body != null) body.linearVelocity = Vector2.zero;
+
+        // The body's colour (the cosmetic layers copy it, so they fade too).
+        SpriteRenderer bodySprite = GetComponent<SpriteRenderer>();
+        if (bodySprite == null) bodySprite = GetComponentInChildren<SpriteRenderer>();
+        Color colour = bodySprite != null ? bodySprite.color : Color.white;
+
+        yield return Fade(bodySprite, colour, 1f, 0f, reviveFadeOutSeconds);
+        Respawn(false);
+        yield return Fade(bodySprite, colour, 0f, 1f, reviveFadeInSeconds);
+
+        if (bodySprite != null) bodySprite.color = colour;
+        if (movement != null) movement.enabled = true;
+        isInvulnerable = false;
+        StartCoroutine(FlashAndIgnoreEnemy(null));   // a moment of safety after respawning
         Debug.Log($"Player revived at the safe base. Revives left: {revivesLeft}.", this);
+    }
+
+    private static IEnumerator Fade(SpriteRenderer sprite, Color colour, float from, float to, float seconds)
+    {
+        if (sprite == null) yield break;
+        for (float t = 0f; t < seconds; t += Time.deltaTime)
+        {
+            sprite.color = new Color(colour.r, colour.g, colour.b, colour.a * Mathf.Lerp(from, to, t / seconds));
+            yield return null;
+        }
+        sprite.color = new Color(colour.r, colour.g, colour.b, colour.a * to);
     }
 
     // Leaves the carried job items and hotbar tools where the player went down.
@@ -128,7 +166,7 @@ public class PlayerHealth : MonoBehaviour
         return new Vector3(point.x + offset.x, point.y + offset.y, point.z);
     }
 
-    private void Respawn()
+    private void Respawn(bool flash = true)
     {
         if (spawnPoint == null)
         {
@@ -154,7 +192,8 @@ public class PlayerHealth : MonoBehaviour
 
         currentHealth = playerStat.playerMaxHealth;
         healthBar.SetHealth(currentHealth);
-        StartCoroutine(FlashAndIgnoreEnemy(null));   // a moment of safety after respawning
+        if (flash)
+            StartCoroutine(FlashAndIgnoreEnemy(null));   // a moment of safety after respawning
     }
 
     private void FailJob()

@@ -601,11 +601,17 @@ MonoBehaviour:
     MonsterScream: {fileID: 8300000, guid: 22c74a123a9ad0c4cbf6cbec7c9daff6, type: 3}
     MonsterHurt: {fileID: 8300000, guid: 3b142f5e810f53148837be8865b4a599, type: 3}
   runSpeed: 2
+  footstepVolume: 0.2
+  reviveSoundSpeed: 1
   monsterVolume: 0.5
   monsterHearingDistance: 8
   monsterChaseSpeed: 1.5
   UI:
-    DefaultClicks: []
+    DefaultClicks:
+    - {fileID: 8300000, guid: 404160d515e368946a6795d75ae6a7a0, type: 3}
+    - {fileID: 8300000, guid: 6b760b8f2eb43404997891e7ed14f0ae, type: 3}
+    - {fileID: 8300000, guid: aa94d9570aa7d9c4898fdad80d427880, type: 3}
+    - {fileID: 8300000, guid: d06610e5756d8f9438ae3f0e998871e9, type: 3}
     ErrorClick: {fileID: 8300000, guid: 1bf5ecbd8558e9148894a16d74bd9569, type: 3}
     BackClick: {fileID: 8300000, guid: ba58074ad7abf3242a2ba2f9ca1d4387, type: 3}
     ToggleOn: {fileID: 8300000, guid: 193e40ba9b73aa14bba3dd978486c293, type: 3}
@@ -628,7 +634,10 @@ MonoBehaviour:
     CaseFileOff: {fileID: 8300000, guid: a480497f4589b8749bd7806f2f6cf7c7, type: 3}
     CoinGain: {fileID: 8300000, guid: e3e82f517e239e343b0cb6024c39820e, type: 3}
   Player:
-    HurtVariations: []
+    HurtVariations:
+    - {fileID: 8300000, guid: 39a6f0aed623df5488e69272398c702b, type: 3}
+    - {fileID: 8300000, guid: fcb921b52fa0b2842b35580c9341b0c7, type: 3}
+    - {fileID: 8300000, guid: 3b292204996675a48baa66baea8436a1, type: 3}
     Die: {fileID: 8300000, guid: 9c10f92e20a670c44bcd83c520ab0f71, type: 3}
     Panting: {fileID: 8300000, guid: 9ca824a4f0941b5428c3e7d74f543347, type: 3}
     HeartBeat: {fileID: 8300000, guid: e6d41d0e0d5f2774aba7e4f7dd969dcd, type: 3}
